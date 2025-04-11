@@ -1,6 +1,7 @@
 from typing import Dict
 
 
+
 class Cell:
     def __init__(self, address: str, value: str, formula: str):
         self.address: str = address
@@ -24,8 +25,13 @@ class Workbook:
     def __init__(self):
         super().__init__()
         self.worksheets: Dict[str, Worksheet] = {}
-        self.precedent_graph: dict[str, list[Cell]]
-        self.dependent_graph: dict[str, list[Cell]]
+        self.cell_dependencies: CellDependencies = CellDependencies()
 
     def __repr__(self):
         return f"<SpreadsheetWorkbook: {len(self.worksheets)} sheet(s)>"
+
+
+class CellDependencies:
+    def __init__(self):
+        self.precedents: dict[CellAddress, set[CellAddress]] = {}
+        self.dependents: dict[CellAddress, set[CellAddress]] = {}
