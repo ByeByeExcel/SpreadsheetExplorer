@@ -29,7 +29,7 @@ class WorkbookClickWatcher:
             time.sleep(0.5)
             new_selection = get_cell_address_from_xlwings(self.connected_workbook.selection)
 
-            if new_selection != previous_selection and new_selection.workbook == self.connected_workbook.name:
+            if new_selection != previous_selection and new_selection.workbook == self.connected_workbook.name.lower():
                 if self._listener:
                     self._listener(previous_selection, new_selection)
 
