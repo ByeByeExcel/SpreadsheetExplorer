@@ -1,18 +1,20 @@
 import tkinter as tk
 from tkinter import messagebox
 
+
 class FunctionButtonSection:
-    def __init__(self, master, output, pack=True):
+    def __init__(self, master, output, controller, pack=True):
         self.output = output
+        self.controller = controller
         self.frame = tk.Frame(master, padx=20)
         if pack:
             self.pack()
 
         # Function 1
         self.btn_func1 = tk.Button(self.frame, text="Function 1", width=20, height=1,
-                                   state=tk.DISABLED, command=lambda: self.output.write("[Function 1] Coming soon..."))
+                                   state=tk.DISABLED, command=self.run_highlight_dependents)
         self.btn_func1.grid(row=0, column=0, sticky="w", pady=4)
-        tk.Button(self.frame, text="?", width=2, command=lambda: self.show_help("Function 1", "This function will later summarize your data.")).grid(row=0, column=1)
+        tk.Button(self.frame, text="?", width=2, command=lambda: self.show_help("Function 1", "This function highlights dependents and precedents.")).grid(row=0, column=1)
 
         # Function 2 with input
         self.func2_input_var = tk.StringVar()
@@ -44,6 +46,13 @@ class FunctionButtonSection:
             self.output.write(f"[Function 2] Received input: {value}")
         else:
             self.output.write("[Function 2] No input entered.")
+
+    def run_highlight_dependents(self):
+        try:
+            self.controller.highlight_dependents_precedents()
+            self.output.write("[Function 1] Highlighted dependents and precedents.")
+        except Exception as e:
+            self.output.write(f"[ERROR] Function 1 failed: {e}")
 
     def show_help(self, title, description):
         messagebox.showinfo(title, description)
