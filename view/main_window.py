@@ -1,12 +1,8 @@
-import tkinter as tk
-
+from view.main_view import MainView
+from controller.controller import Controller
+from model.services.active_workbook_service import ActiveWorkbookService
 
 def run_view():
-    root = tk.Tk()
-    root.title("Excel Summary Tool")
-
-    tk.Button(root, text="Load Excel File").pack(pady=10)
-    output_label = tk.Label(root, text="", font=("Arial", 12))
-    output_label.pack(pady=10)
-
-    root.mainloop()
+    controller = Controller(ActiveWorkbookService())
+    app = MainView(controller)
+    app.run()
