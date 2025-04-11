@@ -1,5 +1,4 @@
-from typing import Dict
-
+from model.models.spreadsheet.cell_address import CellAddress
 
 
 class Cell:
@@ -13,7 +12,7 @@ class Cell:
 
 
 class Worksheet:
-    def __init__(self, name: str, cells: Dict[str, Cell]):
+    def __init__(self, name: str, cells: dict[str, Cell]):
         self.name: str = name
         self.cells: dict[str, Cell] = cells
 
@@ -24,7 +23,7 @@ class Worksheet:
 class Workbook:
     def __init__(self):
         super().__init__()
-        self.worksheets: Dict[str, Worksheet] = {}
+        self.worksheets: dict[str, Worksheet] = {}
         self.cell_dependencies: CellDependencies = CellDependencies()
 
     def __repr__(self):

@@ -35,7 +35,8 @@ class WorkbookClickWatcher:
 
                 previous_selection = new_selection
 
-        self._listener(previous_selection, None)
+        if self._listener:
+            self._listener(previous_selection, None)
 
 
 def get_cell_address_from_xlwings(cell: xlwings.Range) -> CellAddress:

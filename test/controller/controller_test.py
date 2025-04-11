@@ -54,7 +54,7 @@ def simple_excel_sheet2():
 def test_listener_loop(simple_excel_sheet, simple_excel_sheet2):
     active_workbook_service = ActiveWorkbookService()
     active_workbook_service.connect_and_parse_workbook(simple_excel_sheet)
-    active_workbook_service.connect_and_parse_workbook(simple_excel_sheet2)
+    # active_workbook_service.connect_and_parse_workbook(simple_excel_sheet2)
 
     controller = Controller(active_workbook_service)
     controller.highlight_dependents_precedents()

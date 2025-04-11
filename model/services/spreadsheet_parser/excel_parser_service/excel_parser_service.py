@@ -23,7 +23,7 @@ class ExcelParserService(ISpreadsheetParserService):
 
         for node in dsp.function_nodes.values():
 
-            if type(node['function']) is formulas.cell.RangesAssembler:
+            if isinstance(node['function'], formulas.cell.RangesAssembler):
                 continue
 
             input_ranges_as_string: [str] = list(node['inputs'].keys())

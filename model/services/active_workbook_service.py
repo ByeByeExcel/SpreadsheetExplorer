@@ -9,7 +9,7 @@ from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpre
 
 
 class ActiveWorkbookService:
-    _connected_workbooks: {str, IConnectedWorkbook} = {}
+    _connected_workbooks: dict[str, IConnectedWorkbook] = {}
     _workbook_click_watchers: [WorkbookClickWatcher] = []
 
     def __init__(self):
@@ -22,7 +22,7 @@ class ActiveWorkbookService:
     def get_parser_service(self) -> ISpreadsheetParserService:
         return self._parser_service
 
-    def get_connected_workbooks(self) -> {str, IConnectedWorkbook}:
+    def get_connected_workbooks(self) -> dict[str, IConnectedWorkbook]:
         return self._connected_workbooks
 
     def get_connected_workbook(self, filename: str) -> IConnectedWorkbook:
