@@ -11,7 +11,7 @@ class FunctionButtonSection:
         if pack:
             self.pack()
 
-        print("[DEBUG] FunctionButtonSection initialized with controller:", self.controller)
+        logging.debug("FunctionButtonSection initialized with controller: %s", self.controller)
 
         # === Function 1 ===
         self.btn_func1 = tk.Button(
