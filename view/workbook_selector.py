@@ -50,7 +50,7 @@ class WorkbookSelector:
         selected = self.workbook_var.get()
         if selected:
             try:
-                print(selected)
+                self.output.write(f"[DEBUG] Selected workbook: {selected}")
                 self.controller.connect_and_parse_workbook(selected)
                 self.function_buttons.set_buttons_state(tk.NORMAL)
                 self.output.write(f"[ANALYZED] Workbook '{selected}' loaded and parsed.")
