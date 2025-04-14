@@ -1,15 +1,20 @@
+from model.app_state import AppState
 from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress
 from model.models.spreadsheet.spreadsheet_classes import CellDependencies
+from model.models.workbook_click_watcher import WorkbookClickWatcher
 from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 
 
 class ConnectedWorkbookService:
-    _connected_workbooks: dict[str, IConnectedWorkbook] = {}
+    _workbook_click_watchers: [WorkbookClickWatcher] = []
 
-    def __init__(self, connection_service: ISpreadsheetConnectionService, parser_service: ISpreadsheetParserService):
+    def __init__(self, connection_service: ISpreadsheetConnectionService, parser_service: ISpreadsheetParserService,
+                 app_state: AppState):
         self._connection_service: ISpreadsheetConnectionService = connection_service
         self._parser_service: ISpreadsheetParserService = parser_service
+        self._app_state: AppState = app_state
 
     def get_connection_service(self) -> ISpreadsheetConnectionService:
         return self._connection_service
@@ -17,19 +22,31 @@ class ConnectedWorkbookService:
     def get_parser_service(self) -> ISpreadsheetParserService:
         return self._parser_service
 
-    def get_connected_workbooks(self) -> dict[str, IConnectedWorkbook]:
-        return self._connected_workbooks
-
-    def get_connected_workbook(self, filename: str) -> IConnectedWorkbook:
-        return self._connected_workbooks.get(filename)
-
-    def is_connected_to_workbook(self) -> bool:
-        return bool(self._connected_workbooks)
-
     def connect_and_parse_workbook(self, filename: str) -> None:
         connected_workbook: IConnectedWorkbook = self._connection_service.connect_to_workbook(filename)
         if not connected_workbook:
             raise Exception(f"Error connecting workbook '{filename}'")
         dependencies: CellDependencies = self._parser_service.get_dependencies(connected_workbook.fullpath)
         connected_workbook.cell_dependencies = dependencies
-        self._connected_workbooks[connected_workbook.name] = connected_workbook
+        self._app_state.connected_workbooks[connected_workbook.name] = connected_workbook
+        self.start_watching_selected_cell()
+
+    def start_watching_selected_cell(self):
+        self.stop_watching_selected_cell()
+        for connected_workbook in self._app_state.connected_workbooks.values():
+            watcher = WorkbookClickWatcher(connected_workbook, self._update_selected_cell)
+            watcher.start()
+            self._workbook_click_watchers.append(watcher)
+
+    def stop_watching_selected_cell(self) -> None:
+        for watcher in self._workbook_click_watchers:
+            watcher.stop()
+        self._workbook_click_watchers = []
+
+    def disconnect_all_workbooks(self) -> None:
+        self.stop_watching_selected_cell()
+        self._app_state.selected_cell.remove_all_observers()
+        self._app_state.connected_workbooks.clear()
+
+    def _update_selected_cell(self, new_cell: CellAddress) -> None:
+        self._app_state.selected_cell.set_value(new_cell)

@@ -44,3 +44,5 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def _get_range(self, sheet: str, cell_range: str) -> xlwings.Range:
         return self._get_sheet(sheet).range(cell_range)
+
+
