@@ -6,13 +6,6 @@ from model.models.spreadsheet.spreadsheet_classes import CellDependencies
 from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 
 
-def get_individual_cells_from_range(input_range: str, dsp) -> [str]:
-    if dsp.function_nodes.get("=" + input_range) is not None:
-        return dsp.function_nodes.get("=" + input_range)['function'].inputs.keys()
-    else:
-        return [input_range]
-
-
 class ExcelParserService(ISpreadsheetParserService):
     def get_dependencies(self, filename: str) -> CellDependencies:
         wb = fml.ExcelModel().load(filename).finish()
@@ -33,7 +26,7 @@ class ExcelParserService(ISpreadsheetParserService):
             input_cells: [CellAddress] = []
 
             for input_range_as_string in input_ranges_as_string:
-                input_cells_as_string = get_individual_cells_from_range(input_range_as_string, dsp)
+                input_cells_as_string = self._get_individual_cells_from_range(input_range_as_string, dsp)
 
                 input_range: CellAddress = CellAddress.from_excel_ref(input_range_as_string)
                 input_ranges.append(input_range)
@@ -59,3 +52,10 @@ class ExcelParserService(ISpreadsheetParserService):
                     dependencies.dependents[input_range].add(output)
 
         return dependencies
+
+    @staticmethod
+    def _get_individual_cells_from_range(input_range: str, dsp) -> [str]:
+        if dsp.function_nodes.get("=" + input_range) is not None:
+            return dsp.function_nodes.get("=" + input_range)['function'].inputs.keys()
+        else:
+            return [input_range]

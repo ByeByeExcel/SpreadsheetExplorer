@@ -2,8 +2,8 @@ from model.models.spreadsheet.cell_address import CellAddress
 
 
 class Cell:
-    def __init__(self, address: str, value: str, formula: str):
-        self.address: str = address
+    def __init__(self, address: CellAddress, value: str, formula: str):
+        self.address: CellAddress = address
         self.value: str = value
         self.formula: str = formula
 
@@ -12,9 +12,9 @@ class Cell:
 
 
 class Worksheet:
-    def __init__(self, name: str, cells: dict[str, Cell]):
+    def __init__(self, name: str, cells: dict[CellAddress, Cell]):
         self.name: str = name
-        self.cells: dict[str, Cell] = cells
+        self.cells: dict[CellAddress, Cell] = cells
 
     def __repr__(self):
         return f"<Worksheet {self.name}: {len(self.cells)} cells>"
@@ -28,6 +28,12 @@ class Workbook:
 
     def __repr__(self):
         return f"<SpreadsheetWorkbook: {len(self.worksheets)} sheet(s)>"
+
+    def get_all_cells(self) -> set[Cell]:
+        cells: set[Cell] = set()
+        for sheet in self.worksheets.values():
+            cells.update(sheet.cells.values())
+        return cells
 
 
 class CellDependencies:
