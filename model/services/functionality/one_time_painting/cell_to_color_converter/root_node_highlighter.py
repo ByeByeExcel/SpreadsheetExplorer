@@ -10,7 +10,7 @@ class RootNodeHighlighter(CellToColorConverter):
     def convert(self, cell: Cell) -> Optional[str]:
         dependents = self.workbook.cell_dependencies.dependents.get(cell.address)
         precedents = self.workbook.cell_dependencies.precedents.get(cell.address)
-        if dependents is None and precedents is not None:
+        if not dependents and precedents:
             return ColourScheme[ColorRole.ROOT_NODE]
         else:
             return None
