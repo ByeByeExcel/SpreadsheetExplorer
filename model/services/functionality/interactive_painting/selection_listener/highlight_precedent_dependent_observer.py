@@ -2,16 +2,18 @@ from typing import Optional
 
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
-from model.services.functionality.interactive_painting.selection_listener.i_selection_listener import ISelectionListener
+from model.services.functionality.interactive_painting.selection_listener.i_selection_observer import ISelectionObserver
 from model.settings.colour_scheme import ColourScheme, ColorRole
 
 
-class HighlightCellSelectionListener(ISelectionListener):
+class HighlightCellSelectionObserver(ISelectionObserver):
     def __init__(self, workbook: IConnectedWorkbook):
         self.workbook = workbook
         self.original_colors: dict[CellAddress, Optional[str]] = {}
 
-    def __call__(self, old_cell: CellAddress, new_cell: CellAddress):
+    def __call__(self, new_cell: CellAddress, old_cell: CellAddress):
+        if new_cell.workbook != self.workbook.name.lower():
+            return
         for addr, color in self.original_colors.items():
             self.workbook.set_range_color(addr, color)
         self.original_colors.clear()

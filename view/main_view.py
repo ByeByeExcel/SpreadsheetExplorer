@@ -2,15 +2,18 @@ import tkinter as tk
 
 from controller.feature_controller import FeatureController
 from controller.workbook_controller import WorkbookController  # adjust if needed
+from model.app_state import AppState
 from view.function_buttons import FunctionButtonSection
 from view.output_section import OutputSection
 from view.workbook_selector import WorkbookSelector
 
 
 class MainView:
-    def __init__(self, workbook_controller: WorkbookController, feature_controller: FeatureController):
+    def __init__(self, workbook_controller: WorkbookController, feature_controller: FeatureController,
+                 app_state: AppState):
         self.workbook_controller = workbook_controller
         self.feature_controller = feature_controller
+        self.app_state = app_state
 
         self.root = tk.Tk()
         self.root.title("Excel Summary Tool")
@@ -36,7 +39,11 @@ class MainView:
         self.selected_range_label.pack(fill="x", pady=(0, 10))
 
         self.buttons.pack()
+
         self.output.pack()
+
+        self.app_state.selected_cell.add_observer(lambda new_value, old_value: self.selected_range_label.config(
+            text=f"Selected Range: {new_value.address if new_value else 'None'}"))
 
     def run(self):
         self.root.mainloop()
