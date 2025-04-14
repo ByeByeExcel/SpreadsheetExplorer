@@ -5,8 +5,8 @@ import time
 import openpyxl as pxl
 import pytest
 
-from controller.controller import Controller
-from model.services.active_workbook_service import ActiveWorkbookService
+from controller.workbook_controller import WorkbookController
+from model.services.connected_workbook_service import ConnectedWorkbookService
 
 
 @pytest.fixture
@@ -52,11 +52,11 @@ def simple_excel_sheet2():
 
 
 def test_listener_loop(simple_excel_sheet, simple_excel_sheet2):
-    active_workbook_service = ActiveWorkbookService()
+    active_workbook_service = ConnectedWorkbookService()
     active_workbook_service.connect_and_parse_workbook(simple_excel_sheet)
     # active_workbook_service.connect_and_parse_workbook(simple_excel_sheet2)
 
-    controller = Controller(active_workbook_service)
+    controller = WorkbookController(active_workbook_service)
     controller.highlight_dependents_precedents()
     time.sleep(10)
     controller.stop_watchers()

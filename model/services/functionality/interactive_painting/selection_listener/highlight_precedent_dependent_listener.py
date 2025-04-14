@@ -1,10 +1,9 @@
 from typing import Optional
 
-import webcolors
-
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
-from model.services.functionality.i_selection_listener import ISelectionListener
+from model.services.functionality.interactive_painting.selection_listener.i_selection_listener import ISelectionListener
+from model.settings.colour_scheme import ColourScheme, ColorRole
 
 
 class HighlightCellSelectionListener(ISelectionListener):
@@ -26,8 +25,8 @@ class HighlightCellSelectionListener(ISelectionListener):
         for dependent in dependents:
             self.original_colors[dependent] = self.workbook.get_range_color(dependent)
 
-        self.workbook.set_ranges_color(precedents, webcolors.name_to_hex("yellow"))
-        self.workbook.set_ranges_color(dependents, webcolors.name_to_hex("red"))
+        self.workbook.set_ranges_color(precedents, ColourScheme[ColorRole.PRECEDENT])
+        self.workbook.set_ranges_color(dependents, ColourScheme[ColorRole.DEPENDENT])
 
     def stop(self):
         for addr, color in self.original_colors.items():

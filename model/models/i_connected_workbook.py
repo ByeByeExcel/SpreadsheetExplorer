@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Callable
 
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.spreadsheet_classes import Workbook
+from model.models.spreadsheet.spreadsheet_classes import Workbook, Cell
 
 
 class IConnectedWorkbook(ABC, Workbook):
@@ -23,5 +23,9 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def on_cell_click_execute(self, listener: callable, stop):
+    def set_cells_color(self, cell: [Cell], color: str):
+        pass
+
+    @abstractmethod
+    def set_ranges_color_with_function(self, cell: [Cell], colour_function: Callable[[Cell], str]) -> None:
         pass

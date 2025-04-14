@@ -4,7 +4,7 @@ import time
 import xlwings
 
 from model.models.spreadsheet.cell_address import CellAddress
-from model.services.functionality.i_selection_listener import ISelectionListener
+from model.services.functionality.interactive_painting.selection_listener.i_selection_listener import ISelectionListener
 
 
 class WorkbookClickWatcher:
@@ -27,13 +27,19 @@ class WorkbookClickWatcher:
 
         while not self._stop_event.is_set():
             time.sleep(0.5)
-            new_selection = get_cell_address_from_xlwings(self.connected_workbook.selection)
+            try:
+                new_selection = self.connected_workbook.selection
+            except Exception as e:
+                print(f"Error getting selection: {e}")
+                break
 
-            if new_selection != previous_selection and new_selection.workbook == self.connected_workbook.name.lower():
+            new_cell_address = get_cell_address_from_xlwings(new_selection)
+
+            if new_cell_address != previous_selection and new_cell_address.workbook == self.connected_workbook.name.lower():
                 if self._listener:
-                    self._listener(previous_selection, new_selection)
+                    self._listener(previous_selection, new_cell_address)
 
-                previous_selection = new_selection
+                previous_selection = new_cell_address
 
         if self._listener:
             self._listener(previous_selection, None)

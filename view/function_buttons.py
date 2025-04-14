@@ -1,17 +1,20 @@
+import logging
 import tkinter as tk
 from tkinter import messagebox
 
+from controller.feature_controller import FeatureController
+
 
 class FunctionButtonSection:
-    def __init__(self, master, output, controller, pack=True):
+    def __init__(self, master, output, feature_controller: FeatureController, pack=True):
         self.output = output
-        self.controller = controller
+        self.feature_controller = feature_controller
         self.frame = tk.Frame(master, padx=20)
 
         if pack:
             self.pack()
 
-        logging.debug("FunctionButtonSection initialized with controller: %s", self.controller)
+        logging.debug("FunctionButtonSection initialized with controller: %s", self.feature_controller)
 
         # === Function 1 ===
         self.btn_func1 = tk.Button(
@@ -48,7 +51,7 @@ class FunctionButtonSection:
             self.frame,
             text="?",
             width=2,
-            command=lambda: self.show_help("Function 2", "This function accepts input from the user.")
+            command=lambda: self.show_help("Start Heatmap", "This function will start the heatmap process.")
         ).grid(row=1, column=1)
 
         self.entry_func2 = tk.Entry(
@@ -70,11 +73,11 @@ class FunctionButtonSection:
         # === Function 3 ===
         self.btn_func3 = tk.Button(
             self.frame,
-            text="Function 3",
+            text="Stop Heatmap",
             width=25,
             height=1,
             state=tk.DISABLED,
-            command=lambda: self.output.write("[Function 3] Coming soon...")
+            command=self.feature_controller.reset_all_painters
         )
         self.btn_func3.grid(row=2, column=0, sticky="w", pady=4)
 
@@ -89,7 +92,7 @@ class FunctionButtonSection:
         try:
             print("[DEBUG] Button clicked: Function 1")
             self.output.write("[DEBUG] Running highlight_dependents_precedents...")
-            self.controller.highlight_dependents_precedents()
+            self.feature_controller.interactive_highlight_dependents_precedents()
             self.output.write("[Highlighting] Highlighted dependents and precedents.")
         except Exception as e:
             self.output.write(f"[ERROR] Highlighting failed: {e}")
@@ -99,6 +102,7 @@ class FunctionButtonSection:
         self.btn_accept_func2.config(state=tk.NORMAL)
         self.func2_input_var.set("")
         self.output.write("[Function 2] Awaiting input...")
+        self.feature_controller.show_heatmap()
 
     def handle_func2_input(self):
         value = self.func2_input_var.get().strip()

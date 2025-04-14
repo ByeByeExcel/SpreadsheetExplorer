@@ -1,10 +1,12 @@
 import tkinter as tk
 from tkinter import ttk
 
+from controller.workbook_controller import WorkbookController
+
 
 class WorkbookSelector:
-    def __init__(self, master, function_buttons, output, controller, pack=True):
-        self.controller = controller
+    def __init__(self, master, function_buttons, output, workbook_controller: WorkbookController, pack=True):
+        self.workbook_controller = workbook_controller
         self.output = output
         self.function_buttons = function_buttons
 
@@ -32,7 +34,7 @@ class WorkbookSelector:
 
     def refresh_workbook_list(self):
         try:
-            workbooks = self.controller.get_open_workbooks()
+            workbooks = self.workbook_controller.get_open_workbooks()
             if not workbooks:
                 self.output.write("[INFO] No open workbooks found.")
                 return
@@ -51,7 +53,7 @@ class WorkbookSelector:
         if selected:
             try:
                 self.output.write(f"[DEBUG] Selected workbook: {selected}")
-                self.controller.connect_and_parse_workbook(selected)
+                self.workbook_controller.connect_and_parse_workbook(selected)
                 self.function_buttons.set_buttons_state(tk.NORMAL)
                 self.output.write(f"[ANALYZED] Workbook '{selected}' loaded and parsed.")
             except Exception as e:
