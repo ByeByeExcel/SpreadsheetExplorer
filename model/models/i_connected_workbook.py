@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Callable
+from typing import Any
 
 from model.models.spreadsheet.cell_address import CellAddress
 from model.models.spreadsheet.spreadsheet_classes import Workbook, Cell
@@ -27,5 +27,5 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def set_ranges_color_with_function(self, cell: [Cell], colour_function: Callable[[Cell], str]) -> None:
+    def get_selected_cell(self) -> CellAddress:
         pass

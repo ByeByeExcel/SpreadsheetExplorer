@@ -9,7 +9,7 @@ class InteractivePaintingService:
 
     def highlight_dependents_precedents(self, connected_workbook: IConnectedWorkbook) -> None:
         listener = HighlightCellSelectionListener(connected_workbook)
-        watcher = WorkbookClickWatcher(connected_workbook.connected_workbook)
+        watcher = WorkbookClickWatcher(connected_workbook)
         self._workbook_click_watchers.append(watcher)
         watcher.start(listener)
 

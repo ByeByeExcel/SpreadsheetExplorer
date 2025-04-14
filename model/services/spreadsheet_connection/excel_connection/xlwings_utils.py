@@ -1,18 +1,7 @@
 import xlwings as xw
 
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.excel.excel_workbook import ConnectedExcelWorkbook
 from model.models.spreadsheet.spreadsheet_classes import Worksheet, Cell
-
-
-def convert_xlwings_book(xlwings_book: xw.Book) -> ConnectedExcelWorkbook:
-    custom_workbook = ConnectedExcelWorkbook(xlwings_book)
-
-    for sheet in xlwings_book.sheets:
-        custom_worksheet = convert_xlwings_sheet(sheet)
-        custom_workbook.worksheets[custom_worksheet.name] = custom_worksheet
-
-    return custom_workbook
 
 
 def convert_xlwings_sheet(xlwings_sheet: xw.Sheet) -> Worksheet:
@@ -26,7 +15,11 @@ def convert_xlwings_sheet(xlwings_sheet: xw.Sheet) -> Worksheet:
             cell.address,
         )
         custom_cell = Cell(cell_address, cell.value, cell.formula)
-        cells[cell.address] = custom_cell
+        cells[custom_cell.address] = custom_cell
 
     custom_worksheet = Worksheet(xlwings_sheet.name, cells)
     return custom_worksheet
+
+
+def convert_xlwings_address(cell: xw.Range) -> CellAddress:
+    return CellAddress(cell.sheet.book.name, cell.sheet.name, cell.address)
