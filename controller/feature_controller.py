@@ -33,5 +33,12 @@ class FeatureController:
             for connected_workbook in self._connected_workbook_service.get_connected_workbooks().values():
                 self._painting_service.show_heatmap(connected_workbook)
 
+    def show_root_nodes(self, workbook: IConnectedWorkbook = None) -> None:
+        if workbook:
+            self._painting_service.show_root_nodes(workbook)
+        else:
+            for connected_workbook in self._connected_workbook_service.get_connected_workbooks().values():
+                self._painting_service.show_root_nodes(connected_workbook)
+
     def reset_all_painters(self) -> None:
         self._painting_service.reset_all_painters()
