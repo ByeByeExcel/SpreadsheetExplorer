@@ -21,7 +21,8 @@ class MainView:
 
         # === Create components but delay layout ===
         self.output = OutputSection(self.root, pack=False)
-        self.buttons = FunctionButtonSection(self.root, self.output, self.feature_controller, pack=False)
+        self.buttons = FunctionButtonSection(self.root, self.output, self.feature_controller, self.app_state,
+                                             pack=False)
         self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,
                                                   pack=False)
 

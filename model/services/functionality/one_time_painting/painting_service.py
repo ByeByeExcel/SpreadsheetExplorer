@@ -1,3 +1,4 @@
+from model.feature import Feature
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.services.functionality.one_time_painting.cell_to_color_converter.dependents_heatmap import DependentsHeatmap
 from model.services.functionality.one_time_painting.cell_to_color_converter.root_node_highlighter import \
@@ -6,23 +7,33 @@ from model.services.functionality.one_time_painting.one_time_painting_executor i
 
 
 class PaintingService:
-    _one_time_painters: [OneTimePaintingExecutor] = []
+    _one_time_painters: dict[Feature.DEPENDENTS_HEATMAP, OneTimePaintingExecutor] = {}
 
     def show_heatmap(self, connected_workbook: IConnectedWorkbook) -> None:
         painter = OneTimePaintingExecutor(connected_workbook,
                                           connected_workbook.get_all_cells(),
                                           DependentsHeatmap(connected_workbook))
-        self._one_time_painters.append(painter)
+        self._one_time_painters[Feature.DEPENDENTS_HEATMAP] = painter
         painter.paint()
 
     def show_root_nodes(self, connected_workbook: IConnectedWorkbook) -> None:
         painter = OneTimePaintingExecutor(connected_workbook,
                                           connected_workbook.get_all_cells(),
                                           RootNodeHighlighter(connected_workbook))
-        self._one_time_painters.append(painter)
+        self._one_time_painters[Feature.ROOT_NODES] = painter
         painter.paint()
 
-    def reset_all_painters(self) -> None:
-        for painter in self._one_time_painters:
+    def stop_heatmap(self) -> None:
+        self.stop_feature(Feature.DEPENDENTS_HEATMAP)
+
+    def stop_root_nodes(self) -> None:
+        self.stop_feature(Feature.ROOT_NODES)
+
+    def stop_all(self) -> None:
+        for feature in self._one_time_painters.keys():
+            self.stop_feature(feature)
+
+    def stop_feature(self, feature: Feature) -> None:
+        painter = self._one_time_painters.pop(feature, None)
+        if painter:
             painter.reset()
-        self._one_time_painters.clear()

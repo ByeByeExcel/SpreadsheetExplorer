@@ -3,12 +3,15 @@ import tkinter as tk
 from tkinter import messagebox
 
 from controller.feature_controller import FeatureController
+from model.app_state import AppState
+from model.feature import Feature
 
 
 class FunctionButtonSection:
-    def __init__(self, master, output, feature_controller: FeatureController, pack=True):
+    def __init__(self, master, output, feature_controller: FeatureController, app_state: AppState, pack=True):
         self.output = output
         self.feature_controller = feature_controller
+        self.app_state = app_state
         self.frame = tk.Frame(master, padx=20)
 
         if pack:
@@ -17,15 +20,15 @@ class FunctionButtonSection:
         logging.debug("FunctionButtonSection initialized with controller: %s", self.feature_controller)
 
         # === Function 1 ===
-        self.btn_func1 = tk.Button(
+        self.dependency_highlighting = tk.Button(
             self.frame,
-            text="See dependents/precedents",
+            text="Show dependents/precedents",
             width=25,
             height=1,
             state=tk.DISABLED,
-            command=self.run_highlight_dependents
+            command=self.toggle_dependency_highlighting
         )
-        self.btn_func1.grid(row=0, column=0, sticky="w", pady=4)
+        self.dependency_highlighting.grid(row=0, column=0, sticky="w", pady=4)
 
         tk.Button(
             self.frame,
@@ -35,7 +38,6 @@ class FunctionButtonSection:
         ).grid(row=0, column=1)
 
         # === Heatmap Toggle Button ===
-        self.heatmap_active = False
         self.btn_heatmap = tk.Button(
             self.frame,
             text="Show Heatmap",
@@ -71,26 +73,29 @@ class FunctionButtonSection:
             command=lambda: self.show_help("Function 3", "Coming soon.")
         ).grid(row=2, column=1)
 
-    def run_highlight_dependents(self):
+    def toggle_dependency_highlighting(self):
         try:
-            print("[DEBUG] Button clicked: Function 1")
-            self.output.write("[DEBUG] Running highlight_dependents_precedents...")
-            self.feature_controller.interactive_highlight_dependents_precedents()
-            self.output.write("[Highlighting] Highlighted dependents and precedents.")
+            if not self.app_state.is_active(Feature.DEPENDENCY_HIGHLIGHTING):
+                self.feature_controller.start_dependency_highlighting()
+                self.dependency_highlighting.config(bg="orange", text="Hide dependents/precedents")
+                self.output.write("[Dependency Highlighting] Activated.")
+            else:
+                self.feature_controller.stop_dependency_highlighting()
+                self.dependency_highlighting.config(bg=self.frame.cget("bg"), text="Show dependents/precedents")
+                self.output.write("[Dependency Highlighting] Deactivated.")
         except Exception as e:
-            self.output.write(f"[ERROR] Highlighting failed: {e}")
+            self.output.write(f"[ERROR] Dependency Highlighting toggle failed: {e}")
 
     def toggle_heatmap(self):
         try:
-            if not self.heatmap_active:
+            if not self.app_state.is_active(Feature.DEPENDENTS_HEATMAP):
                 self.feature_controller.show_heatmap()
                 self.btn_heatmap.config(bg="orange", text="Hide Heatmap")
                 self.output.write("[Heatmap] Activated.")
             else:
-                self.feature_controller.reset_all_painters()
+                self.feature_controller.hide_heatmap()
                 self.btn_heatmap.config(bg=self.frame.cget("bg"), text="Show Heatmap")
                 self.output.write("[Heatmap] Deactivated.")
-            self.heatmap_active = not self.heatmap_active
         except Exception as e:
             self.output.write(f"[ERROR] Heatmap toggle failed: {e}")
 
@@ -98,7 +103,7 @@ class FunctionButtonSection:
         messagebox.showinfo(title, description)
 
     def set_buttons_state(self, state):
-        self.btn_func1.config(state=state)
+        self.dependency_highlighting.config(state=state)
         self.btn_heatmap.config(state=state)
         self.btn_func3.config(state=state)
 
