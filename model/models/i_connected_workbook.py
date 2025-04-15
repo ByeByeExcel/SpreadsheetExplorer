@@ -49,3 +49,11 @@ class IConnectedWorkbook(ABC, Workbook):
     @abstractmethod
     def enable_screen_updating(self):
         pass
+
+    @abstractmethod
+    def grayscale_colors_and_return_initial_colors(self) -> dict[CellAddress, str]:
+        pass
+
+    @abstractmethod
+    def set_colors_from_dict(self, colors: dict[CellAddress, str]):
+        pass

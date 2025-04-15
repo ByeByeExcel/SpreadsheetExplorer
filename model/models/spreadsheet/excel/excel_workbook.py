@@ -7,8 +7,8 @@ from model.models.spreadsheet.cell_address import CellAddress
 from model.models.spreadsheet.spreadsheet_classes import Cell
 from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address, \
     convert_xlwings_sheet
-from model.utils.colour_utils import get_hex_color_from_tuple
-from model.utils.utils import convert_to_absolute_range
+from model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
+from model.utils.utils import convert_to_absolute_range, generate_addresses
 
 
 class ConnectedExcelWorkbook(IConnectedWorkbook):
@@ -63,6 +63,30 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def enable_screen_updating(self):
         self.connected_workbook.app.screen_updating = True
+
+    def set_colors_from_dict(self, colors: dict[CellAddress, str]):
+        self.disable_screen_updating()
+        for cell_address, color in colors.items():
+            self.set_range_color(cell_address, color)
+        self.enable_screen_updating()
+
+    def grayscale_colors_and_return_initial_colors(self) -> dict[CellAddress, str]:
+        colors: dict[CellAddress, str] = {}
+        self.disable_screen_updating()
+        for sheet in self.connected_workbook.sheets:
+            sheet: xlwings.Sheet
+            cell_range: xlwings.Range = sheet.used_range
+            cell_addresses_2d: [[str]] = generate_addresses(cell_range.row, cell_range.column, cell_range.shape)
+
+            for row in cell_addresses_2d:
+                row: [str]
+                for cell_address in row:
+                    cell: xlwings.Range = sheet.range(cell_address)
+                    color: tuple = cell.color
+                    colors[CellAddress(self.name, sheet.name, cell_address)] = get_hex_color_from_tuple(color)
+                    cell.color = rgb_to_grayscale(color)
+        self.enable_screen_updating()
+        return colors
 
     def _get_range(self, sheet: str, cell_range: str) -> xlwings.Range:
         return self._get_sheet(sheet).range(cell_range)

@@ -22,3 +22,11 @@ def get_hex_color_from_tuple(color) -> Optional[str]:
         rgb: tuple[int, int, int] = (int(color[0]), int(color[1]), int(color[2]))
         return webcolors.rgb_to_hex(rgb)
     return None
+
+
+def rgb_to_grayscale(rgb: tuple) -> Optional[tuple[int, int, int]]:
+    if not isinstance(rgb, tuple) or len(rgb) != 3:
+        return None
+    r, g, b = rgb
+    r = clamp(r, 0, 255)
+    return r, r, r
