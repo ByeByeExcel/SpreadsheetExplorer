@@ -2,16 +2,19 @@ from model.app_state import AppState
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.services.functionality.interactive_painting.interactive_painting_service import InteractivePaintingService
 from model.services.functionality.one_time_painting.painting_service import PaintingService
+from model.services.functionality.renaming_service import RenamingService
 
 
 class FeatureController:
     def __init__(self,
                  interactive_painting_service: InteractivePaintingService,
                  painting_service: PaintingService,
+                 renaming_service: RenamingService,
                  app_state: AppState):
 
         self._interactive_painting_service = interactive_painting_service
         self._painting_service = painting_service
+        self._renaming_service = renaming_service
         self._app_state = app_state
 
     # interactive features
@@ -42,3 +45,7 @@ class FeatureController:
 
     def reset_all_painters(self) -> None:
         self._painting_service.reset_all_painters()
+
+    # cascade renaming
+    def cascade_rename(self, name: str) -> None:
+        self._renaming_service.cascade_name_cell(name, self._app_state.selected_cell.value)

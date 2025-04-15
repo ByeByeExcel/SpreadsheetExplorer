@@ -1,3 +1,5 @@
+import re
+
 import formulas as fml
 import formulas.cell
 
@@ -17,7 +19,10 @@ class ExcelParserService(ISpreadsheetParserService):
         for node in dsp.function_nodes.values():
 
             if isinstance(node['function'], formulas.cell.RangesAssembler):
-                continue
+                continue # Skip if the function is a RangesAssembler, as this is not a valid case
+
+            if isinstance(node['inputs'], list):
+                continue # Skip if inputs are a list, as this is not a valid case
 
             input_ranges_as_string: [str] = list(node['inputs'].keys())
             output_ranges_as_string: [str] = node['outputs']

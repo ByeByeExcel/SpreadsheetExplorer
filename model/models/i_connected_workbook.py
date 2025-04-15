@@ -29,3 +29,15 @@ class IConnectedWorkbook(ABC, Workbook):
     @abstractmethod
     def get_selected_cell(self) -> CellAddress:
         pass
+
+    @abstractmethod
+    def add_name(self, cell: CellAddress, new_name: str) -> None:
+        pass
+
+    @abstractmethod
+    def get_names(self) -> dict[str, str]:
+        pass
+
+    @abstractmethod
+    def set_formula(self, cell: CellAddress, formula: str):
+        pass

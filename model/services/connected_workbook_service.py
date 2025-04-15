@@ -28,7 +28,7 @@ class ConnectedWorkbookService:
             raise Exception(f"Error connecting workbook '{filename}'")
         dependencies: CellDependencies = self._parser_service.get_dependencies(connected_workbook.fullpath)
         connected_workbook.cell_dependencies = dependencies
-        self._app_state.connected_workbooks[connected_workbook.name] = connected_workbook
+        self._app_state.connected_workbooks[connected_workbook.name.lower()] = connected_workbook
         self.start_watching_selected_cell()
 
     def start_watching_selected_cell(self):
