@@ -41,3 +41,11 @@ class IConnectedWorkbook(ABC, Workbook):
     @abstractmethod
     def set_formula(self, cell: CellAddress, formula: str):
         pass
+
+    @abstractmethod
+    def disable_screen_updating(self):
+        pass
+
+    @abstractmethod
+    def enable_screen_updating(self):
+        pass

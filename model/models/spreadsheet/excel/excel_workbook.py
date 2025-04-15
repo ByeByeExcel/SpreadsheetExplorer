@@ -30,12 +30,16 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self._get_range(cell_range.sheet, cell_range.address).color = color
 
     def set_ranges_color(self, cell_ranges: [CellAddress], color: str):
+        self.disable_screen_updating()
         for cell_range in cell_ranges:
             self.set_range_color(cell_range, color)
+        self.enable_screen_updating()
 
     def set_cells_color(self, cells: [Cell], color: str):
+        self.disable_screen_updating()
         for cell in cells:
             self.set_range_color(cell.address, color)
+        self.enable_screen_updating()
 
     def get_selected_cell(self) -> CellAddress:
         selection = self.connected_workbook.selection
@@ -53,6 +57,12 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def set_formula(self, cell: CellAddress, formula: str):
         self._get_range(cell.sheet, cell.address).formula = formula
+
+    def disable_screen_updating(self):
+        self.connected_workbook.app.screen_updating = False
+
+    def enable_screen_updating(self):
+        self.connected_workbook.app.screen_updating = True
 
     def _get_range(self, sheet: str, cell_range: str) -> xlwings.Range:
         return self._get_sheet(sheet).range(cell_range)
