@@ -35,6 +35,12 @@ class Workbook:
             cells.update(sheet.cells.values())
         return cells
 
+    def get_cell(self, cell_address: CellAddress) -> Cell | None:
+        worksheet = self.worksheets.get(cell_address.sheet)
+        if worksheet:
+            return worksheet.cells.get(cell_address)
+        return None
+
 
 class CellDependencies:
     def __init__(self):
