@@ -1,10 +1,11 @@
 import logging
+import re
 import tkinter as tk
 from tkinter import messagebox
 
 from controller.feature_controller import FeatureController
-from model.feature import Feature
 from model.app_state import AppState
+from model.feature import Feature
 
 
 class FunctionButtonSection:
@@ -19,27 +20,27 @@ class FunctionButtonSection:
 
         logging.debug("FunctionButtonSection initialized with controller: %s", self.feature_controller)
 
-        # === Function 1 ===
-        self.btn_func1 = tk.Button(
+        self.root_nodes_active = False
+
+        # === Row 0: Dependency Highlighting ===
+        self.dependency_highlighting = tk.Button(
             self.frame,
-            text="See dependents/precedents",
+            text="Show dependents/precedents",
             width=25,
             height=1,
             state=tk.DISABLED,
             command=self.toggle_dependency_highlighting
         )
-        self.btn_func1.grid(row=0, column=0, sticky="w", pady=4)
+        self.dependency_highlighting.grid(row=0, column=0, sticky="w", pady=4)
 
         tk.Button(
             self.frame,
             text="?",
             width=2,
             command=lambda: self.show_help("Function 1", "This function highlights dependents and precedents.")
-        ).grid(row=0, column=1)
+        ).grid(row=0, column=3, padx=(10, 0))
 
-        self.dependency_highlighting = self.btn_func1
-
-        # === Heatmap Toggle Button ===
+        # === Row 1: Heatmap ===
         self.btn_heatmap = tk.Button(
             self.frame,
             text="Show Heatmap",
@@ -55,12 +56,12 @@ class FunctionButtonSection:
             text="?",
             width=2,
             command=lambda: self.show_help("Heatmap", "Toggles a heatmap view of the spreadsheet.")
-        ).grid(row=1, column=1)
+        ).grid(row=1, column=3, padx=(10, 0))
 
-        # === Root Node Button ===
+        # === Row 2: Root Nodes ===
         self.btn_root_nodes = tk.Button(
             self.frame,
-            text="Root Nodes",
+            text="Show Root Nodes",
             width=25,
             height=1,
             state=tk.DISABLED,
@@ -72,38 +73,50 @@ class FunctionButtonSection:
             self.frame,
             text="?",
             width=2,
-            command=lambda: self.show_help("Function 3", "This function identifies and highlights root nodes.")
-        ).grid(row=2, column=1)
+            command=lambda: self.show_help("Root Nodes", "Toggles visualization of root nodes in the workbook.")
+        ).grid(row=2, column=3, padx=(10, 0))
 
+        # === Row 3: Cascade Rename ===
         self.btn_cascade_rename = tk.Button(
             self.frame,
             text="Cascade Rename",
             width=25,
             height=1,
             state=tk.DISABLED,
-            command=lambda: self.output.write("[Cascade Rename] Coming soon...")
+            command=self.toggle_cascade_input
         )
         self.btn_cascade_rename.grid(row=3, column=0, sticky="w", pady=4)
+
+        self.cascade_submit = tk.Button(
+            self.frame,
+            text="Submit",
+            state=tk.DISABLED,
+            command=self.submit_cascade_rename
+        )
+        self.cascade_submit.grid(row=3, column=1, padx=(5, 0), sticky="w")
+
+        self.cascade_entry = tk.Entry(self.frame, width=20, state=tk.DISABLED)
+        self.cascade_entry.grid(row=3, column=2, padx=(5, 0), sticky="w")
 
         tk.Button(
             self.frame,
             text="?",
             width=2,
-            command=lambda: self.show_help("Function 4", "This function will perform cascade renaming.")
-        ).grid(row=3, column=1)
+            command=lambda: self.show_help("Cascade Rename", "Enter a new name to trigger cascade renaming.")
+        ).grid(row=3, column=3, padx=(10, 0))
 
     def toggle_dependency_highlighting(self):
         try:
             if not self.app_state.is_active(Feature.DEPENDENCY_HIGHLIGHTING):
                 self.feature_controller.start_dependency_highlighting()
-                self.disable_all_except(self.dependency_highlighting)
+                self.dependency_highlighting.config(bg="orange", text="Hide dependents/precedents")
                 self.output.write("[Dependency Highlighting] Activated.")
             else:
                 self.feature_controller.stop_dependency_highlighting()
-                self.enable_all_buttons()
+                self.dependency_highlighting.config(bg="SystemButtonFace", text="Show dependents/precedents")
                 self.output.write("[Dependency Highlighting] Deactivated.")
         except Exception as e:
-            self.output.write(f"[ERROR] Dependency Highlighting failed: {e}")
+            self.output.write(f"[ERROR] Dependency Highlighting toggle failed: {e}")
 
     def toggle_heatmap(self):
         try:
@@ -114,7 +127,7 @@ class FunctionButtonSection:
                 self.output.write("[Heatmap] Activated.")
             else:
                 self.feature_controller.hide_heatmap()
-                self.btn_heatmap.config(bg=self.frame.cget("bg"), text="Show Heatmap")
+                self.btn_heatmap.config(bg="SystemButtonFace", text="Show Heatmap")
                 self.enable_all_buttons()
                 self.output.write("[Heatmap] Deactivated.")
         except Exception as e:
@@ -122,18 +135,70 @@ class FunctionButtonSection:
 
     def toggle_root_nodes(self):
         try:
-            if not self.app_state.is_active(Feature.ROOT_NODES):
+            if not self.root_nodes_active:
                 self.feature_controller.show_root_nodes()
                 self.btn_root_nodes.config(bg="orange", text="Hide Root Nodes")
                 self.disable_all_except(self.btn_root_nodes)
                 self.output.write("[Root Nodes] Activated.")
+                self.root_nodes_active = True
             else:
                 self.feature_controller.hide_root_nodes()
-                self.btn_root_nodes.config(bg=self.frame.cget("bg"), text="Root Nodes")
+                self.btn_root_nodes.config(bg="SystemButtonFace", text="Show Root Nodes")
                 self.enable_all_buttons()
                 self.output.write("[Root Nodes] Deactivated.")
+                self.root_nodes_active = False
         except Exception as e:
             self.output.write(f"[ERROR] Root Nodes toggle failed: {e}")
+
+    def toggle_cascade_input(self):
+        if self.cascade_entry["state"] == tk.NORMAL:
+            self.output.write("[Cascade Rename] Cancelled.")
+            self.cascade_entry.delete(0, tk.END)
+            self.cascade_entry.config(state=tk.DISABLED, bg="white")
+            self.cascade_submit.config(state=tk.DISABLED)
+        else:
+            self.output.write("[Cascade Rename] Input activated.")
+            self.cascade_entry.delete(0, tk.END)
+            self.cascade_entry.config(state=tk.NORMAL, bg="white")
+            self.cascade_submit.config(state=tk.DISABLED)
+            self.cascade_entry.bind("<KeyRelease>", self.validate_cascade_input)
+
+    def validate_cascade_input(self, event=None):
+        value = self.cascade_entry.get().strip()
+        if not value:
+            self.cascade_entry.config(bg="white")
+            self.cascade_submit.config(state=tk.DISABLED)
+            return
+
+        if self.is_valid_excel_name(value):
+            self.cascade_entry.config(bg="#d9fcd9")  # light green
+            self.cascade_submit.config(state=tk.NORMAL)
+        else:
+            self.cascade_entry.config(bg="#ffd6d6")  # light red
+            self.cascade_submit.config(state=tk.DISABLED)
+
+    def is_valid_excel_name(self, name: str) -> bool:
+        return re.match(r"^[A-Za-z_][A-Za-z0-9_]*$", name) is not None
+
+    def submit_cascade_rename(self):
+        try:
+            new_name = self.cascade_entry.get().strip()
+            if not new_name:
+                self.output.write("[Cascade Rename] No name entered.")
+                return
+
+            if not self.is_valid_excel_name(new_name):
+                self.output.write("[Cascade Rename] Invalid name. Only letters, numbers, and underscores are allowed. Name must start with a letter or underscore.")
+                return
+
+            self.feature_controller.start_cascade_rename(new_name)
+            self.output.write(f"[Cascade Rename] Renamed to '{new_name}'.")
+        except Exception as e:
+            self.output.write(f"[ERROR] Cascade Rename failed: {e}")
+        finally:
+            self.cascade_entry.delete(0, tk.END)
+            self.cascade_entry.config(state=tk.DISABLED, bg="white")
+            self.cascade_submit.config(state=tk.DISABLED)
 
     def disable_all_except(self, active_button):
         for button in [
@@ -152,14 +217,10 @@ class FunctionButtonSection:
         messagebox.showinfo(title, description)
 
     def set_buttons_state(self, state):
-        self.btn_func1.config(state=state)
+        self.dependency_highlighting.config(state=state)
         self.btn_heatmap.config(state=state)
         self.btn_root_nodes.config(state=state)
         self.btn_cascade_rename.config(state=state)
 
     def pack(self):
         self.frame.pack(fill="x", anchor="w")
-
-    @staticmethod
-    def show_help(title, description):
-        messagebox.showinfo(title, description)
