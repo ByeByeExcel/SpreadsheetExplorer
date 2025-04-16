@@ -159,3 +159,7 @@ class FunctionButtonSection:
 
     def pack(self):
         self.frame.pack(fill="x", anchor="w")
+
+    @staticmethod
+    def show_help(title, description):
+        messagebox.showinfo(title, description)

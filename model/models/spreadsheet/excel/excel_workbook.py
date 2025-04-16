@@ -28,7 +28,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
     def set_range_color(self, cell_range: CellAddress, color: str):
         self._get_range(cell_range.sheet, cell_range.address).color = color
 
-    def set_ranges_color(self, cell_ranges: [CellAddress], color: str):
+    def set_ranges_color(self, cell_ranges: list[CellAddress], color: str):
         self.disable_screen_updating()
         try:
             for cell_range in cell_ranges:
@@ -77,10 +77,10 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             for sheet in self.connected_workbook.sheets:
                 sheet: xlwings.Sheet
                 used_range: xlwings.Range = sheet.used_range
-                cell_addresses_2d: [[str]] = generate_addresses(used_range.row, used_range.column, used_range.shape)
+                cell_addresses_2d: list[list[str]] = generate_addresses(used_range.row, used_range.column, used_range.shape)
 
                 for row in cell_addresses_2d:
-                    row: [str]
+                    row: list[str]
                     for cell_address_string in row:
                         cell_address: CellAddress = CellAddress(self.name, sheet.name, cell_address_string)
                         xw_cell: xlwings.Range = sheet.range(cell_address_string)

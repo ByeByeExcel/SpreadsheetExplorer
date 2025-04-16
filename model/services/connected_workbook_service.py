@@ -8,7 +8,7 @@ from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpre
 
 
 class ConnectedWorkbookService:
-    _workbook_click_watchers: [WorkbookClickWatcher] = []
+    _workbook_click_watchers: list[WorkbookClickWatcher] = []
 
     def __init__(self, connection_service: ISpreadsheetConnectionService, parser_service: ISpreadsheetParserService,
                  app_state: AppState):

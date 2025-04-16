@@ -5,10 +5,10 @@ from model.services.functionality.interactive_painting.selection_listener.highli
 
 
 class InteractivePaintingService:
-    _selection_observers: dict[Feature, HighlightCellSelectionObserver] = {}
 
     def __init__(self, app_state: AppState) -> None:
         self._app_state = app_state
+        self._selection_observers: dict[Feature, HighlightCellSelectionObserver] = {}
 
     def highlight_dependents_precedents(self) -> None:
         if not self._app_state.check_feature_startable(Feature.DEPENDENCY_HIGHLIGHTING):
