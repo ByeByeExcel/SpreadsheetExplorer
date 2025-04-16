@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.spreadsheet_classes import Workbook, Cell
+from model.models.spreadsheet.spreadsheet_classes import Workbook
 
 
 class IConnectedWorkbook(ABC, Workbook):
@@ -19,7 +19,7 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def set_ranges_color(self, cell: [CellAddress], color: str):
+    def set_ranges_color(self, cell: set[CellAddress], color: str):
         pass
 
     @abstractmethod

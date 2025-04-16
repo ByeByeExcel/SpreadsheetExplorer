@@ -22,7 +22,7 @@ class RenamingService:
             raise ValueError(f"Name {new_name} already exists in workbook {cell.workbook}.")
 
         workbook.add_name(cell, new_name)
-        dependents: [CellAddress] = workbook.cell_dependencies.dependents.get(cell)
+        dependents: set[CellAddress] = workbook.cell_dependencies.dependents.get(cell)
         if dependents:
             for dependent in dependents:
                 if not dependent.is_cell_reference():

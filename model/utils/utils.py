@@ -60,7 +60,7 @@ def column_number_to_letter(n: int) -> str:
     return result
 
 
-def generate_addresses(start_row: int, start_col: int, shape: Tuple[int, int]) -> [[str]]:
+def generate_addresses(start_row: int, start_col: int, shape: Tuple[int, int]) -> list[list[str]]:
     n_rows, n_cols = shape
     grid = [
         [

@@ -22,11 +22,11 @@ class ExcelParserService(ISpreadsheetParserService):
             if isinstance(node['inputs'], list):
                 continue  # Skip if inputs are a list, as this is not a valid case
 
-            input_ranges_as_string: [str] = list(node['inputs'].keys())
-            output_ranges_as_string: [str] = node['outputs']
+            input_ranges_as_string: list[str] = list(node['inputs'].keys())
+            output_ranges_as_string: list[str] = node['outputs']
 
-            input_ranges: [CellAddress] = []
-            input_cells: [CellAddress] = []
+            input_ranges: list[CellAddress] = []
+            input_cells: list[CellAddress] = []
 
             for input_range_as_string in input_ranges_as_string:
                 input_cells_as_string = self._get_individual_cells_from_range(input_range_as_string, dsp)
@@ -57,7 +57,7 @@ class ExcelParserService(ISpreadsheetParserService):
         return dependencies
 
     @staticmethod
-    def _get_individual_cells_from_range(input_range: str, dsp) -> [str]:
+    def _get_individual_cells_from_range(input_range: str, dsp) -> list[str]:
         if dsp.function_nodes.get("=" + input_range) is not None:
             return dsp.function_nodes.get("=" + input_range)['function'].inputs.keys()
         else:

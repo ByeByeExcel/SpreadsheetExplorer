@@ -5,9 +5,9 @@ description = "A Tkinter + xlwings desktop app to read Excel files"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "ruff==0.11.2",
+    "ruff==0.11.5",
     "xlwings==0.33.11",
-    "formulas==1.2.8",
+    "formulas==1.2.9",
     "openpyxl==3.1.5",
     "graphviz==0.20.3",
     "docutils==0.21.2",
