@@ -23,10 +23,6 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def set_cells_color(self, cell: [Cell], color: str):
-        pass
-
-    @abstractmethod
     def get_selected_cell(self) -> CellAddress:
         pass
 

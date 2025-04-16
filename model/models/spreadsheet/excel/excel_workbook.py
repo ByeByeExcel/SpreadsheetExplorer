@@ -4,7 +4,6 @@ import xlwings
 
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.spreadsheet_classes import Cell
 from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address, \
     convert_xlwings_sheet
 from model.utils.colour_utils import get_hex_color_from_tuple
@@ -31,15 +30,11 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def set_ranges_color(self, cell_ranges: [CellAddress], color: str):
         self.disable_screen_updating()
-        for cell_range in cell_ranges:
-            self.set_range_color(cell_range, color)
-        self.enable_screen_updating()
-
-    def set_cells_color(self, cells: [Cell], color: str):
-        self.disable_screen_updating()
-        for cell in cells:
-            self.set_range_color(cell.address, color)
-        self.enable_screen_updating()
+        try:
+            for cell_range in cell_ranges:
+                self.set_range_color(cell_range, color)
+        finally:
+            self.enable_screen_updating()
 
     def get_selected_cell(self) -> CellAddress:
         selection = self.connected_workbook.selection
