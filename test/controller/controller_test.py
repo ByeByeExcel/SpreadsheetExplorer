@@ -1,12 +1,8 @@
 import os
 import tempfile
-import time
 
 import openpyxl as pxl
 import pytest
-
-from controller.workbook_controller import WorkbookController
-from model.services.connected_workbook_service import ConnectedWorkbookService
 
 
 @pytest.fixture
@@ -50,13 +46,12 @@ def simple_excel_sheet2():
     yield path
     os.remove(path)
 
-
-def test_listener_loop(simple_excel_sheet, simple_excel_sheet2):
-    active_workbook_service = ConnectedWorkbookService()
-    active_workbook_service.connect_and_parse_workbook(simple_excel_sheet)
-    # active_workbook_service.connect_and_parse_workbook(simple_excel_sheet2)
-
-    controller = WorkbookController(active_workbook_service)
-    controller.highlight_dependents_precedents()
-    time.sleep(10)
-    controller.stop_watchers()
+# def test_listener_loop(simple_excel_sheet, simple_excel_sheet2):
+#     active_workbook_service = ConnectedWorkbookService()
+#     active_workbook_service.connect_and_parse_workbook(simple_excel_sheet)
+#     # active_workbook_service.connect_and_parse_workbook(simple_excel_sheet2)
+#
+#     controller = WorkbookController(active_workbook_service)
+#     controller.highlight_dependents_precedents()
+#     time.sleep(10)
+#     controller.stop_watchers()

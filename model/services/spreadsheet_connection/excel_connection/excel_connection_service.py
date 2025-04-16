@@ -6,7 +6,7 @@ from model.services.spreadsheet_connection.i_spreadsheet_connection_service impo
 
 
 class ExcelConnectionService(ISpreadsheetConnectionService):
-    def get_open_workbooks(self) -> [str]:
+    def get_open_workbooks(self) -> list[str]:
         app = xw.apps.active
         if not app:
             raise Exception('Excel is not running.')

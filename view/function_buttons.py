@@ -99,9 +99,6 @@ class FunctionButtonSection:
         except Exception as e:
             self.output.write(f"[ERROR] Heatmap toggle failed: {e}")
 
-    def show_help(self, title, description):
-        messagebox.showinfo(title, description)
-
     def set_buttons_state(self, state):
         self.dependency_highlighting.config(state=state)
         self.btn_heatmap.config(state=state)
@@ -109,3 +106,7 @@ class FunctionButtonSection:
 
     def pack(self):
         self.frame.pack(fill="x", anchor="w")
+
+    @staticmethod
+    def show_help(title, description):
+        messagebox.showinfo(title, description)
