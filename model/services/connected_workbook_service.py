@@ -28,13 +28,13 @@ class ConnectedWorkbookService:
             raise Exception(f"Error connecting workbook '{filename}'")
         dependencies: CellDependencies = self._parser_service.get_dependencies(connected_workbook.fullpath)
         connected_workbook.cell_dependencies = dependencies
-        self._app_state.connected_workbooks[connected_workbook.name.lower()] = connected_workbook
+        self._app_state.connected_workbook = connected_workbook
         self.start_watching_selected_cell()
 
     def start_watching_selected_cell(self):
         self.stop_watching_selected_cell()
-        for connected_workbook in self._app_state.connected_workbooks.values():
-            watcher = WorkbookClickWatcher(connected_workbook, self._update_selected_cell)
+        if self._app_state.connected_workbook:
+            watcher = WorkbookClickWatcher(self._app_state.connected_workbook, self._update_selected_cell)
             watcher.start()
             self._workbook_click_watchers.append(watcher)
 
@@ -46,7 +46,6 @@ class ConnectedWorkbookService:
     def disconnect_all_workbooks(self) -> None:
         self.stop_watching_selected_cell()
         self._app_state.selected_cell.remove_all_observers()
-        self._app_state.connected_workbooks.clear()
 
     def _update_selected_cell(self, new_cell: CellAddress) -> None:
         self._app_state.selected_cell.set_value(new_cell)

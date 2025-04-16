@@ -23,10 +23,6 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def set_cells_color(self, cell: [Cell], color: str):
-        pass
-
-    @abstractmethod
     def get_selected_cell(self) -> CellAddress:
         pass
 
@@ -40,4 +36,25 @@ class IConnectedWorkbook(ABC, Workbook):
 
     @abstractmethod
     def set_formula(self, cell: CellAddress, formula: str):
+        pass
+
+    @abstractmethod
+    def disable_screen_updating(self):
+        pass
+
+    @abstractmethod
+    def enable_screen_updating(self):
+        pass
+
+    @abstractmethod
+    def grayscale_colors_and_return_initial_colors(self) -> dict[CellAddress, str]:
+        pass
+
+    @abstractmethod
+    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(self, colors: dict[CellAddress, str]) -> dict[
+        CellAddress, str]:
+        pass
+
+    @abstractmethod
+    def set_colors_from_dict(self, colors: dict[CellAddress, str]):
         pass
