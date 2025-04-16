@@ -97,6 +97,7 @@ class FunctionButtonSection:
 
         self.cascade_entry = tk.Entry(self.frame, width=20, state=tk.DISABLED)
         self.cascade_entry.grid(row=3, column=2, padx=(5, 0), sticky="w")
+        self.cascade_entry.bind("<KeyRelease>", self.validate_cascade_input)
 
         tk.Button(
             self.frame,
@@ -122,11 +123,13 @@ class FunctionButtonSection:
         try:
             if not self.app_state.is_active(Feature.DEPENDENTS_HEATMAP):
                 self.feature_controller.show_heatmap()
+                self.app_state.set_feature_active(Feature.DEPENDENTS_HEATMAP)
                 self.btn_heatmap.config(bg="orange", text="Hide Heatmap")
                 self.disable_all_except(self.btn_heatmap)
                 self.output.write("[Heatmap] Activated.")
             else:
                 self.feature_controller.hide_heatmap()
+                self.app_state.set_feature_inactive(Feature.DEPENDENTS_HEATMAP)
                 self.btn_heatmap.config(bg="SystemButtonFace", text="Show Heatmap")
                 self.enable_all_buttons()
                 self.output.write("[Heatmap] Deactivated.")
@@ -137,12 +140,14 @@ class FunctionButtonSection:
         try:
             if not self.root_nodes_active:
                 self.feature_controller.show_root_nodes()
+                self.app_state.set_feature_active(Feature.ROOT_NODES)
                 self.btn_root_nodes.config(bg="orange", text="Hide Root Nodes")
                 self.disable_all_except(self.btn_root_nodes)
                 self.output.write("[Root Nodes] Activated.")
                 self.root_nodes_active = True
             else:
                 self.feature_controller.hide_root_nodes()
+                self.app_state.set_feature_inactive(Feature.ROOT_NODES)
                 self.btn_root_nodes.config(bg="SystemButtonFace", text="Show Root Nodes")
                 self.enable_all_buttons()
                 self.output.write("[Root Nodes] Deactivated.")
@@ -161,7 +166,6 @@ class FunctionButtonSection:
             self.cascade_entry.delete(0, tk.END)
             self.cascade_entry.config(state=tk.NORMAL, bg="white")
             self.cascade_submit.config(state=tk.DISABLED)
-            self.cascade_entry.bind("<KeyRelease>", self.validate_cascade_input)
 
     def validate_cascade_input(self, event=None):
         value = self.cascade_entry.get().strip()
