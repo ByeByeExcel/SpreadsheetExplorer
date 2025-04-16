@@ -23,7 +23,7 @@ def run_view():
                                                                                     app_state)
 
     interactive_painting_service: InteractivePaintingService = InteractivePaintingService(app_state)
-    painting_service: PaintingService = PaintingService()
+    painting_service: PaintingService = PaintingService(app_state)
     renaming_service: RenamingService = RenamingService(app_state)
 
     workbook_controller = WorkbookController(connected_workbook_service)

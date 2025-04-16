@@ -1,4 +1,5 @@
 import re
+from typing import Tuple
 
 
 def clamp(value, min_value, max_value):
@@ -49,3 +50,23 @@ def replace_cell_reference_in_formula(formula: str, target_cell: str, new_name: 
     pattern = rf"(?<![A-Z0-9$])(\$?{col}\$?{row})(?![0-9A-Z])"
 
     return re.sub(pattern, new_name, formula, flags=re.IGNORECASE)
+
+
+def column_number_to_letter(n: int) -> str:
+    result = ''
+    while n > 0:
+        n, remainder = divmod(n - 1, 26)
+        result = chr(65 + remainder) + result
+    return result
+
+
+def generate_addresses(start_row: int, start_col: int, shape: Tuple[int, int]) -> [[str]]:
+    n_rows, n_cols = shape
+    grid = [
+        [
+            f"{column_number_to_letter(start_col + col)}{start_row + row}"
+            for col in range(n_cols)
+        ]
+        for row in range(n_rows)
+    ]
+    return grid
