@@ -23,10 +23,6 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def set_cells_color(self, cell: [Cell], color: str):
-        pass
-
-    @abstractmethod
     def get_selected_cell(self) -> CellAddress:
         pass
 
@@ -40,4 +36,12 @@ class IConnectedWorkbook(ABC, Workbook):
 
     @abstractmethod
     def set_formula(self, cell: CellAddress, formula: str):
+        pass
+
+    @abstractmethod
+    def disable_screen_updating(self):
+        pass
+
+    @abstractmethod
+    def enable_screen_updating(self):
         pass

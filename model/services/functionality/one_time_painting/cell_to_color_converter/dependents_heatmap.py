@@ -12,6 +12,8 @@ class DependentsHeatmap(CellToColorConverter):
     _MAX_DEPENDENTS_FOR_COLOR = 10
 
     def convert(self, cell: Cell) -> Optional[str]:
+        if not cell:
+            return None
         dependents = self.workbook.cell_dependencies.dependents.get(cell.address)
         if dependents is None:
             return None

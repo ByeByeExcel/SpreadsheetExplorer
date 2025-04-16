@@ -31,5 +31,8 @@ class HighlightCellSelectionObserver(ISelectionObserver):
         self.workbook.set_ranges_color(dependents, ColourScheme[ColorRole.DEPENDENT])
 
     def stop(self):
+        self.workbook.disable_screen_updating()
         for addr, color in self.original_colors.items():
             self.workbook.set_range_color(addr, color)
+        self.original_colors.clear()
+        self.workbook.enable_screen_updating()
