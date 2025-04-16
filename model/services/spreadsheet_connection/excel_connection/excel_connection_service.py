@@ -8,6 +8,8 @@ from model.services.spreadsheet_connection.i_spreadsheet_connection_service impo
 class ExcelConnectionService(ISpreadsheetConnectionService):
     def get_open_workbooks(self) -> [str]:
         app = xw.apps.active
+        if not app:
+            raise Exception('Excel is not running.')
         return [book.name for book in app.books]
 
     def connect_to_workbook(self, filename: str) -> IConnectedWorkbook:

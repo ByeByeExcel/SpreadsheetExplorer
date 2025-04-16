@@ -71,22 +71,37 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self.enable_screen_updating()
 
     def grayscale_colors_and_return_initial_colors(self) -> dict[CellAddress, str]:
-        colors: dict[CellAddress, str] = {}
-        self.disable_screen_updating()
-        for sheet in self.connected_workbook.sheets:
-            sheet: xlwings.Sheet
-            cell_range: xlwings.Range = sheet.used_range
-            cell_addresses_2d: [[str]] = generate_addresses(cell_range.row, cell_range.column, cell_range.shape)
+        new_colors: dict[CellAddress, str] = {}
+        return self.initial_to_grayscale_and_set_from_dict_and_return_initial_colors(new_colors)
 
-            for row in cell_addresses_2d:
-                row: [str]
-                for cell_address in row:
-                    cell: xlwings.Range = sheet.range(cell_address)
-                    color: tuple = cell.color
-                    colors[CellAddress(self.name, sheet.name, cell_address)] = get_hex_color_from_tuple(color)
-                    cell.color = rgb_to_grayscale(color)
-        self.enable_screen_updating()
-        return colors
+    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(self, new_colors: dict[CellAddress, str]) -> \
+            dict[CellAddress, str]:
+        initial_colors: dict[CellAddress, str] = {}
+        self.disable_screen_updating()
+        try:
+            for sheet in self.connected_workbook.sheets:
+                sheet: xlwings.Sheet
+                used_range: xlwings.Range = sheet.used_range
+                cell_addresses_2d: [[str]] = generate_addresses(used_range.row, used_range.column, used_range.shape)
+
+                for row in cell_addresses_2d:
+                    row: [str]
+                    for cell_address_string in row:
+                        cell_address: CellAddress = CellAddress(self.name, sheet.name, cell_address_string)
+                        xw_cell: xlwings.Range = sheet.range(cell_address_string)
+                        # get and save initial color
+                        initial_color: tuple = xw_cell.color
+                        initial_colors[cell_address] = get_hex_color_from_tuple(initial_color)
+                        # set new color
+                        if new_colors and cell_address in new_colors:
+                            new_color = new_colors[cell_address]
+                        else:
+                            new_color = rgb_to_grayscale(initial_color)
+                        if new_color:
+                            xw_cell.color = new_color
+        finally:
+            self.enable_screen_updating()
+            return initial_colors
 
     def _get_range(self, sheet: str, cell_range: str) -> xlwings.Range:
         return self._get_sheet(sheet).range(cell_range)

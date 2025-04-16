@@ -55,5 +55,10 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
+    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(self, colors: dict[CellAddress, str]) -> dict[
+        CellAddress, str]:
+        pass
+
+    @abstractmethod
     def set_colors_from_dict(self, colors: dict[CellAddress, str]):
         pass
