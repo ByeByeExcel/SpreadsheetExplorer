@@ -37,7 +37,7 @@ class ExcelParserService(ISpreadsheetParserService):
             return
 
         sheet: xw.Sheet = self.wb.sheets[cell.sheet]
-        cell_range = xw.sheets[cell.sheet].range(cell.address)
+        cell_range = sheet.range(cell.address)
         if cell_range is None or sheet is None:
             return
 
