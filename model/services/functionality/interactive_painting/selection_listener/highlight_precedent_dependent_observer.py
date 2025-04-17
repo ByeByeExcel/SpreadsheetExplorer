@@ -1,7 +1,7 @@
 from typing import Optional
 
 from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 from model.services.functionality.interactive_painting.selection_listener.i_selection_observer import ISelectionObserver
 from model.settings.colour_scheme import ColourScheme, ColorRole
 
@@ -18,8 +18,12 @@ class HighlightCellSelectionObserver(ISelectionObserver):
             self.workbook.set_range_color(addr, color)
         self.original_colors.clear()
 
-        precedents = self.workbook.cell_dependencies.precedents.get(new_cell, set())
-        dependents = self.workbook.cell_dependencies.dependents.get(new_cell, set())
+        if new_cell.address_type == CellAddressType.RANGE:
+            precedents = set()
+        else:
+            precedents = self.workbook.cell_dependencies.resolve_precedents(new_cell, set())
+
+        dependents = self.workbook.cell_dependencies.resolve_dependents(new_cell, set())
 
         for precedent in precedents:
             self.original_colors[precedent] = self.workbook.get_range_color(precedent)

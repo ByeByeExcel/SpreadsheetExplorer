@@ -1,13 +1,24 @@
-import re
+from enum import Enum, auto
+from typing import Optional
 
 from model.utils.utils import get_row_col_from_address
 
 
+class CellAddressType(Enum):
+    EXTERNAL = auto()
+    CELL = auto()
+    RANGE = auto()
+    DEFINED_NAME_GLOBAL = auto()
+    DEFINED_NAME_LOCAL = auto()
+
+
 class CellAddress:
-    def __init__(self, workbook: str, sheet: str, address: str):
+    def __init__(self, workbook: str, sheet: Optional[str], address: str,
+                 address_type: CellAddressType = CellAddressType.CELL):
         self.workbook: str = workbook.lower()
-        self.sheet: str = sheet.lower()
+        self.sheet: Optional[str] = sheet.lower() if sheet else None
         self.address: str = address.replace("$", "").lower()
+        self.address_type: CellAddressType = address_type
 
     def __repr__(self):
         return f"<CellAddress '[{self.workbook}]{self.sheet}'!{self.address}>"
@@ -42,12 +53,3 @@ class CellAddress:
                 return True
             except ValueError:
                 return False
-
-    @classmethod
-    def from_excel_ref(cls, ref: str):
-        match = re.match(r"'?\[(.*?)](.*?)'?!(.+)", ref)
-        if match:
-            workbook, sheet, address = match.groups()
-            return cls(workbook, sheet, address)
-
-        raise ValueError(f"Invalid reference: {ref}")

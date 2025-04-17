@@ -1,6 +1,6 @@
 import xlwings as xw
 
-from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 from model.models.spreadsheet.spreadsheet_classes import Worksheet, Cell
 
 
@@ -21,5 +21,7 @@ def convert_xlwings_sheet(xlwings_sheet: xw.Sheet) -> Worksheet:
     return custom_worksheet
 
 
-def convert_xlwings_address(cell: xw.Range) -> CellAddress:
-    return CellAddress(cell.sheet.book.name, cell.sheet.name, cell.address)
+def convert_xlwings_address(cell_range: xw.Range) -> CellAddress:
+    range_type: CellAddressType = CellAddressType.CELL if cell_range.shape == (1, 1) else CellAddressType.RANGE
+
+    return CellAddress(cell_range.sheet.book.name, cell_range.sheet.name, cell_range.address, range_type)
