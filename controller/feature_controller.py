@@ -37,6 +37,6 @@ class FeatureController:
 
     # cascade renaming
     def start_cascade_rename(self, name: str) -> None:
-        if not str:
+        if not name:
             raise ValueError("Name can not be empty.")
         self._renaming_service.cascade_name_cell(name)
