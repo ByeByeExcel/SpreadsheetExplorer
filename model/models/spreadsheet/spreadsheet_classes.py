@@ -1,4 +1,4 @@
-from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 
 
 class Cell:
@@ -46,3 +46,19 @@ class CellDependencies:
     def __init__(self):
         self.precedents: dict[CellAddress, set[CellAddress]] = {}
         self.dependents: dict[CellAddress, set[CellAddress]] = {}
+
+    def resolve_dependents(self, cell: CellAddress, resolved_dependents: set[CellAddress]) -> set[CellAddress]:
+        for dependent in self.dependents.get(cell, set()):
+            if dependent.address_type == CellAddressType.CELL:
+                resolved_dependents.add(dependent)
+            elif dependent.address_type != CellAddressType.EXTERNAL:
+                resolved_dependents.update(self.resolve_dependents(dependent, resolved_dependents))
+        return resolved_dependents
+
+    def resolve_precedents(self, cell: CellAddress, resolved_precedents: set[CellAddress]) -> set[CellAddress]:
+        for precedent in self.precedents.get(cell, set()):
+            if precedent.address_type == CellAddressType.CELL:
+                resolved_precedents.add(precedent)
+            elif precedent.address_type != CellAddressType.EXTERNAL:
+                resolved_precedents.update(self.resolve_precedents(precedent, resolved_precedents))
+        return resolved_precedents
