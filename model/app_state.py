@@ -37,9 +37,9 @@ class AppState:
         if self.active_feature.value == feature:
             self.active_feature.set_value(None)
         elif self.active_feature.value is None:
-            raise ValueError("No feature is active.")
+            return
         else:
-            raise ValueError(f"Feature {feature} is not active.")
+            raise ValueError(f"Another feature ({feature}) is not active.")
 
     def is_feature_active(self, feature: Feature) -> bool:
         return feature == self.active_feature.value
