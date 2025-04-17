@@ -14,8 +14,8 @@ class DependentsHeatmap(CellToColorConverter):
     def convert(self, cell: Cell) -> Optional[str]:
         if not cell:
             return None
-        dependents = self.workbook.cell_dependencies.dependents.get(cell.address)
-        if dependents is None:
+        dependents = self.workbook.cell_dependencies.resolve_dependents(cell.address, set())
+        if not dependents:
             return None
         k = clamp(len(dependents) / self._MAX_DEPENDENTS_FOR_COLOR, 0, 1)
         return interpolate_color(ColourScheme[ColorRole.HEATMAP_0], ColourScheme[ColorRole.HEATMAP_1], k)
