@@ -1,4 +1,5 @@
 from model.app_state import AppState
+from model.feature import Feature
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
 from model.models.spreadsheet.spreadsheet_classes import Cell
@@ -10,8 +11,9 @@ class RenamingService:
         self._app_state = app_state
 
     def cascade_name_cell(self, new_name: str):
-        if not self._app_state.is_connected_to_workbook():
-            raise ValueError("No connected workbook.")
+        if self._app_state.can_start_feature():
+            raise ValueError(f"Can not start cascade renaming.")
+        self._app_state.set_feature_active(Feature.CASCADE_RENAME)
 
         workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
         cell: CellAddress = self._app_state.selected_cell.value
@@ -30,3 +32,5 @@ class RenamingService:
                 dependent_cell: Cell = workbook.get_cell(dependent)
                 new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
                 workbook.set_formula(dependent, new_formula)
+
+        self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)
