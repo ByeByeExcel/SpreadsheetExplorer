@@ -11,8 +11,8 @@ class RenamingService:
         self._app_state = app_state
 
     def cascade_name_cell(self, new_name: str):
-        if self._app_state.can_start_feature():
-            raise ValueError(f"Can not start cascade renaming.")
+        if not self._app_state.can_start_feature():
+            raise ValueError("Can not start cascade renaming.")
         self._app_state.set_feature_active(Feature.CASCADE_RENAME)
 
         workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
