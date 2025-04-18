@@ -15,9 +15,10 @@ class ObservableValue(Generic[T]):
     @value.setter
     def value(self, new_value: T):
         if new_value != self._value:
-            for callback in self._observers:
-                callback(new_value, self._value)
+            old_value = self._value
             self._value = new_value
+            for callback in self._observers:
+                callback(new_value, old_value)
 
     def set_value(self, value: T):
         self.value = value

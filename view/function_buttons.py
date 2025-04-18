@@ -1,10 +1,26 @@
 import logging
 import tkinter as tk
+import re
 from tkinter import messagebox
 
 from controller.feature_controller import FeatureController
 from model.app_state import AppState
 from model.feature import Feature
+
+VALID_NAME_REGEX = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
+CELL_REF_REGEX = re.compile(r"^[A-Za-z]{1,3}[0-9]{1,7}$")
+
+class FeatureButtonTextManager:
+    BUTTON_TEXTS = {
+        Feature.DEPENDENCY_HIGHLIGHTING: ("Show dependents/precedents", "Hide dependents/precedents"),
+        Feature.DEPENDENTS_HEATMAP: ("Show Heatmap", "Hide Heatmap"),
+        Feature.ROOT_NODES: ("Show Root Nodes", "Hide Root Nodes"),
+        Feature.CASCADE_RENAME: ("Cascade Rename", "Cancel Renaming"),
+    }
+
+    @classmethod
+    def get_text(cls, feature: Feature, active: bool) -> str:
+        return cls.BUTTON_TEXTS.get(feature, ("Show", "Hide"))[1 if active else 0]
 
 
 class FunctionButtonSection:
@@ -17,96 +33,189 @@ class FunctionButtonSection:
         if pack:
             self.pack()
 
-        logging.debug("FunctionButtonSection initialized with controller: %s", self.feature_controller)
+        self.buttons: dict[Feature, tk.Button] = {}
 
-        # === Function 1 ===
-        self.dependency_highlighting = tk.Button(
-            self.frame,
-            text="Show dependents/precedents",
-            width=25,
-            height=1,
-            state=tk.DISABLED,
-            command=self.toggle_dependency_highlighting
+        # === Row 0: Dependency Highlighting ===
+        self.buttons[Feature.DEPENDENCY_HIGHLIGHTING] = self._create_feature_button(
+            row=0,
+            feature=Feature.DEPENDENCY_HIGHLIGHTING,
+            command=self.toggle_dependency_highlighting,
+            help_text="This function highlights dependents and precedents."
         )
-        self.dependency_highlighting.grid(row=0, column=0, sticky="w", pady=4)
 
-        tk.Button(
-            self.frame,
-            text="?",
-            width=2,
-            command=lambda: self.show_help("Function 1", "This function highlights dependents and precedents.")
-        ).grid(row=0, column=1)
-
-        # === Heatmap Toggle Button ===
-        self.btn_heatmap = tk.Button(
-            self.frame,
-            text="Show Heatmap",
-            width=25,
-            height=1,
-            state=tk.DISABLED,
-            command=self.toggle_heatmap
+        # === Row 1: Heatmap ===
+        self.buttons[Feature.DEPENDENTS_HEATMAP] = self._create_feature_button(
+            row=1,
+            feature=Feature.DEPENDENTS_HEATMAP,
+            command=self.toggle_heatmap,
+            help_text="Toggles a heatmap view of the spreadsheet."
         )
-        self.btn_heatmap.grid(row=1, column=0, sticky="w", pady=4)
 
-        tk.Button(
-            self.frame,
-            text="?",
-            width=2,
-            command=lambda: self.show_help("Heatmap", "Toggles a heatmap view of the spreadsheet.")
-        ).grid(row=1, column=1)
-
-        # === Function 3 placeholder ===
-        self.btn_func3 = tk.Button(
-            self.frame,
-            text="Function 3",
-            width=25,
-            height=1,
-            state=tk.DISABLED,
-            command=lambda: self.output.write("[Function 3] Coming soon...")
+        # === Row 2: Root Nodes ===
+        self.buttons[Feature.ROOT_NODES] = self._create_feature_button(
+            row=2,
+            feature=Feature.ROOT_NODES,
+            command=self.toggle_root_nodes,
+            help_text="Displays cells with no precedents."
         )
-        self.btn_func3.grid(row=2, column=0, sticky="w", pady=4)
 
-        tk.Button(
+        # === Row 3: Cascade Rename ===
+        self.cascade_rename_input = tk.Entry(self.frame, width=20, state=tk.DISABLED)
+        self.cascade_rename_submit = tk.Button(
+            self.frame, text="Submit", width=10, state=tk.DISABLED, command=self._submit_cascade_rename
+        )
+        self.btn_cascade_rename = tk.Button(
             self.frame,
-            text="?",
-            width=2,
-            command=lambda: self.show_help("Function 3", "Coming soon.")
-        ).grid(row=2, column=1)
+            text=FeatureButtonTextManager.get_text(Feature.CASCADE_RENAME, False),
+            width=25,
+            command=self._toggle_cascade_rename
+        )
+        self.btn_cascade_rename.grid(row=3, column=0, pady=6, sticky="w")
+        self.cascade_rename_input.grid(row=3, column=1, padx=6)
+        self.cascade_rename_submit.grid(row=3, column=2)
+        tk.Button(
+            self.frame, text="?", width=2,
+            command=lambda: self.show_help("Cascade Rename", "Rename the selected cell and all its dependencies.")
+        ).grid(row=3, column=3, padx=(10, 0))
 
-    def toggle_dependency_highlighting(self):
-        try:
-            if not self.app_state.is_feature_active(Feature.DEPENDENCY_HIGHLIGHTING):
-                self.feature_controller.start_dependency_highlighting()
-                self.dependency_highlighting.config(bg="orange", text="Hide dependents/precedents")
-                self.output.write("[Dependency Highlighting] Activated.")
-            else:
-                self.feature_controller.stop_dependency_highlighting()
-                self.dependency_highlighting.config(bg=self.frame.cget("bg"), text="Show dependents/precedents")
-                self.output.write("[Dependency Highlighting] Deactivated.")
-        except Exception as e:
-            self.output.write(f"[ERROR] Dependency Highlighting toggle failed: {e}")
+        self.app_state.active_feature.add_observer(lambda new, old: self.update_buttons())
+        self.app_state.is_connected_to_workbook.add_observer(lambda new, old: self.update_buttons())
 
-    def toggle_heatmap(self):
-        try:
-            if not self.app_state.is_feature_active(Feature.DEPENDENTS_HEATMAP):
-                self.feature_controller.show_heatmap()
-                self.btn_heatmap.config(bg="orange", text="Hide Heatmap")
-                self.output.write("[Heatmap] Activated.")
-            else:
-                self.feature_controller.hide_heatmap()
-                self.btn_heatmap.config(bg=self.frame.cget("bg"), text="Show Heatmap")
-                self.output.write("[Heatmap] Deactivated.")
-        except Exception as e:
-            self.output.write(f"[ERROR] Heatmap toggle failed: {e}")
-
-    def set_buttons_state(self, state):
-        self.dependency_highlighting.config(state=state)
-        self.btn_heatmap.config(state=state)
-        self.btn_func3.config(state=state)
+        self.update_buttons()
 
     def pack(self):
-        self.frame.pack(fill="x", anchor="w")
+        self.frame.pack(anchor="w", pady=10)
 
-    @staticmethod
-    def show_help(title, description):
-        messagebox.showinfo(title, description)
+    def _create_feature_button(self, row, feature: Feature, command, help_text):
+        btn = tk.Button(self.frame, text="", width=25, state=tk.DISABLED, command=command)
+        btn.grid(row=row, column=0, sticky="w", pady=4)
+
+        tk.Button(
+            self.frame,
+            text="?",
+            width=2,
+            command=lambda: self.show_help(feature.name, help_text)
+        ).grid(row=row, column=3, padx=(10, 0))
+
+        return btn
+
+    def update_buttons(self):
+        connected = self.app_state.is_connected_to_workbook.value
+        active_feature = self.app_state.active_feature.value
+
+        for feature, button in self.buttons.items():
+            is_active = feature == active_feature
+            if not connected:
+                button.config(state=tk.DISABLED)
+            elif active_feature is None or is_active:
+                button.config(state=tk.NORMAL)
+            else:
+                button.config(state=tk.DISABLED)
+
+            button.config(text=FeatureButtonTextManager.get_text(feature, is_active))
+
+        can_rename = connected and active_feature is None
+        self.btn_cascade_rename.config(state=tk.NORMAL if can_rename else tk.DISABLED)
+        if not can_rename:
+            self._reset_cascade_rename_ui()
+
+    def toggle_dependency_highlighting(self):
+        self._toggle_feature(
+            Feature.DEPENDENCY_HIGHLIGHTING,
+            self.feature_controller.start_dependency_highlighting,
+            self.feature_controller.stop_dependency_highlighting
+        )
+
+    def toggle_heatmap(self):
+        self._toggle_feature(
+            Feature.DEPENDENTS_HEATMAP,
+            self.feature_controller.show_heatmap,
+            self.feature_controller.hide_heatmap
+        )
+
+    def toggle_root_nodes(self):
+        self._toggle_feature(
+            Feature.ROOT_NODES,
+            self.feature_controller.show_root_nodes,
+            self.feature_controller.hide_root_nodes
+        )
+
+    def _toggle_feature(self, feature: Feature, start_func, stop_func):
+        try:
+            if self.app_state.is_feature_active(feature):
+                stop_func()
+            else:
+                start_func()
+        except ValueError as e:
+            logging.error(str(e))
+            self.output.write(f"[ERROR] {str(e)}")
+
+    def _toggle_cascade_rename(self):
+        if self.cascade_rename_input["state"] == tk.DISABLED:
+            self.cascade_rename_input.config(state=tk.NORMAL, bg="white")
+            self.cascade_rename_submit.config(state=tk.DISABLED)
+            self.btn_cascade_rename.config(
+                text=FeatureButtonTextManager.get_text(Feature.CASCADE_RENAME, True)
+            )
+            self.cascade_rename_input.delete(0, tk.END)
+
+            selected = self.app_state.selected_cell.value
+
+            if selected:
+                address = getattr(selected, "address", str(selected))
+                # Optional: pre-fill address, or leave blank
+                # self.cascade_rename_input.insert(0, f"{address}")
+
+            self.cascade_rename_input.bind("<KeyRelease>", self._on_rename_text_change)
+        else:
+            self._reset_cascade_rename_ui()
+
+    def _on_rename_text_change(self, event):
+        value = self.cascade_rename_input.get().strip()
+
+        # Validate name according to Excel conventions
+        is_valid = bool(VALID_NAME_REGEX.match(value)) and not CELL_REF_REGEX.match(value)
+
+        if is_valid:
+            self.cascade_rename_input.config(bg="#d0ffd0")  # light green
+            self.cascade_rename_submit.config(state=tk.NORMAL)
+        else:
+            self.cascade_rename_input.config(bg="#ffd0d0")  # light red
+            self.cascade_rename_submit.config(state=tk.DISABLED)
+
+    def _submit_cascade_rename(self):
+        rename_text = self.cascade_rename_input.get().strip()
+        selected = self.app_state.selected_cell.value
+
+        if not selected:
+            self.output.write("[ERROR] No cell selected for renaming.")
+            return
+
+        if not rename_text:
+            self.output.write("[ERROR] Rename input is empty.")
+            return
+
+        if not VALID_NAME_REGEX.match(rename_text) or CELL_REF_REGEX.match(rename_text):
+            self.output.write(
+                "[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
+            return
+
+        try:
+            self.feature_controller.start_cascade_rename(rename_text)
+            self.output.write(f"[Cascade Rename] Submitted: {selected.address} → {rename_text}")
+        except ValueError as e:
+            self.output.write(f"[ERROR] Rename failed: {str(e)}")
+
+        self._reset_cascade_rename_ui()
+
+    def _reset_cascade_rename_ui(self):
+        self.cascade_rename_input.config(state=tk.DISABLED, bg="SystemButtonFace")
+        self.cascade_rename_submit.config(state=tk.DISABLED)
+        self.btn_cascade_rename.config(
+            text=FeatureButtonTextManager.get_text(Feature.CASCADE_RENAME, False)
+        )
+        self.cascade_rename_input.unbind("<KeyRelease>")
+        self.cascade_rename_input.delete(0, tk.END)
+
+    def show_help(self, title, text):
+        messagebox.showinfo(title, text)

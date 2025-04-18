@@ -15,22 +15,29 @@ class RenamingService:
             raise ValueError("Can not start cascade renaming.")
         self._app_state.set_feature_active(Feature.CASCADE_RENAME)
 
-        workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
-        cell: CellAddress = self._app_state.selected_cell.value
-        if not cell:
-            raise ValueError("No cell selected.")
+        try:
+            workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
+            cell: CellAddress = self._app_state.selected_cell.value
+            if not cell:
+                raise ValueError("No cell selected.")
 
-        if workbook.get_names().get(new_name):
-            raise ValueError(f"Name {new_name} already exists in workbook {cell.workbook}.")
+            if workbook.get_names().get(new_name):
+                raise ValueError(f"Name {new_name} already exists in workbook {cell.workbook}.")
 
-        workbook.add_name(cell, new_name)
-        dependents: set[CellAddress] = workbook.cell_dependencies.dependents.get(cell)
-        if dependents:
-            for dependent in dependents:
-                if not dependent.is_cell_reference():
-                    continue
-                dependent_cell: Cell = workbook.get_cell(dependent)
-                new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
-                workbook.set_formula(dependent, new_formula)
+            workbook.add_name(cell, new_name)
+            dependents: set[CellAddress] = workbook.cell_dependencies.dependents.get(cell)
+            if dependents:
+                for dependent in dependents:
+                    if not dependent.is_cell_reference():
+                        continue
 
-        self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)
+                    dependent_cell: Cell = workbook.get_cell(dependent)
+
+                    if not dependent_cell:
+                        print(f"[WARNING] Could not find dependent cell {dependent.address} — skipping.")
+                        continue
+
+                    new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
+                    workbook.set_formula(dependent, new_formula)
+        finally:
+            self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)

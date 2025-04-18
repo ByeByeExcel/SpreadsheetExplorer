@@ -17,13 +17,13 @@ class MainView:
 
         self.root = tk.Tk()
         self.root.title("Excel Summary Tool")
-        self.root.geometry("650x550")
+        self.root.geometry("750x550")
 
         # === Create components but delay layout ===
         self.output = OutputSection(self.root, pack=False)
         self.buttons = FunctionButtonSection(self.root, self.output, self.feature_controller, self.app_state,
                                              pack=False)
-        self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,
+        self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,self.app_state,
                                                   pack=False)
 
         # === Pack components in correct top-down order ===
