@@ -29,7 +29,13 @@ class RenamingService:
             for dependent in dependents:
                 if not dependent.is_cell_reference():
                     continue
+
                 dependent_cell: Cell = workbook.get_cell(dependent)
+
+                if not dependent_cell:
+                    print(f"[WARNING] Could not find dependent cell {dependent.address} — skipping.")
+                    continue
+
                 new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
                 workbook.set_formula(dependent, new_formula)
 

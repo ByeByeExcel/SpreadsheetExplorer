@@ -17,7 +17,7 @@ class MainView:
 
         self.root = tk.Tk()
         self.root.title("Excel Summary Tool")
-        self.root.geometry("650x550")
+        self.root.geometry("750x550")
 
         # === Create components but delay layout ===
         self.output = OutputSection(self.root, pack=False)
