@@ -12,12 +12,15 @@ class HighlightCellSelectionObserver(ISelectionObserver):
         self.workbook = workbook
         self.original_colors: dict[CellAddress, Optional[str]] = {}
 
-    def __call__(self, new_cell: CellAddress, old_cell: CellAddress):
+    def __call__(self, new_cell: CellAddress, old_cell: Optional[CellAddress]):
         if new_cell.workbook != self.workbook.name.lower():
             return
         for addr, color in self.original_colors.items():
             self.workbook.set_range_color(addr, color)
         self.original_colors.clear()
+
+        if not new_cell:
+            return
 
         if new_cell.address_type == CellAddressType.RANGE:
             precedents = set()
@@ -41,3 +44,7 @@ class HighlightCellSelectionObserver(ISelectionObserver):
             self.workbook.set_range_color(addr, color)
         self.original_colors.clear()
         self.workbook.enable_screen_updating()
+
+    def initialize(self, initial_value: CellAddress):
+        if initial_value:
+            self(initial_value, None)
