@@ -20,6 +20,7 @@ class AppState:
     def set_connected_workbook(self, workbook: IConnectedWorkbook) -> None:
         self._connected_workbook = workbook
         self.is_connected_to_workbook.set_value(True)
+        print(self.is_connected_to_workbook.value)
 
     def clear_connected_workbook(self) -> None:
         self._connected_workbook = None

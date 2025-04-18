@@ -23,7 +23,7 @@ class MainView:
         self.output = OutputSection(self.root, pack=False)
         self.buttons = FunctionButtonSection(self.root, self.output, self.feature_controller, self.app_state,
                                              pack=False)
-        self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,
+        self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,self.app_state,
                                                   pack=False)
 
         # === Pack components in correct top-down order ===
