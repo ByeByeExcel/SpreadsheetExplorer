@@ -11,5 +11,5 @@ class WorkbookController:
     def connect_and_parse_workbook(self, filename: str) -> None:
         self._connected_workbook_service.connect_and_parse_workbook(filename)
 
-    def start_watching_selected_cell(self) -> None:
-        self._connected_workbook_service.start_watching_selected_cell()
+    def disconnect_workbook(self) -> None:
+        self._connected_workbook_service.disconnect_workbook()

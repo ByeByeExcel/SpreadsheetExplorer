@@ -1,5 +1,4 @@
 from model.app_state import AppState
-from model.feature import Feature
 from model.services.functionality.interactive_painting.interactive_painting_service import InteractivePaintingService
 from model.services.functionality.one_time_painting.painting_service import PaintingService
 from model.services.functionality.renaming_service import RenamingService
@@ -25,21 +24,19 @@ class FeatureController:
 
     # one-time painting features
     def show_heatmap(self) -> None:
-        self._painting_service.show_heatmap(self._app_state.connected_workbook)
+        self._painting_service.show_heatmap(self._app_state.get_connected_workbook())
 
     def hide_heatmap(self) -> None:
         self._painting_service.stop_heatmap()
 
     def show_root_nodes(self) -> None:
-        self._painting_service.show_root_nodes(self._app_state.connected_workbook)
+        self._painting_service.show_root_nodes(self._app_state.get_connected_workbook())
 
     def hide_root_nodes(self) -> None:
         self._painting_service.stop_root_nodes()
 
     # cascade renaming
     def start_cascade_rename(self, name: str) -> None:
-        if self._app_state.is_active(Feature.CASCADE_RENAME):
-            raise ValueError("Cascade renaming is already active.")
-        self._app_state.set_feature_active(Feature.CASCADE_RENAME)
+        if not name.strip():
+            raise ValueError("Name can not be empty.")
         self._renaming_service.cascade_name_cell(name)
-        self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)

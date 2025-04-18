@@ -26,13 +26,13 @@ class ConnectedWorkbookService:
         parser_service: ISpreadsheetParserService = ExcelParserService(connected_workbook)
         dependencies: CellDependencies = parser_service.get_dependencies()
         connected_workbook.cell_dependencies = dependencies
-        self._app_state.connected_workbook = connected_workbook
+        self._app_state.set_connected_workbook(connected_workbook)
         self.start_watching_selected_cell()
 
     def start_watching_selected_cell(self):
         self.stop_watching_selected_cell()
-        if self._app_state.connected_workbook:
-            watcher = WorkbookClickWatcher(self._app_state.connected_workbook, self._update_selected_cell)
+        if self._app_state.is_connected_to_workbook.value:
+            watcher = WorkbookClickWatcher(self._app_state.get_connected_workbook(), self._update_selected_cell)
             watcher.start()
             self._workbook_click_watchers.append(watcher)
 
@@ -41,9 +41,10 @@ class ConnectedWorkbookService:
             watcher.stop()
         self._workbook_click_watchers = []
 
-    def disconnect_all_workbooks(self) -> None:
+    def disconnect_workbook(self) -> None:
         self.stop_watching_selected_cell()
         self._app_state.selected_cell.remove_all_observers()
+        self._app_state.clear_connected_workbook()
 
     def _update_selected_cell(self, new_cell: CellAddress) -> None:
         self._app_state.selected_cell.set_value(new_cell)
