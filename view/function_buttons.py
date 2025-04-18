@@ -108,7 +108,7 @@ class FunctionButtonSection:
 
     def toggle_dependency_highlighting(self):
         try:
-            if not self.app_state.is_active(Feature.DEPENDENCY_HIGHLIGHTING):
+            if not self.app_state.is_feature_active(Feature.DEPENDENCY_HIGHLIGHTING):
                 self.feature_controller.start_dependency_highlighting()
                 self.dependency_highlighting.config(bg="orange", text="Hide dependents/precedents")
                 self.output.write("[Dependency Highlighting] Activated.")
@@ -121,7 +121,7 @@ class FunctionButtonSection:
 
     def toggle_heatmap(self):
         try:
-            if not self.app_state.is_active(Feature.DEPENDENTS_HEATMAP):
+            if not self.app_state.is_feature_active(Feature.DEPENDENTS_HEATMAP):
                 self.feature_controller.show_heatmap()
                 self.app_state.set_feature_active(Feature.DEPENDENTS_HEATMAP)
                 self.btn_heatmap.config(bg="orange", text="Hide Heatmap")
