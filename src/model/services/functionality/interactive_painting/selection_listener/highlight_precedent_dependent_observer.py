@@ -13,13 +13,11 @@ class HighlightCellSelectionObserver(ISelectionObserver):
         self.original_colors: dict[CellAddress, Optional[str]] = {}
 
     def __call__(self, new_cell: CellAddress, old_cell: Optional[CellAddress]):
-        if new_cell.workbook != self.workbook.name.lower():
-            return
         for addr, color in self.original_colors.items():
             self.workbook.set_range_color(addr, color)
         self.original_colors.clear()
 
-        if not new_cell:
+        if not new_cell or new_cell.workbook != self.workbook.name.lower():
             return
 
         if new_cell.address_type == CellAddressType.RANGE:
