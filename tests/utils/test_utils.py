@@ -1,7 +1,6 @@
 import pytest
 
-from src.model.utils.utils import get_row_col_from_address, convert_to_absolute_address, convert_to_absolute_range, \
-    replace_cell_reference_in_formula
+from model.utils.utils import convert_to_absolute_range, get_row_col_from_address
 
 
 # --- Tests for get_row_col_from_address ---

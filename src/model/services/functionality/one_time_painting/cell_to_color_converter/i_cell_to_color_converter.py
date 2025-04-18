@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 
-from src.model.models.spreadsheet.spreadsheet_classes import Cell, Workbook
+from model.models.spreadsheet.spreadsheet_classes import Cell, Workbook
 
 
 class CellToColorConverter(ABC):

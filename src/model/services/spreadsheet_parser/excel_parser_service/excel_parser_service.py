@@ -3,11 +3,11 @@ import re
 import networkx as nx
 import xlwings as xw
 
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress, CellAddressType
-from src.model.models.spreadsheet.spreadsheet_classes import CellDependencies
-from src.model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address
-from src.model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
+from model.models.spreadsheet.spreadsheet_classes import CellDependencies
+from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address
+from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 
 
 class ExcelParserService(ISpreadsheetParserService):

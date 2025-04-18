@@ -1,7 +1,7 @@
 import xlwings as xw
 
-from src.model.models.spreadsheet.cell_address import CellAddress, CellAddressType
-from src.model.models.spreadsheet.spreadsheet_classes import Worksheet, Cell
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
+from model.models.spreadsheet.spreadsheet_classes import Worksheet, Cell
 
 
 def convert_xlwings_sheet(xlwings_sheet: xw.Sheet) -> Worksheet:

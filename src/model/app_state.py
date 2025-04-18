@@ -1,9 +1,9 @@
 from typing import Optional
 
-from src.model.feature import Feature
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress
-from src.model.utils.observable_value import ObservableValue
+from model.feature import Feature
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress
+from model.utils.observable_value import ObservableValue
 
 
 class AppState:

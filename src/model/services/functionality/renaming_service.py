@@ -1,9 +1,9 @@
-from src.model.app_state import AppState
-from src.model.feature import Feature
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress
-from src.model.models.spreadsheet.spreadsheet_classes import Cell
-from src.model.utils.utils import replace_cell_reference_in_formula
+from model.app_state import AppState
+from model.feature import Feature
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.spreadsheet_classes import Cell
+from model.utils.utils import replace_cell_reference_in_formula
 
 
 class RenamingService:

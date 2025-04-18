@@ -3,9 +3,9 @@ import tkinter as tk
 import re
 from tkinter import messagebox
 
-from src.controller.feature_controller import FeatureController
-from src.model.app_state import AppState
-from src.model.feature import Feature
+from controller.feature_controller import FeatureController
+from model.app_state import AppState
+from model.feature import Feature
 
 VALID_NAME_REGEX = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 CELL_REF_REGEX = re.compile(r"^[A-Za-z]{1,3}[0-9]{1,7}$")

@@ -2,12 +2,12 @@ from typing import Optional
 
 import xlwings
 
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress
-from src.model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address, \
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress
+from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address, \
     convert_xlwings_sheet
-from src.model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
-from src.model.utils.utils import convert_to_absolute_range, generate_addresses
+from model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
+from model.utils.utils import convert_to_absolute_range, generate_addresses
 
 
 class ConnectedExcelWorkbook(IConnectedWorkbook):

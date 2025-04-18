@@ -1,4 +1,4 @@
-from src.model.models.spreadsheet.cell_address import CellAddress, CellAddressType
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 
 
 class Cell:

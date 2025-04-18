@@ -1,14 +1,13 @@
-from src.controller.feature_controller import FeatureController
-from src.controller.workbook_controller import WorkbookController
-from src.model.app_state import AppState
-from src.model.services.connected_workbook_service import ConnectedWorkbookService
-from src.model.services.functionality.interactive_painting.interactive_painting_service import \
-    InteractivePaintingService
-from src.model.services.functionality.one_time_painting.painting_service import PaintingService
-from src.model.services.functionality.renaming_service import RenamingService
-from src.model.services.spreadsheet_connection.excel_connection.excel_connection_service import ExcelConnectionService
-from src.model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
-from src.view.main_view import MainView
+from controller.feature_controller import FeatureController
+from controller.workbook_controller import WorkbookController
+from model.app_state import AppState
+from model.services.connected_workbook_service import ConnectedWorkbookService
+from model.services.functionality.interactive_painting.interactive_painting_service import InteractivePaintingService
+from model.services.functionality.one_time_painting.painting_service import PaintingService
+from model.services.functionality.renaming_service import RenamingService
+from model.services.spreadsheet_connection.excel_connection.excel_connection_service import ExcelConnectionService
+from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
+from view.main_view import MainView
 
 
 def run_view():

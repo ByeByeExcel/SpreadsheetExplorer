@@ -1,6 +1,6 @@
-from src.model.app_state import AppState
-from src.model.feature import Feature
-from src.model.services.functionality.interactive_painting.selection_listener.highlight_precedent_dependent_observer import \
+from model.app_state import AppState
+from model.feature import Feature
+from model.services.functionality.interactive_painting.selection_listener.highlight_precedent_dependent_observer import \
     HighlightCellSelectionObserver
 
 

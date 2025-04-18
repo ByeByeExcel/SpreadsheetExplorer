@@ -1,9 +1,9 @@
 from typing import Optional
 
-from src.model.models.spreadsheet.spreadsheet_classes import Cell
-from src.model.services.functionality.one_time_painting.cell_to_color_converter.i_cell_to_color_converter import \
+from model.models.spreadsheet.spreadsheet_classes import Cell
+from model.services.functionality.one_time_painting.cell_to_color_converter.i_cell_to_color_converter import \
     CellToColorConverter
-from src.model.settings.colour_scheme import ColourScheme, ColorRole
+from model.settings.colour_scheme import ColourScheme, ColorRole
 
 
 class RootNodeHighlighter(CellToColorConverter):

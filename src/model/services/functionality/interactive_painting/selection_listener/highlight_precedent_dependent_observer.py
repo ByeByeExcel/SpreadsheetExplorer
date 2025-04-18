@@ -1,10 +1,10 @@
 from typing import Optional
 
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress, CellAddressType
-from src.model.services.functionality.interactive_painting.selection_listener.i_selection_observer import \
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
+from model.services.functionality.interactive_painting.selection_listener.i_selection_observer import \
     ISelectionObserver
-from src.model.settings.colour_scheme import ColourScheme, ColorRole
+from model.settings.colour_scheme import ColourScheme, ColorRole
 
 
 class HighlightCellSelectionObserver(ISelectionObserver):

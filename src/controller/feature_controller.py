@@ -1,8 +1,8 @@
-from src.model.app_state import AppState
-from src.model.services.functionality.interactive_painting.interactive_painting_service import \
+from model.app_state import AppState
+from model.services.functionality.interactive_painting.interactive_painting_service import \
     InteractivePaintingService
-from src.model.services.functionality.one_time_painting.painting_service import PaintingService
-from src.model.services.functionality.renaming_service import RenamingService
+from model.services.functionality.one_time_painting.painting_service import PaintingService
+from model.services.functionality.renaming_service import RenamingService
 
 
 class FeatureController:

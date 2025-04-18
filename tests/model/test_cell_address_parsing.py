@@ -1,4 +1,4 @@
-from src.model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.cell_address import CellAddress
 
 
 def test_parsing_1():

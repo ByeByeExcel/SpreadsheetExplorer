@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from src.model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.i_connected_workbook import IConnectedWorkbook
 
 
 class ISpreadsheetConnectionService(ABC):

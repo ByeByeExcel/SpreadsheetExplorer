@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from typing import Optional
 
-from src.model.utils.utils import get_row_col_from_address
+from model.utils.utils import get_row_col_from_address
 
 
 class CellAddressType(Enum):

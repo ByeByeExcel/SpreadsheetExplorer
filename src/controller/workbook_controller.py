@@ -1,4 +1,4 @@
-from src.model.services.connected_workbook_service import ConnectedWorkbookService
+from model.services.connected_workbook_service import ConnectedWorkbookService
 
 
 class WorkbookController:

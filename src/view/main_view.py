@@ -1,11 +1,11 @@
 import tkinter as tk
 
-from src.controller.feature_controller import FeatureController
-from src.controller.workbook_controller import WorkbookController  # adjust if needed
-from src.model.app_state import AppState
-from src.view.function_buttons import FunctionButtonSection
-from src.view.output_section import OutputSection
-from src.view.workbook_selector import WorkbookSelector
+from controller.feature_controller import FeatureController
+from controller.workbook_controller import WorkbookController  # adjust if needed
+from model.app_state import AppState
+from view.function_buttons import FunctionButtonSection
+from view.output_section import OutputSection
+from view.workbook_selector import WorkbookSelector
 
 
 class MainView:

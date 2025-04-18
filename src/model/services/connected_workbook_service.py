@@ -1,11 +1,11 @@
-from src.model.app_state import AppState
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress
-from src.model.models.spreadsheet.spreadsheet_classes import CellDependencies
-from src.model.models.workbook_click_watcher import WorkbookClickWatcher
-from src.model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
-from src.model.services.spreadsheet_parser.excel_parser_service.excel_parser_service import ExcelParserService
-from src.model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
+from model.app_state import AppState
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.spreadsheet_classes import CellDependencies
+from model.models.workbook_click_watcher import WorkbookClickWatcher
+from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
+from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service import ExcelParserService
+from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 
 
 class ConnectedWorkbookService:

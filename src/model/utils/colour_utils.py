@@ -2,7 +2,7 @@ from typing import cast, Optional
 
 import webcolors
 
-from src.model.utils.utils import clamp
+from model.utils.utils import clamp
 
 
 def interpolate_color(color1: str, color2: str, t: float) -> str:

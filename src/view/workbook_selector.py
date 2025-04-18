@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 
-from src.controller.workbook_controller import WorkbookController
+from controller.workbook_controller import WorkbookController
 
 
 class WorkbookSelector:

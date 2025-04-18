@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any
 
-from src.model.models.spreadsheet.cell_address import CellAddress
-from src.model.models.spreadsheet.spreadsheet_classes import Workbook
+from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.spreadsheet_classes import Workbook
 
 
 class IConnectedWorkbook(ABC, Workbook):

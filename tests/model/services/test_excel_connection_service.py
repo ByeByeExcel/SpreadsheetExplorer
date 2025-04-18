@@ -4,9 +4,6 @@ import tempfile
 import openpyxl as pxl
 import pytest
 
-from src.model.services.spreadsheet_connection.excel_connection.excel_connection_service import ExcelConnectionService
-
-
 @pytest.fixture
 def simple_excel_sheet():
     fd, path = tempfile.mkstemp(suffix=".xlsx")

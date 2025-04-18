@@ -2,8 +2,8 @@ import threading
 import time
 from typing import Callable, Optional
 
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.models.spreadsheet.cell_address import CellAddress
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell_address import CellAddress
 
 
 class WorkbookClickWatcher:

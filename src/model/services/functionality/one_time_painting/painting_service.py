@@ -1,10 +1,10 @@
-from src.model.feature import Feature
-from src.model.models.i_connected_workbook import IConnectedWorkbook
-from src.model.services.functionality.one_time_painting.cell_to_color_converter.dependents_heatmap import \
+from model.feature import Feature
+from model.models.i_connected_workbook import IConnectedWorkbook
+from model.services.functionality.one_time_painting.cell_to_color_converter.dependents_heatmap import \
     DependentsHeatmap
-from src.model.services.functionality.one_time_painting.cell_to_color_converter.root_node_highlighter import \
+from model.services.functionality.one_time_painting.cell_to_color_converter.root_node_highlighter import \
     RootNodeHighlighter
-from src.model.services.functionality.one_time_painting.one_time_painting_executor import OneTimePaintingExecutor
+from model.services.functionality.one_time_painting.one_time_painting_executor import OneTimePaintingExecutor
 
 
 class PaintingService:
