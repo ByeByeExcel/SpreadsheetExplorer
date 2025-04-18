@@ -134,9 +134,10 @@ class ExcelParserService(ISpreadsheetParserService):
     @property
     def REFERENCE_RE(self):
         return re.compile(r"""
-            (                           # Full reference
-                (?:\[(?P<workbook>[^]]+)])?          # [Workbook.xlsx]
-                (?:(?P<sheet>'[^']+'|[^'!]+)!)?        # Sheet name, quoted or not
-                (?P<address>\$?[A-Z]{1,3}\$?\d+(?::\$?[A-Z]{1,3}\$?\d+)?)  # A1 or A1:B2
+            (?:\[(?P<workbook>[^\]]+)\])?           # Optional [Workbook.xlsx]
+            (?:(?P<sheet>'[^']+'|[A-Za-z0-9_]+)!)?  # Optional 'Sheet One'! or Sheet1!
+            (?P<address>                            # Cell or range
+                \$?[A-Z]{1,3}\$?\d+                 # Start cell
+                (?::\$?[A-Z]{1,3}\$?\d+)?           # Optional :End cell
             )
         """, re.VERBOSE)

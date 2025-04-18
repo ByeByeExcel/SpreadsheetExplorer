@@ -1,5 +1,6 @@
 from typing import Optional
 
+import openpyxl.utils
 import xlwings
 
 from model.models.i_connected_workbook import IConnectedWorkbook
@@ -7,7 +8,7 @@ from model.models.spreadsheet.cell_address import CellAddress
 from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address, \
     convert_xlwings_sheet
 from model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
-from model.utils.utils import convert_to_absolute_range, generate_addresses
+from model.utils.utils import convert_to_absolute_range
 
 
 class ConnectedExcelWorkbook(IConnectedWorkbook):
@@ -77,11 +78,8 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             for sheet in self.connected_workbook.sheets:
                 sheet: xlwings.Sheet
                 used_range: xlwings.Range = sheet.used_range
-                cell_addresses_2d: list[list[str]] = generate_addresses(used_range.row, used_range.column,
-                                                                        used_range.shape)
 
-                for row in cell_addresses_2d:
-                    row: list[str]
+                for row in openpyxl.utils.rows_from_range(used_range.address):
                     for cell_address_string in row:
                         cell_address: CellAddress = CellAddress(self.name, sheet.name, cell_address_string)
                         xw_cell: xlwings.Range = sheet.range(cell_address_string)
