@@ -39,7 +39,7 @@ class AppState:
         elif self.active_feature.value is None:
             return
         else:
-            raise ValueError(f"Another feature ({feature}) is not active.")
+            raise ValueError(f"Another feature ({feature}) is active.")
 
     def is_feature_active(self, feature: Feature) -> bool:
         return feature == self.active_feature.value
