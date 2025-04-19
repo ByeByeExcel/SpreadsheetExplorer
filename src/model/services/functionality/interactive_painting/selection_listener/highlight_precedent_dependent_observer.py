@@ -44,5 +44,4 @@ class HighlightCellSelectionObserver(ISelectionObserver):
         self.workbook.enable_screen_updating()
 
     def initialize(self, initial_value: CellAddress):
-        if initial_value:
-            self(initial_value, None)
+        self(initial_value, None)
