@@ -35,7 +35,7 @@ class FunctionButtonSection:
 
         self.buttons: dict[Feature, tk.Button] = {}
 
-        # === Row 0: Dependency Highlighting ===
+        # Dependency Highlighting
         self.buttons[Feature.DEPENDENCY_HIGHLIGHTING] = self._create_feature_button(
             row=0,
             feature=Feature.DEPENDENCY_HIGHLIGHTING,
@@ -43,7 +43,7 @@ class FunctionButtonSection:
             help_text="This function highlights dependents and precedents."
         )
 
-        # === Row 1: Heatmap ===
+        # Heatmap
         self.buttons[Feature.DEPENDENTS_HEATMAP] = self._create_feature_button(
             row=1,
             feature=Feature.DEPENDENTS_HEATMAP,
@@ -51,7 +51,7 @@ class FunctionButtonSection:
             help_text="Toggles a heatmap view of the spreadsheet."
         )
 
-        # === Row 2: Root Nodes ===
+        # Root Nodes
         self.buttons[Feature.ROOT_NODES] = self._create_feature_button(
             row=2,
             feature=Feature.ROOT_NODES,
@@ -59,7 +59,7 @@ class FunctionButtonSection:
             help_text="Displays cells with no precedents."
         )
 
-        # === Row 3: Cascade Rename ===
+        # Cascade Rename
         self.cascade_rename_input = tk.Entry(self.frame, width=20, state=tk.DISABLED)
         self.cascade_rename_submit = tk.Button(
             self.frame, text="Submit", width=10, state=tk.DISABLED, command=self._submit_cascade_rename
@@ -77,6 +77,8 @@ class FunctionButtonSection:
             self.frame, text="?", width=2,
             command=lambda: self.show_help("Cascade Rename", "Rename the selected cell and all its dependencies.")
         ).grid(row=3, column=3, padx=(10, 0))
+
+        self.buttons[Feature.CASCADE_RENAME] = self.btn_cascade_rename
 
         self.app_state.active_feature.add_observer(lambda new, old: self.update_buttons())
         self.app_state.is_connected_to_workbook.add_observer(lambda new, old: self.update_buttons())
@@ -114,9 +116,9 @@ class FunctionButtonSection:
 
             button.config(text=FeatureButtonTextManager.get_text(feature, is_active))
 
-        can_rename = connected and active_feature is None
+        can_rename = connected and active_feature in [None, Feature.CASCADE_RENAME]
         self.btn_cascade_rename.config(state=tk.NORMAL if can_rename else tk.DISABLED)
-        if not can_rename:
+        if not can_rename and self.cascade_rename_input["state"] != tk.DISABLED:
             self._reset_cascade_rename_ui()
 
     def toggle_dependency_highlighting(self):
@@ -151,7 +153,12 @@ class FunctionButtonSection:
             self.output.write(f"[ERROR] {str(e)}")
 
     def _toggle_cascade_rename(self):
-        if self.cascade_rename_input["state"] == tk.DISABLED:
+        if self.app_state.active_feature.value == Feature.CASCADE_RENAME:
+            self.feature_controller.stop_cascade_rename()
+            self._reset_cascade_rename_ui()
+        else:
+            logging.debug("Cascade rename button clicked: activating mode")
+            self.feature_controller.start_cascade_rename()
             self.cascade_rename_input.config(state=tk.NORMAL, bg="white")
             self.cascade_rename_submit.config(state=tk.DISABLED)
             self.btn_cascade_rename.config(
@@ -160,20 +167,15 @@ class FunctionButtonSection:
             self.cascade_rename_input.delete(0, tk.END)
 
             selected = self.app_state.selected_cell.value
-
             if selected:
                 address = getattr(selected, "address", str(selected))
-                # Optional: pre-fill address, or leave blank
-                # self.cascade_rename_input.insert(0, f"{address}")
+                # Optional: self.cascade_rename_input.insert(0, f"{address}")
 
             self.cascade_rename_input.bind("<KeyRelease>", self._on_rename_text_change)
-        else:
-            self._reset_cascade_rename_ui()
 
     def _on_rename_text_change(self, event):
         value = self.cascade_rename_input.get().strip()
 
-        # Validate name according to Excel conventions
         is_valid = bool(VALID_NAME_REGEX.match(value)) and not CELL_REF_REGEX.match(value)
 
         if is_valid:
@@ -187,6 +189,12 @@ class FunctionButtonSection:
         rename_text = self.cascade_rename_input.get().strip()
         selected = self.app_state.selected_cell.value
 
+        print(f"Submitting cascade rename: '{rename_text}' for selected: {selected}")
+
+        if not self.app_state.is_feature_active(Feature.CASCADE_RENAME):
+            self.output.write("[ERROR] Rename failed: Cascade rename mode is not active.")
+            return
+
         if not selected:
             self.output.write("[ERROR] No cell selected for renaming.")
             return
@@ -196,12 +204,11 @@ class FunctionButtonSection:
             return
 
         if not VALID_NAME_REGEX.match(rename_text) or CELL_REF_REGEX.match(rename_text):
-            self.output.write(
-                "[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
+            self.output.write("[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
             return
 
         try:
-            self.feature_controller.start_cascade_rename(rename_text)
+            self.feature_controller.cascade_rename(rename_text)
             self.output.write(f"[Cascade Rename] Submitted: {selected.address} → {rename_text}")
         except ValueError as e:
             self.output.write(f"[ERROR] Rename failed: {str(e)}")
@@ -216,6 +223,7 @@ class FunctionButtonSection:
         )
         self.cascade_rename_input.unbind("<KeyRelease>")
         self.cascade_rename_input.delete(0, tk.END)
+        self.update_buttons()
 
     def show_help(self, title, text):
         messagebox.showinfo(title, text)
