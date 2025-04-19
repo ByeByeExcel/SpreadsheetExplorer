@@ -1,6 +1,9 @@
+from dataclasses import dataclass
+
 from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 
 
+@dataclass
 class Cell:
     def __init__(self, address: CellAddress, value: str, formula: str):
         self.address: CellAddress = address
@@ -10,7 +13,16 @@ class Cell:
     def __repr__(self):
         return f"<Cell {self.address}: value={self.value}, formula={self.formula}>"
 
+    def __hash__(self):
+        return hash((self.address, self.value, self.formula))
 
+    def __eq__(self, other):
+        if not isinstance(other, Cell):
+            return False
+        return (self.address, self.value, self.formula) == (other.address, other.value, other.formula)
+
+
+@dataclass
 class Worksheet:
     def __init__(self, name: str, cells: dict[CellAddress, Cell]):
         self.name: str = name
@@ -20,6 +32,7 @@ class Worksheet:
         return f"<Worksheet {self.name}: {len(self.cells)} cells>"
 
 
+@dataclass
 class Workbook:
     def __init__(self):
         super().__init__()
@@ -42,6 +55,7 @@ class Workbook:
         return None
 
 
+@dataclass
 class CellDependencies:
     def __init__(self):
         self.precedents: dict[CellAddress, set[CellAddress]] = {}

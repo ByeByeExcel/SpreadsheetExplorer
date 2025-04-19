@@ -1,8 +1,8 @@
 from model.app_state import AppState
 from model.feature import Feature
+from model.services.functionality.interactive_painting.selection_listener.i_selection_observer import ISelectionObserver
 from model.services.functionality.interactive_painting.selection_listener.highlight_precedent_dependent_observer \
     import HighlightCellSelectionObserver
-from model.services.functionality.interactive_painting.selection_listener.i_selection_observer import ISelectionObserver
 
 
 class InteractivePaintingService:

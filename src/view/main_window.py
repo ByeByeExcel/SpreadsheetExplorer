@@ -2,6 +2,7 @@ from controller.feature_controller import FeatureController
 from controller.workbook_controller import WorkbookController
 from model.app_state import AppState
 from model.services.connected_workbook_service import ConnectedWorkbookService
+from model.services.functionality.interactive_painting.interactive_context_service import InteractiveContextService
 from model.services.functionality.interactive_painting.interactive_painting_service import InteractivePaintingService
 from model.services.functionality.one_time_painting.painting_service import PaintingService
 from model.services.functionality.renaming_service import RenamingService
@@ -18,10 +19,14 @@ def run_view():
     connected_workbook_service: ConnectedWorkbookService = ConnectedWorkbookService(connection_service, app_state)
 
     interactive_painting_service: InteractivePaintingService = InteractivePaintingService(app_state)
+    interactive_context_service: InteractiveContextService = InteractiveContextService(app_state)
     painting_service: PaintingService = PaintingService(app_state)
     renaming_service: RenamingService = RenamingService(app_state)
 
     workbook_controller = WorkbookController(connected_workbook_service)
-    feature_controller = FeatureController(interactive_painting_service, painting_service, renaming_service, app_state)
+    feature_controller = FeatureController(interactive_painting_service,
+                                           interactive_context_service,
+                                           painting_service,
+                                           renaming_service, app_state)
     app = MainView(workbook_controller, feature_controller, app_state)
     app.run()
