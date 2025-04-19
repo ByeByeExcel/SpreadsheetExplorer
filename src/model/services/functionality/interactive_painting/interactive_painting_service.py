@@ -1,14 +1,15 @@
 from model.app_state import AppState
 from model.feature import Feature
-from model.services.functionality.interactive_painting.selection_listener.highlight_precedent_dependent_observer import \
-    HighlightCellSelectionObserver
+from model.services.functionality.interactive_painting.selection_listener.highlight_precedent_dependent_observer \
+    import HighlightCellSelectionObserver
+from model.services.functionality.interactive_painting.selection_listener.i_selection_observer import ISelectionObserver
 
 
 class InteractivePaintingService:
 
     def __init__(self, app_state: AppState) -> None:
         self._app_state = app_state
-        self._selection_observers: dict[Feature, HighlightCellSelectionObserver] = {}
+        self._selection_observers: dict[Feature, ISelectionObserver] = {}
 
     def highlight_dependents_precedents(self) -> None:
         if not self._app_state.can_start_feature():
@@ -20,6 +21,8 @@ class InteractivePaintingService:
         self._app_state.store_initial_colors(initial_colors)
 
         observer = HighlightCellSelectionObserver(self._app_state.get_connected_workbook())
+        if self._app_state.selected_cell.value:
+            observer.initialize(self._app_state.selected_cell.value)
         self._app_state.selected_cell.add_observer(observer)
         self._selection_observers[Feature.DEPENDENCY_HIGHLIGHTING] = observer
 

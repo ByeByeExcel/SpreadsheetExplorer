@@ -9,7 +9,7 @@ class ExcelConnectionService(ISpreadsheetConnectionService):
     def get_open_workbooks(self) -> list[str]:
         app = xw.apps.active
         if not app:
-            raise Exception('Excel is not running.')
+            raise RuntimeError('Excel is not running.')
         return [book.name for book in app.books]
 
     def connect_to_workbook(self, filename: str) -> IConnectedWorkbook:
