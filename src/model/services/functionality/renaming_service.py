@@ -1,7 +1,7 @@
 from model.app_state import AppState
 from model.feature import Feature
 from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 from model.models.spreadsheet.spreadsheet_classes import Cell
 from model.utils.utils import replace_cell_reference_in_formula
 
@@ -28,7 +28,7 @@ class RenamingService:
             dependents: set[CellAddress] = workbook.cell_dependencies.dependents.get(cell)
             if dependents:
                 for dependent in dependents:
-                    if not dependent.is_cell_reference():
+                    if dependent.address_type != CellAddressType.CELL:
                         continue
 
                     dependent_cell: Cell = workbook.get_cell(dependent)
