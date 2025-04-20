@@ -82,7 +82,7 @@ class WorkbookSelector:
             threading.Thread(target=self.workbook_controller.disconnect_workbook).start()
             self.output.write(f"[INFO] '{selected}' disconnected.")
         else:
-            self.output.write("[ERROR] could not disconnect.")
+            self.output.write("[ERROR] Could not disconnect.")
 
     def update_button_states(self):
         connected = self.app_state.is_connected_to_workbook.value
