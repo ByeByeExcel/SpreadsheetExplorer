@@ -16,8 +16,11 @@ class MainView:
         self.app_state = app_state
 
         self.root = tk.Tk()
-        self.root.title("Excel Summary Tool")
+        self.root.title("Spreadsheet Explorer")
         self.root.geometry("750x550")
+
+        self.icon = tk.PhotoImage(file="assets/spreadsheet_explorer_icon.png")
+        self.root.iconphoto(True, self.icon)
 
         # === Create components but delay layout ===
         self.output = OutputSection(self.root, pack=False)
