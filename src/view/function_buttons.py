@@ -189,8 +189,6 @@ class FunctionButtonSection:
         rename_text = self.cascade_rename_input.get().strip()
         selected = self.app_state.selected_cell.value
 
-        print(f"Submitting cascade rename: '{rename_text}' for selected: {selected}")
-
         if not self.app_state.is_feature_active(Feature.CASCADE_RENAME):
             self.output.write("[ERROR] Rename failed: Cascade rename mode is not active.")
             return
