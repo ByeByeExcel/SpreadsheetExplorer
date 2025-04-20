@@ -74,7 +74,7 @@ class WorkbookSelector:
             self.output.write(f"[INFO] Reanalysis of '{selected}' started.")
             threading.Thread(target=self.workbook_controller.parse_connected_workbook).start()
         else:
-            self.output.write("[ERROR] No could not complete reanalysis: no workbook connected.")
+            self.output.write("[ERROR] Unable to complete reanalysis: no workbook connected.")
 
     def disconnect_workbook(self):
         selected = self.dropdown.get()
