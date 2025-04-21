@@ -1,7 +1,10 @@
 import tkinter as tk
+from view.context_info_table import ContextInfoTable
+from model.feature import Feature
 
 class OutputSection:
-    def __init__(self, master, pack=True):
+    def __init__(self, master, pack=True, app_state=None):  # Add app_state as a param
+        self.app_state = app_state  # Store app state reference
         self.frame = tk.Frame(master, padx=20, pady=10)
         if pack:
             self.pack()
@@ -14,12 +17,23 @@ class OutputSection:
         clear_button = tk.Button(self.frame, text="Clear Output", command=self.clear_output)
         clear_button.pack(anchor="e", pady=(5, 0))
 
+        self.context_table = ContextInfoTable(self.frame, app_state)
+        self.context_table.pack_forget()
+
+        self.app_state.active_feature.add_observer(self._on_feature_change)
+
     def write(self, msg):
         self.text.insert(tk.END, msg + "\n")
         self.text.see(tk.END)
 
     def clear_output(self):
         self.text.delete("1.0", tk.END)
+
+    def _on_feature_change(self, new_feature, old_feature):
+        if new_feature == Feature.DEPENDENCY_HIGHLIGHTING:
+            self.context_table.pack(fill="x", pady=10)
+        else:
+            self.context_table.pack_forget()
 
     def pack(self):
         self.frame.pack(fill="both", expand=True)
