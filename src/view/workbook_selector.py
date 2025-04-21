@@ -33,6 +33,7 @@ class WorkbookSelector:
 
         # Observe state changes
         self.app_state.is_connected_to_workbook.add_observer(lambda *_: self.update_button_states())
+        self.app_state.active_feature.add_observer(lambda new, old: self.update_button_states())
 
         # Refresh list on init
         self.refresh_workbooks()
@@ -69,7 +70,7 @@ class WorkbookSelector:
             self.output.write("[ERROR] No workbook selected.")
 
     def reanalyze_workbook(self):
-        selected = self.dropdown.get()
+        selected = self.app_state.get_connected_workbook()
         if selected:
             self.output.write(f"[INFO] Reanalysis of '{selected}' started.")
             threading.Thread(target=self.workbook_controller.parse_connected_workbook).start()
@@ -77,7 +78,7 @@ class WorkbookSelector:
             self.output.write("[ERROR] Unable to complete reanalysis: no workbook connected.")
 
     def disconnect_workbook(self):
-        selected = self.dropdown.get()
+        selected = self.app_state.get_connected_workbook()
         if selected:
             threading.Thread(target=self.workbook_controller.disconnect_workbook).start()
             self.output.write(f"[INFO] '{selected}' disconnected.")
@@ -86,8 +87,20 @@ class WorkbookSelector:
 
     def update_button_states(self):
         connected = self.app_state.is_connected_to_workbook.value
-        self.dropdown.config(state="disabled" if connected else "readonly")
-        self.refresh_button.config(state=tk.DISABLED if connected else tk.NORMAL)
-        self.analyze_button.config(state=tk.DISABLED if connected else tk.NORMAL)
-        self.reanalyze_button.config(state=tk.NORMAL if connected else tk.DISABLED)
-        self.disconnect_button.config(state=tk.NORMAL if connected else tk.DISABLED)
+        feature_active = self.app_state.active_feature.value is not None
+
+        def set(w, e): w.config(state=tk.NORMAL if e else tk.DISABLED)
+
+        dropdown_state, states = (
+            ("disabled", {b: False for b in
+                          [self.refresh_button, self.analyze_button, self.reanalyze_button, self.disconnect_button]})
+            if feature_active else
+            ("readonly", {self.refresh_button: True, self.analyze_button: True, self.reanalyze_button: False,
+                          self.disconnect_button: False})
+            if not connected else
+            ("disabled", {self.refresh_button: False, self.analyze_button: False, self.reanalyze_button: True,
+                          self.disconnect_button: True})
+        )
+
+        self.dropdown.config(state=dropdown_state)
+        for b, enabled in states.items(): set(b, enabled)

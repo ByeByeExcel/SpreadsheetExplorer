@@ -110,8 +110,10 @@ class FunctionButtonSection:
 
         can_rename = connected and active_feature in [None, Feature.CASCADE_RENAME]
         self.btn_cascade_rename.config(state=tk.NORMAL if can_rename else tk.DISABLED)
-        if not can_rename and self.cascade_rename_input["state"] != tk.DISABLED:
-            self._reset_cascade_rename_ui()
+
+        if not can_rename:
+            if self.cascade_rename_input["state"] != tk.DISABLED:
+                self._reset_cascade_rename_ui()
 
     def toggle_dependency_highlighting(self):
         self._toggle_feature(
@@ -146,7 +148,7 @@ class FunctionButtonSection:
                 self.output.write(f"[ERROR] {str(e)}")
 
     def _toggle_cascade_rename(self):
-        if self.app_state.active_feature.value == Feature.CASCADE_RENAME:
+        if self.app_state.is_feature_active(Feature.CASCADE_RENAME):
             self.feature_controller.stop_cascade_rename()
             self._reset_cascade_rename_ui()
         else:
@@ -162,7 +164,6 @@ class FunctionButtonSection:
             selected = self.app_state.selected_cell.value
             if selected:
                 address = getattr(selected, "address", str(selected))
-                # self.cascade_rename_input.insert(0, f"{address}")
 
             self.cascade_rename_input.bind("<KeyRelease>", self._on_rename_text_change)
 
@@ -182,32 +183,28 @@ class FunctionButtonSection:
         selected = self.app_state.selected_cell.value
 
         if not self.app_state.is_feature_active(Feature.CASCADE_RENAME):
-            if self.output:
-                self.output.write("[ERROR] Rename failed: Cascade rename mode is not active.")
+            self.output.write("[ERROR] Rename failed: Cascade rename mode is not active.")
             return
 
         if not selected:
-            if self.output:
-                self.output.write("[ERROR] No cell selected for renaming.")
+            self.output.write("[ERROR] No cell selected for renaming.")
             return
 
         if not rename_text:
-            if self.output:
-                self.output.write("[ERROR] Rename input is empty.")
+            self.output.write("[ERROR] Rename input is empty.")
             return
 
         if not VALID_NAME_REGEX.match(rename_text) or CELL_REF_REGEX.match(rename_text):
             if self.output:
-                self.output.write("[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
+                self.output.write(
+                "[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
             return
 
         try:
             self.feature_controller.cascade_rename(rename_text)
-            if self.output:
-                self.output.write(f"[Cascade Rename] Submitted: {selected.address} → {rename_text}")
+            self.output.write(f"[Cascade Rename] Submitted: {selected.address} → {rename_text}")
         except ValueError as e:
-            if self.output:
-                self.output.write(f"[ERROR] Rename failed: {str(e)}")
+            self.output.write(f"[ERROR] Rename failed: {str(e)}")
 
         self._reset_cascade_rename_ui()
 
@@ -219,7 +216,6 @@ class FunctionButtonSection:
         )
         self.cascade_rename_input.unbind("<KeyRelease>")
         self.cascade_rename_input.delete(0, tk.END)
-        self.update_buttons()
 
     def show_help(self, title, text):
         messagebox.showinfo(title, text)

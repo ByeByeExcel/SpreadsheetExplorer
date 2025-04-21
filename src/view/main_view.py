@@ -1,5 +1,5 @@
-# --- Updated main_view.py with compact layout and table beside buttons ---
 import tkinter as tk
+
 from controller.feature_controller import FeatureController
 from controller.workbook_controller import WorkbookController
 from model.app_state import AppState
@@ -52,7 +52,6 @@ class MainView:
 
         self.output.frame.pack(fill="x", padx=10, pady=(10, 5))
 
-        # === Update label when selection changes ===
         self.app_state.selected_cell.add_observer(lambda new_value, old_value: self.selected_range_label.config(
             text=f"Selected Range: {new_value.address if new_value else 'None'}"))
 
