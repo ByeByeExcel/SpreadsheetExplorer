@@ -1,6 +1,7 @@
 import logging
 import tkinter as tk
 import re
+import sys
 from tkinter import messagebox
 
 from controller.feature_controller import FeatureController
@@ -25,7 +26,7 @@ class FeatureButtonTextManager:
 
 class FunctionButtonSection:
     def __init__(self, master, output, feature_controller: FeatureController, app_state: AppState, pack=True):
-        self.output = output
+        self.output = output if output else sys.stdout
         self.feature_controller = feature_controller
         self.app_state = app_state
         self.frame = tk.Frame(master, padx=20)
@@ -202,9 +203,11 @@ class FunctionButtonSection:
 
         try:
             self.feature_controller.cascade_rename(rename_text)
-            self.output.write(f"[Cascade Rename] Submitted: {selected.address} → {rename_text}")
+            if self.output:
+                self.output.write(f"[Cascade Rename] Submitted: {selected.address} → {rename_text}")
         except ValueError as e:
-            self.output.write(f"[ERROR] Rename failed: {str(e)}")
+            if self.output:
+                self.output.write(f"[ERROR] Rename failed: {str(e)}")
 
         self._reset_cascade_rename_ui()
 
