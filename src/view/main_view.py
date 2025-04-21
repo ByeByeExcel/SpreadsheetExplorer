@@ -16,14 +16,18 @@ class MainView:
         self.app_state = app_state
 
         self.root = tk.Tk()
-        self.root.title("Excel Summary Tool")
+        self.root.title("Spreadsheet Explorer")
         self.root.geometry("750x550")
+
+        self.icon = tk.PhotoImage(file="assets/spreadsheet_explorer_icon.png")
+        self.root.iconphoto(True, self.icon)
 
         # === Create components but delay layout ===
         self.output = OutputSection(self.root, pack=False)
         self.buttons = FunctionButtonSection(self.root, self.output, self.feature_controller, self.app_state,
                                              pack=False)
-        self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,self.app_state,
+        self.workbook_selector = WorkbookSelector(self.root, self.buttons, self.output, self.workbook_controller,
+                                                  self.app_state,
                                                   pack=False)
 
         # === Pack components in correct top-down order ===

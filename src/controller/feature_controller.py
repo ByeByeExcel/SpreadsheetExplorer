@@ -1,6 +1,7 @@
 from typing import Optional
 
 from model.app_state import AppState
+from model.feature import Feature
 from model.models.formula_context_information import FormulaContextInformation
 from model.services.functionality.interactive_painting.interactive_context_service import InteractiveContextService
 from model.services.functionality.interactive_painting.interactive_painting_service import \
@@ -38,6 +39,7 @@ class FeatureController:
         self._interactive_painting_service.highlight_dependents_precedents()
 
         # todo: remove once FE calls this method
+
         self.start_context_information()
         self._app_state.context_information.add_observer(print_context_information)
         # todo: end remove
@@ -62,9 +64,15 @@ class FeatureController:
         self._painting_service.stop_root_nodes()
 
     # cascade renaming
-    def start_cascade_rename(self, name: str) -> None:
+    def start_cascade_rename(self) -> None:
+        self._app_state.set_feature_active(Feature.CASCADE_RENAME)
+
+    def stop_cascade_rename(self) -> None:
+        self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)
+
+    def cascade_rename(self, name: str) -> None:
         if not name.strip():
-            raise ValueError("Name can not be empty.")
+            raise ValueError("Name cannot be empty.")
         self._renaming_service.cascade_name_cell(name)
 
     # context information
