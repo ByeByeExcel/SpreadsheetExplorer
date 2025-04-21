@@ -10,17 +10,6 @@ from model.services.functionality.one_time_painting.painting_service import Pain
 from model.services.functionality.renaming_service import RenamingService
 
 
-# todo: remove function once FE uses context information
-def print_context_information(new_value: Optional[FormulaContextInformation], _):
-    if new_value:
-        print(f"New context information for cell: {new_value.selected_address}")
-        for precedent in new_value.precedents_information:
-            print(
-                f"    Precedent: {precedent.cell_address}, Formula: {precedent.formula}, Value: {precedent.value}")
-    else:
-        print("Context information cleared.")
-
-
 class FeatureController:
     def __init__(self,
                  interactive_painting_service: InteractivePaintingService,

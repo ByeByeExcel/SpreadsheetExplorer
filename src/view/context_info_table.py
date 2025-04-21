@@ -48,7 +48,9 @@ class ContextInfoTable(Frame):
 
         if context_info and context_info.precedents_information:
             for precedent in context_info.precedents_information:
-                wb, sheet, cell = self._split_address(str(precedent.cell_address))
+                wb = precedent.cell_address.workbook
+                sheet = precedent.cell_address.sheet
+                cell = precedent.cell_address.address
                 self.tree.insert(
                     "",
                     "end",
@@ -57,7 +59,7 @@ class ContextInfoTable(Frame):
                         sheet,
                         cell,
                         precedent.formula or "",
-                        str(precedent.value) if precedent.value is not None else ""
+                        precedent.value or ""
                     )
                 )
 
