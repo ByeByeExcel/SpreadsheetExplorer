@@ -10,17 +10,6 @@ from model.services.functionality.one_time_painting.painting_service import Pain
 from model.services.functionality.renaming_service import RenamingService
 
 
-# todo: remove function once FE uses context information
-def print_context_information(new_value: Optional[FormulaContextInformation], _):
-    if new_value:
-        print(f"New context information for cell: {new_value.selected_address}")
-        for precedent in new_value.precedents_information:
-            print(
-                f"    Precedent: {precedent.cell_address}, Formula: {precedent.formula}, Value: {precedent.value}")
-    else:
-        print("Context information cleared.")
-
-
 class FeatureController:
     def __init__(self,
                  interactive_painting_service: InteractivePaintingService,
@@ -37,18 +26,13 @@ class FeatureController:
     # interactive features
     def start_dependency_highlighting(self) -> None:
         self._interactive_painting_service.highlight_dependents_precedents()
-
-        # todo: remove once FE calls this method
-
+        # currently to be implemented together with Dep. Highligting, behaviour will be changed
         self.start_context_information()
-        self._app_state.context_information.add_observer(print_context_information)
-        # todo: end remove
 
     def stop_dependency_highlighting(self) -> None:
         self._interactive_painting_service.stop_dependency_highlighting()
-        # todo: remove once FE calls this method=
+        # currently to be implemented together with Dep. Highligting, behaviour will be changed
         self.stop_context_information()
-        # todo: end remove
 
     # one-time painting features
     def show_heatmap(self) -> None:
