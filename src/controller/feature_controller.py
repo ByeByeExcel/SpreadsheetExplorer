@@ -27,7 +27,6 @@ class FeatureController:
     def start_dependency_highlighting(self) -> None:
         self._interactive_painting_service.highlight_dependents_precedents()
         self.start_context_information()
-        self._app_state.context_information.add_observer(print_context_information)
 
     def stop_dependency_highlighting(self) -> None:
         self._interactive_painting_service.stop_dependency_highlighting()

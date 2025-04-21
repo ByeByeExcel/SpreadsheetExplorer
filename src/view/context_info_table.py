@@ -1,6 +1,5 @@
 from tkinter import Frame, ttk
 from tkinter.ttk import Treeview, Scrollbar
-from model.models.formula_context_information import FormulaContextInformation
 
 
 class ContextInfoTable(Frame):
@@ -62,27 +61,3 @@ class ContextInfoTable(Frame):
                         precedent.value or ""
                     )
                 )
-
-    def _split_address(self, full_address):
-        # Parses something like '[test2.xlsx]sheet1!A4'
-        try:
-            if '!' not in full_address:
-                return "?", "?", full_address
-
-            wb_sheet, cell = full_address.split("!")
-            cell = cell.upper()
-
-            # remove optional quotes
-            wb_sheet = wb_sheet.replace("'", "")
-
-            if wb_sheet.startswith("["):
-                end_bracket = wb_sheet.find("]")
-                workbook = wb_sheet[1:end_bracket]
-                sheet = wb_sheet[end_bracket + 1:]
-            else:
-                workbook = "?"
-                sheet = wb_sheet
-
-            return workbook.strip(), sheet.strip(), cell.strip()
-        except Exception:
-            return "?", "?", full_address
