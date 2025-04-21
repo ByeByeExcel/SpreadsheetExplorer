@@ -10,6 +10,7 @@ from model.feature import Feature
 VALID_NAME_REGEX = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 CELL_REF_REGEX = re.compile(r"^[A-Za-z]{1,3}[0-9]{1,7}$")
 
+
 class FeatureButtonTextManager:
     BUTTON_TEXTS = {
         Feature.DEPENDENCY_HIGHLIGHTING: ("Show dependents/precedents", "Hide dependents/precedents"),
@@ -118,8 +119,10 @@ class FunctionButtonSection:
 
         can_rename = connected and active_feature in [None, Feature.CASCADE_RENAME]
         self.btn_cascade_rename.config(state=tk.NORMAL if can_rename else tk.DISABLED)
-        if not can_rename and self.cascade_rename_input["state"] != tk.DISABLED:
-            self._reset_cascade_rename_ui()
+
+        if not can_rename:
+            if self.cascade_rename_input["state"] != tk.DISABLED:
+                self._reset_cascade_rename_ui()
 
     def toggle_dependency_highlighting(self):
         self._toggle_feature(
@@ -153,7 +156,7 @@ class FunctionButtonSection:
             self.output.write(f"[ERROR] {str(e)}")
 
     def _toggle_cascade_rename(self):
-        if self.app_state.active_feature.value == Feature.CASCADE_RENAME:
+        if self.app_state.is_feature_active(Feature.CASCADE_RENAME):
             self.feature_controller.stop_cascade_rename()
             self._reset_cascade_rename_ui()
         else:
@@ -202,7 +205,8 @@ class FunctionButtonSection:
             return
 
         if not VALID_NAME_REGEX.match(rename_text) or CELL_REF_REGEX.match(rename_text):
-            self.output.write("[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
+            self.output.write(
+                "[ERROR] Invalid name format. Use only letters, digits, or underscores, and do not start with a digit or use Excel cell references.")
             return
 
         try:
@@ -221,7 +225,6 @@ class FunctionButtonSection:
         )
         self.cascade_rename_input.unbind("<KeyRelease>")
         self.cascade_rename_input.delete(0, tk.END)
-        self.update_buttons()
 
     def show_help(self, title, text):
         messagebox.showinfo(title, text)

@@ -37,12 +37,18 @@ class FeatureController:
     # interactive features
     def start_dependency_highlighting(self) -> None:
         self._interactive_painting_service.highlight_dependents_precedents()
+
+        # todo: remove once FE calls this method
+
         self.start_context_information()
         self._app_state.context_information.add_observer(print_context_information)
+        # todo: end remove
 
     def stop_dependency_highlighting(self) -> None:
         self._interactive_painting_service.stop_dependency_highlighting()
+        # todo: remove once FE calls this method=
         self.stop_context_information()
+        # todo: end remove
 
     # one-time painting features
     def show_heatmap(self) -> None:
