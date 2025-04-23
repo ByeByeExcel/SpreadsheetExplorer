@@ -37,14 +37,14 @@ class ConnectedWorkbookService:
             raise RuntimeError("Workbook already analyzing.")
 
         self._app_state.is_analyzing.set_value(True)
-
-        self.stop_watching_selected_cell()
-        workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
-        workbook.load()
-        workbook.cell_dependencies = ExcelParserService(workbook).get_dependencies()
-        self.start_watching_selected_cell()
-        self._app_state.is_analyzing.set_value(False)
-
+        try:
+            self.stop_watching_selected_cell()
+            workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
+            workbook.load()
+            workbook.cell_dependencies = ExcelParserService(workbook).get_dependencies()
+            self.start_watching_selected_cell()
+        finally:
+            self._app_state.is_analyzing.set_value(False)
     def start_watching_selected_cell(self):
         self.stop_watching_selected_cell()
         if self._app_state.is_connected_to_workbook.value:
