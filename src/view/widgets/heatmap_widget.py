@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import messagebox
 from model.feature import Feature
 from view.widgets.base_function_widget import BaseFunctionWidget
 from view.widgets.feature_button_texts import FeatureButtonTextManager
