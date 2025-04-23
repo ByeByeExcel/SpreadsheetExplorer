@@ -30,7 +30,7 @@ class MainView:
         # === Create components ===
         self.output = OutputSection(self.root, app_state=self.app_state, pack=False)
         self.buttons = FunctionButtonSection(self.middle_frame, None, self.feature_controller, self.app_state, pack=False)
-        self.workbook_selector = WorkbookSelector(self.selector_frame, self.buttons, self.output, self.workbook_controller, self.app_state, pack=False)
+        self.workbook_selector = WorkbookSelector(self.selector_frame, self.output, self.workbook_controller, self.app_state, pack=False)
         self.context_table = ContextInfoTable(self.middle_frame, self.app_state)
 
         # === Layout ===

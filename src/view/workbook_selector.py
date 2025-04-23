@@ -1,10 +1,10 @@
+import threading
 import tkinter as tk
 from tkinter import ttk
-import threading
 
 
 class WorkbookSelector:
-    def __init__(self, master, button_section, output, workbook_controller, app_state, pack=True):
+    def __init__(self, master, output, workbook_controller, app_state, pack=True):
         self.master = master
         self.output = output
         self.app_state = app_state
@@ -33,7 +33,8 @@ class WorkbookSelector:
 
         # Observe state changes
         self.app_state.is_connected_to_workbook.add_observer(lambda *_: self.update_button_states())
-        self.app_state.active_feature.add_observer(lambda new, old: self.update_button_states())
+        self.app_state.active_feature.add_observer(lambda *_: self.update_button_states())
+        self.app_state.is_analyzing.add_observer(lambda *_: self.update_button_states())
 
         # Refresh list on init
         self.refresh_workbooks()
@@ -88,19 +89,22 @@ class WorkbookSelector:
     def update_button_states(self):
         connected = self.app_state.is_connected_to_workbook.value
         feature_active = self.app_state.active_feature.value is not None
+        is_analyzing = self.app_state.is_analyzing.value
 
-        def set(w, e): w.config(state=tk.NORMAL if e else tk.DISABLED)
+        def set_state(button: tk.Button, is_enabled: bool):
+            button.config(state=tk.NORMAL if is_enabled else tk.DISABLED)
 
         dropdown_state, states = (
             ("disabled", {b: False for b in
                           [self.refresh_button, self.analyze_button, self.reanalyze_button, self.disconnect_button]})
-            if feature_active else
+            if feature_active or is_analyzing else
             ("readonly", {self.refresh_button: True, self.analyze_button: True, self.reanalyze_button: False,
                           self.disconnect_button: False})
-            if not connected else
+            if not connected and not is_analyzing else
             ("disabled", {self.refresh_button: False, self.analyze_button: False, self.reanalyze_button: True,
                           self.disconnect_button: True})
         )
 
         self.dropdown.config(state=dropdown_state)
-        for b, enabled in states.items(): set(b, enabled)
+        for button, is_enabled in states.items():
+            set_state(button, is_enabled)

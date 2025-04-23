@@ -5,6 +5,7 @@ import xlwings
 
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
+from model.models.spreadsheet.spreadsheet_classes import Worksheet
 from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address, \
     convert_xlwings_sheet
 from model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
@@ -18,9 +19,14 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self.connected_workbook: xlwings.Book = xlwings_workbook
         self.name = self.connected_workbook.name
         self.fullpath = self.connected_workbook.fullname
+        self.worksheets: dict[str, Worksheet] = {}
 
-        for sheet in xlwings_workbook.sheets:
-            custom_worksheet = convert_xlwings_sheet(sheet)
+    def load(self):
+        self.connected_workbook.app.calculate()
+        self.worksheets.clear()
+        for sheet in self.connected_workbook.sheets:
+            sheet: xlwings.Sheet
+            custom_worksheet: Worksheet = convert_xlwings_sheet(sheet)
             self.worksheets[custom_worksheet.name.lower()] = custom_worksheet
 
     def get_range_color(self, cell_range: CellAddress) -> Optional[str]:

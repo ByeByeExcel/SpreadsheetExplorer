@@ -13,6 +13,7 @@ class AppState:
         self.is_connected_to_workbook: ObservableValue[bool] = ObservableValue(False)
         self.selected_cell: ObservableValue[Optional[CellAddress]] = ObservableValue(None)
         self.context_information: ObservableValue[Optional[FormulaContextInformation]] = ObservableValue(None)
+        self.is_analyzing: ObservableValue[bool] = ObservableValue(False)
         self._connected_workbook: Optional[IConnectedWorkbook] = None
         self._initial_colors: dict[CellAddress, str] = {}
 

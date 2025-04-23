@@ -33,11 +33,18 @@ class ConnectedWorkbookService:
         if not self._app_state.is_connected_to_workbook.value:
             raise RuntimeError("No connected workbook to parse.")
 
-        self.stop_watching_selected_cell()
-        workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
-        workbook.cell_dependencies = ExcelParserService(workbook).get_dependencies()
-        self.start_watching_selected_cell()
+        if self._app_state.is_analyzing.value:
+            raise RuntimeError("Workbook already analyzing.")
 
+        self._app_state.is_analyzing.set_value(True)
+        try:
+            self.stop_watching_selected_cell()
+            workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
+            workbook.load()
+            workbook.cell_dependencies = ExcelParserService(workbook).get_dependencies()
+            self.start_watching_selected_cell()
+        finally:
+            self._app_state.is_analyzing.set_value(False)
     def start_watching_selected_cell(self):
         self.stop_watching_selected_cell()
         if self._app_state.is_connected_to_workbook.value:
@@ -51,8 +58,9 @@ class ConnectedWorkbookService:
             self._workbook_selected_cell_watcher = None
 
     def disconnect_workbook(self) -> None:
+        if self._app_state.active_feature.value is not None:
+            raise RuntimeError("Cannot disconnect workbook while a feature is active.")
         self.stop_watching_selected_cell()
-        self._app_state.selected_cell.remove_all_observers()
         self._app_state.clear_connected_workbook()
 
     def _update_selected_cell(self, new_cell: CellAddress) -> None:

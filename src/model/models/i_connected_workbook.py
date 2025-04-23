@@ -2,13 +2,18 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.spreadsheet_classes import Workbook
+from model.models.spreadsheet.spreadsheet_classes import Workbook, Worksheet
 
 
 class IConnectedWorkbook(ABC, Workbook):
     connected_workbook: Any = None
     fullpath: str = None
     name: str = None
+    worksheets: dict[str, Worksheet] = {}
+
+    @abstractmethod
+    def load(self):
+        pass
 
     @abstractmethod
     def get_range_color(self, cell_range: CellAddress) -> str:
@@ -51,8 +56,10 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(self, new_colors: dict[CellAddress, str]) -> dict[
-        CellAddress, str]:
+    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(
+            self,
+            new_colors: dict[CellAddress, str]
+    ) -> dict[CellAddress, str]:
         pass
 
     @abstractmethod
