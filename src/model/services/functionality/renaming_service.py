@@ -36,5 +36,7 @@ class RenamingService:
 
                     new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
                     workbook.set_formula(dependent, new_formula)
+
+                workbook.load()
         finally:
             self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)
