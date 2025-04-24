@@ -1,7 +1,7 @@
 from typing import Optional
 
 from model.feature import Feature
-from model.models.formula_context_information import FormulaContextInformation
+from model.models.formula_context_information import RangeInformation
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
 from model.utils.observable_value import ObservableValue
@@ -12,7 +12,7 @@ class AppState:
         self.active_feature: ObservableValue[Optional[Feature]] = ObservableValue(None)
         self.is_connected_to_workbook: ObservableValue[bool] = ObservableValue(False)
         self.selected_cell: ObservableValue[Optional[CellAddress]] = ObservableValue(None)
-        self.context_information: ObservableValue[Optional[FormulaContextInformation]] = ObservableValue(None)
+        self.context_information: ObservableValue[Optional[RangeInformation]] = ObservableValue(None)
         self.is_analyzing: ObservableValue[bool] = ObservableValue(False)
         self._connected_workbook: Optional[IConnectedWorkbook] = None
         self._initial_colors: dict[CellAddress, str] = {}
