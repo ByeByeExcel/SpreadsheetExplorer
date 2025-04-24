@@ -16,7 +16,6 @@ class MainView:
         self.feature_controller = feature_controller
         self.app_state = app_state
 
-        # ✅ Set initial AppState values
         self.app_state.is_connected_to_workbook.set_value(False)
         self.app_state.is_analyzing.set_value(False)
         self.app_state.active_feature.set_value(None)
@@ -34,7 +33,7 @@ class MainView:
         self.output = OutputSection(self.root, app_state=self.app_state, pack=False)
         self.buttons = FunctionButtonSection(
             self.middle_frame,
-            None,
+            self.output,
             self.feature_controller,
             self.app_state,
             pack=False

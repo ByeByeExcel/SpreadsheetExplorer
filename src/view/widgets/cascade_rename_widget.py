@@ -33,24 +33,26 @@ class CascadeRenameWidget(BaseFunctionWidget):
 
         self.manager.register(self.feature, self)
 
-    def toggle(self):
-        if self._toggling:
-            print(f"[DEBUG] Toggle already in progress for {self.feature.name}, skipping.")
-            return
+    def log(self, message: str):
+        if self.output and hasattr(self.output, "write"):
+            self.output.write(message + "\n")
+        else:
+            print(message)
 
-        self._toggling = True
+    def toggle(self):
         try:
             if self.app_state.is_feature_active(self.feature):
                 self.feature_controller.stop_cascade_rename()
-                self.after(1, lambda: self.app_state.set_feature_inactive(self.feature))
+                self.log(f"[INFO] Stopped feature: {self.feature.name}")
             else:
+                if not self.app_state.can_start_feature():
+                    raise ValueError("Cannot start feature — another is active or workbook not connected.")
                 self.feature_controller.start_cascade_rename()
-                self.after(1, self._safe_activate)
+                self.log(f"[INFO] Started feature: {self.feature.name}")
         except Exception as e:
-            print(f"[ERROR] Cascade Rename toggle failed: {e}")
+            error_msg = f"[ERROR] Cascade Rename toggle failed: {e}"
+            self.log(error_msg)
             messagebox.showerror("Cascade Rename Error", str(e))
-        finally:
-            self._toggling = False
 
     def _submit(self):
         try:
@@ -61,9 +63,9 @@ class CascadeRenameWidget(BaseFunctionWidget):
                 raise ValueError("Invalid name. Use only valid identifiers, not Excel cell references.")
 
             self.feature_controller.cascade_rename(new_name)
+            self.log(f"[INFO] Cascade renaming to '{new_name}'")
 
             def cleanup_and_deactivate():
-                print(f"[DEBUG] Deactivating Cascade Rename after rename")
                 self.feature_controller.stop_cascade_rename()
                 self.app_state.set_feature_inactive(self.feature)
 
@@ -71,9 +73,13 @@ class CascadeRenameWidget(BaseFunctionWidget):
                 self.rename_input.config(state=tk.DISABLED, bg="SystemButtonFace")
                 self.submit_button.config(state=tk.DISABLED)
 
+                self.log(f"[INFO] Deactivating Cascade Rename after rename")
+
             self.after(1, cleanup_and_deactivate)
 
         except ValueError as e:
+            error_msg = f"[ERROR] Rename submission failed: {e}"
+            self.log(error_msg)
             messagebox.showerror("Rename Error", str(e))
 
     def _on_text_change(self, event):
@@ -87,10 +93,10 @@ class CascadeRenameWidget(BaseFunctionWidget):
         is_valid = VALID_NAME_REGEX.fullmatch(current_text) and not CELL_REF_REGEX.fullmatch(current_text)
 
         if is_valid:
-            self.rename_input.config(bg="#d0ffd0")  # light green
+            self.rename_input.config(bg="#d0ffd0")
             self.submit_button.config(state=tk.NORMAL)
         else:
-            self.rename_input.config(bg="#ffd0d0")  # light red
+            self.rename_input.config(bg="#ffd0d0")
             self.submit_button.config(state=tk.DISABLED)
 
     def enable(self):
@@ -106,14 +112,8 @@ class CascadeRenameWidget(BaseFunctionWidget):
         self.rename_input.config(state=tk.NORMAL if active else tk.DISABLED)
 
         if active:
-            self._on_text_change(None)  # revalidate input and update submit button
+            self._on_text_change(None)
         else:
             self.rename_input.delete(0, tk.END)
             self.rename_input.config(bg="SystemButtonFace")
             self.submit_button.config(state=tk.DISABLED)
-
-    def _safe_activate(self):
-        if not self.app_state.is_feature_active(self.feature):
-            self.app_state.set_feature_active(self.feature)
-        else:
-            print(f"[DEBUG] Skipped redundant activation for {self.feature.name}")
