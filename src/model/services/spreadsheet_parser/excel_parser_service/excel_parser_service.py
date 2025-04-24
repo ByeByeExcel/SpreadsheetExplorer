@@ -4,9 +4,9 @@ import networkx as nx
 import xlwings as xw
 
 from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell import Cell
 from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
-from model.models.spreadsheet.spreadsheet_classes import CellDependencies
-from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address
+from model.models.spreadsheet.dependency_graph import DependencyGraph
 from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 
 
@@ -16,29 +16,20 @@ class ExcelParserService(ISpreadsheetParserService):
         self.wb = xw.Book(connected_workbook.name)
         self.graph: nx.DiGraph[CellAddress] = nx.DiGraph()
 
-    def get_dependencies(self) -> CellDependencies:
+    def get_dependencies(self) -> DependencyGraph:
         self.graph.clear()
         self.build_dependency_graph()
-        dependencies = CellDependencies()
 
-        for cell in self.graph.nodes():
-            precedents = self.get_precedents(cell)
-            dependents = self.get_dependents(cell)
+        return DependencyGraph(self.graph)
 
-            if precedents:
-                dependencies.precedents[cell] = precedents
-            if dependents:
-                dependencies.dependents[cell] = dependents
-
-        return dependencies
-
-    def add_range_dependencies(self, cell: CellAddress) -> None:
-        if cell is None or cell.address_type != CellAddressType.RANGE:
+    def add_range_dependencies(self, range_address: CellAddress) -> None:
+        if range_address is None or range_address.address_type != CellAddressType.RANGE:
             return
-
-        sheet: xw.Sheet = self.wb.sheets[cell.sheet]
-        cell_range = sheet.range(cell.address)
-        if cell_range is None or sheet is None:
+        sheet: xw.Sheet = self.wb.sheets[range_address.sheet]
+        if sheet is None:
+            return
+        cell_range = sheet.range(range_address.address)
+        if cell_range is None:
             return
 
         rows, cols = cell_range.shape
@@ -46,24 +37,42 @@ class ExcelParserService(ISpreadsheetParserService):
             for col in range(cell_range.column - 1, cols + cell_range.column - 1):
                 xw_cell: xw.Range = sheet[row, col]
                 cell_address = CellAddress(self.wb.name, sheet.name, xw_cell.address)
+                if cell_address not in self.graph:
+                    custom_cell = Cell(cell_address, xw_cell.value, xw_cell.formula)
+                    self.graph.add_node(cell_address, cell=custom_cell)
 
-                self.graph.add_edge(cell_address, cell)
+                self.graph.add_edge(cell_address, range_address)
 
     def build_dependency_graph(self) -> None:
         for sheet in self.wb.sheets:
             self.parse_worksheet(sheet)
 
-        for cell in list(self.graph.nodes()):
-            if cell.address_type == CellAddressType.DEFINED_NAME_GLOBAL:
-                self.graph.add_edge(convert_xlwings_address(self.wb.names[cell.address].refers_to_range), cell)
+        for named_node in list(node for node in self.graph.nodes if
+                               node.address_type in {CellAddressType.DEFINED_NAME_GLOBAL,
+                                                     CellAddressType.DEFINED_NAME_LOCAL}):
 
-            if cell.address_type == CellAddressType.DEFINED_NAME_LOCAL:
-                self.graph.add_edge(
-                    convert_xlwings_address(self.wb.sheets[cell.sheet].names[cell.address].refers_to_range), cell)
+            name: xw.Name
+            if named_node.address_type == CellAddressType.DEFINED_NAME_GLOBAL:
+                name = self.wb.names[named_node.address]
+            else:
+                name = self.wb.sheets[named_node.sheet].names[named_node.address]
+            if not name:
+                continue
 
-        for cell in list(self.graph.nodes()):
-            if cell.address_type == CellAddressType.RANGE:
-                self.add_range_dependencies(cell)
+            named_range: xw.Range = name.refers_to_range
+            is_range = named_range.shape[0] > 1 or named_range.shape[1] > 1
+            named_cell_address = CellAddress(named_range.sheet.book.name, named_range.sheet.name, named_range.address,
+                                             CellAddressType.RANGE if is_range else CellAddressType.CELL)
+            if named_cell_address not in self.graph:
+                if named_cell_address.address_type == CellAddressType.RANGE:
+                    self.graph.add_node(named_cell_address, cell=Cell(named_cell_address, "", ""))
+                else:
+                    self.graph.add_node(named_cell_address,
+                                        cell=Cell(named_cell_address, named_range.value, named_range.formula))
+            self.graph.add_edge(named_cell_address, named_node)
+
+        for range_node in list(node for node in self.graph.nodes if node.address_type == CellAddressType.RANGE):
+            self.add_range_dependencies(range_node)
 
     def parse_worksheet(self, sheet: xw.Sheet) -> None:
         used_range: xw.Range = sheet.used_range
@@ -74,13 +83,27 @@ class ExcelParserService(ISpreadsheetParserService):
         for row in range(used_range.row - 1, rows + used_range.row - 1):
             for col in range(used_range.column - 1, cols + used_range.column - 1):
                 cell: xw.Range = sheet[row, col]
-                if cell.formula and isinstance(cell.formula, str) and cell.formula.startswith('='):
-                    cell_address = CellAddress(self.wb.name, sheet.name, cell.address)
-                    dependencies = self._extract_dependencies(cell.formula, sheet.name)
-                    for dep in dependencies:
-                        self.graph.add_edge(dep, cell_address)
+                if cell and cell.formula and isinstance(cell.formula, str) and cell.formula.startswith('='):
 
-    def _extract_dependencies(self, formula: str, current_sheet: str) -> set[CellAddress]:
+                    cell_address = CellAddress(cell.sheet.book.name, cell.sheet.name, cell.address)
+                    if cell_address not in self.graph:
+                        self.graph.add_node(cell_address, cell=Cell(cell_address, cell.value, cell.formula))
+
+                    precedents_addr = self._extract_precedents(cell.formula, sheet.name)
+                    for precedent_addr in precedents_addr:
+                        if precedent_addr.address_type == CellAddressType.EXTERNAL:
+                            self.graph.add_node(precedent_addr)
+                        elif not precedent_addr in self.graph:
+                            if precedent_addr.address_type == CellAddressType.RANGE:
+                                self.graph.add_node(precedent_addr, cell=Cell(precedent_addr, "", ""))
+                            else:
+                                dep_range: xw.Range = sheet[precedent_addr.address]
+                                self.graph.add_node(precedent_addr,
+                                                    cell=Cell(precedent_addr, dep_range.value, dep_range.formula))
+
+                        self.graph.add_edge(precedent_addr, cell_address)
+
+    def _extract_precedents(self, formula: str, current_sheet: str) -> set[CellAddress]:
         dependencies: set[CellAddress] = set()
 
         for match in self.REFERENCE_RE.finditer(formula):
@@ -121,23 +144,13 @@ class ExcelParserService(ISpreadsheetParserService):
 
         return dependencies
 
-    def get_precedents(self, cell: CellAddress) -> set[CellAddress]:
-        if cell in self.graph:
-            return set(self.graph.predecessors(cell))
-        return set()
-
-    def get_dependents(self, cell: CellAddress) -> set[CellAddress]:
-        if cell in self.graph:
-            return set(self.graph.successors(cell))
-        return set()
-
     @property
     def REFERENCE_RE(self):
         return re.compile(r"""
-            (?:\[(?P<workbook>[^\]]+)\])?           # Optional [Workbook.xlsx]
-            (?:(?P<sheet>'[^']+'|[A-Za-z0-9_]+)!)?  # Optional 'Sheet One'! or Sheet1!
-            (?P<address>                            # Cell or range
-                \$?[A-Z]{1,3}\$?\d+                 # Start cell
-                (?::\$?[A-Z]{1,3}\$?\d+)?           # Optional :End cell
-            )
-        """, re.VERBOSE)
+        (?:\[(?P<workbook>[^\]]+)\])?           # Optional [Workbook.xlsx]
+        (?:(?P<sheet>'[^']+'|[A-Za-z0-9_]+)!)?  # Optional 'Sheet One'! or Sheet1!
+        (?P<address>                            # Cell or range
+            \$?[A-Z]{1,3}\$?\d+                 # Start cell
+            (?::\$?[A-Z]{1,3}\$?\d+)?           # Optional :End cell
+        )
+    """, re.VERBOSE)
