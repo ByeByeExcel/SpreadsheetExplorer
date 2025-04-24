@@ -24,7 +24,7 @@ class BasicContextGenerationObserver(ISelectionObserver):
 
         precedents_information: list[RangeInformation] = []
         if new_cell.address_type == CellAddressType.CELL:
-            precedents = self.workbook.cell_dependencies.resolve_precedents(new_cell, set())
+            precedents = self.workbook.resolve_precedents_to_cell_level(new_cell)
             for precedent in precedents:
                 cell = self.workbook.get_cell(precedent)
                 if cell:

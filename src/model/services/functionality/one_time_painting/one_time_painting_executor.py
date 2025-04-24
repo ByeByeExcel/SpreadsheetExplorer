@@ -1,5 +1,5 @@
+from model.models.spreadsheet.cell import Cell
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.spreadsheet_classes import Cell
 from model.services.functionality.one_time_painting.cell_to_color_converter.i_cell_to_color_converter import \
     CellToColorConverter
 

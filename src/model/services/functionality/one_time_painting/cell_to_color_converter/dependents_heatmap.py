@@ -1,6 +1,6 @@
 from typing import Optional
 
-from model.models.spreadsheet.spreadsheet_classes import Cell
+from model.models.spreadsheet.cell import Cell
 from model.services.functionality.one_time_painting.cell_to_color_converter.i_cell_to_color_converter import \
     CellToColorConverter
 from model.settings.colour_scheme import ColourScheme, ColorRole
@@ -14,7 +14,7 @@ class DependentsHeatmap(CellToColorConverter):
     def convert(self, cell: Cell) -> Optional[str]:
         if not cell:
             return None
-        dependents = self.workbook.cell_dependencies.resolve_dependents(cell.address, set())
+        dependents = self.workbook.resolve_dependents_to_cell_level(cell.address)
         if not dependents:
             return None
         k = clamp(len(dependents) / self._MAX_DEPENDENTS_FOR_COLOR, 0, 1)

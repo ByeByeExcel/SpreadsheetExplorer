@@ -1,18 +1,13 @@
 from abc import ABC, abstractmethod
-from typing import Any
 
 from model.models.spreadsheet.cell_address import CellAddress
-from model.models.spreadsheet.spreadsheet_classes import Workbook, Worksheet
+from model.models.spreadsheet.workbook import Workbook
 
 
 class IConnectedWorkbook(ABC, Workbook):
-    connected_workbook: Any = None
-    fullpath: str = None
-    name: str = None
-    worksheets: dict[str, Worksheet] = {}
 
     @abstractmethod
-    def load(self):
+    def calculate_workbook(self):
         pass
 
     @abstractmethod
