@@ -23,9 +23,9 @@ class HighlightCellSelectionObserver(ISelectionObserver):
         if new_cell.address_type == CellAddressType.RANGE:
             precedents = set()
         else:
-            precedents = self.workbook.cell_dependencies.resolve_precedents(new_cell, set())
+            precedents = self.workbook.resolve_precedents_to_cell_level(new_cell)
 
-        dependents = self.workbook.cell_dependencies.resolve_dependents(new_cell, set())
+        dependents = self.workbook.resolve_dependents_to_cell_level(new_cell)
 
         for precedent in precedents:
             self.original_colors[precedent] = self.workbook.get_range_color(precedent)

@@ -1,8 +1,8 @@
 from model.app_state import AppState
 from model.feature import Feature
 from model.models.i_connected_workbook import IConnectedWorkbook
+from model.models.spreadsheet.cell import Cell
 from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
-from model.models.spreadsheet.spreadsheet_classes import Cell
 from model.utils.utils import replace_cell_reference_in_formula
 
 
@@ -22,7 +22,7 @@ class RenamingService:
                 raise ValueError(f"Name {new_name} already exists in workbook {cell.workbook}.")
 
             workbook.add_name(cell, new_name)
-            dependents: set[CellAddress] = workbook.cell_dependencies.dependents.get(cell)
+            dependents: set[CellAddress] = workbook.get_dependents(cell)
             if dependents:
                 for dependent in dependents:
                     if dependent.address_type != CellAddressType.CELL:
@@ -36,7 +36,5 @@ class RenamingService:
 
                     new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
                     workbook.set_formula(dependent, new_formula)
-
-                workbook.load()
         finally:
             self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)
