@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 
+from view.widgets.feature_button_texts import FeatureButtonTextManager
+
 
 def _add_tooltip(widget, text):
     tooltip = tk.Toplevel(widget)
@@ -14,7 +16,7 @@ def _add_tooltip(widget, text):
         tooltip.geometry(f"+{event.x_root + 10}+{event.y_root + 10}")
         tooltip.deiconify()
 
-    def leave(event):
+    def leave(_):
         tooltip.withdraw()
 
     widget.bind("<Enter>", enter)
@@ -30,6 +32,7 @@ class BaseFunctionWidget(tk.Frame):
         self.output = output
         self._start_func = None
         self._stop_func = None
+        self.button: tk.Button = None
 
     def create_button(self, text, command, row, help_text=None, column=1):
         if help_text:
@@ -42,7 +45,6 @@ class BaseFunctionWidget(tk.Frame):
         return button
 
     def initialize_feature_button(self, row, help_text):
-        from view.widgets.feature_button_texts import FeatureButtonTextManager
         return self.create_button(
             text=FeatureButtonTextManager.get_text(self.feature, False),
             command=self.toggle,
@@ -76,3 +78,14 @@ class BaseFunctionWidget(tk.Frame):
             self.output.write(message)
         else:
             print(message)
+
+    def enable(self):
+        if self.button:
+            self.button.config(state=tk.NORMAL)
+
+    def disable(self):
+        if self.button:
+            self.button.config(state=tk.DISABLED)
+
+    def set_active_state(self, active: bool):
+        self.button.config(text=FeatureButtonTextManager.get_text(self.feature, active))

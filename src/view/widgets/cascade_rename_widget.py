@@ -3,7 +3,6 @@ from tkinter import messagebox
 import re
 from model.feature import Feature
 from view.widgets.base_function_widget import BaseFunctionWidget
-from view.widgets.feature_button_texts import FeatureButtonTextManager
 
 VALID_NAME_REGEX = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 CELL_REF_REGEX = re.compile(r"^[A-Za-z]{1,3}[0-9]{1,7}$")
@@ -17,9 +16,7 @@ class CascadeRenameWidget(BaseFunctionWidget):
         self.manager = manager
         self._toggling = False
 
-        self.rename_button = self.create_button(
-            text=FeatureButtonTextManager.get_text(self.feature, False),
-            command=self.toggle,
+        self.button = self.initialize_feature_button(
             row=3,
             help_text="Rename the selected cell and all its dependencies."
         )
@@ -73,7 +70,7 @@ class CascadeRenameWidget(BaseFunctionWidget):
                 self.rename_input.config(state=tk.DISABLED, bg="SystemButtonFace")
                 self.submit_button.config(state=tk.DISABLED)
 
-                self.log(f"[INFO] Deactivating Cascade Rename after rename")
+                self.log("[INFO] Deactivating Cascade Rename after rename")
 
             self.after(1, cleanup_and_deactivate)
 
@@ -82,7 +79,7 @@ class CascadeRenameWidget(BaseFunctionWidget):
             self.log(error_msg)
             messagebox.showerror("Rename Error", str(e))
 
-    def _on_text_change(self, event):
+    def _on_text_change(self, _):
         current_text = self.rename_input.get().strip()
 
         if not current_text:
@@ -99,16 +96,8 @@ class CascadeRenameWidget(BaseFunctionWidget):
             self.rename_input.config(bg="#ffd0d0")
             self.submit_button.config(state=tk.DISABLED)
 
-    def enable(self):
-        self.rename_button.config(state=tk.NORMAL)
-
-    def disable(self):
-        self.rename_button.config(state=tk.DISABLED)
-        self.rename_input.config(state=tk.DISABLED, bg="SystemButtonFace")
-        self.submit_button.config(state=tk.DISABLED)
-
     def set_active_state(self, active):
-        self.rename_button.config(text=FeatureButtonTextManager.get_text(self.feature, active))
+        super().set_active_state(active)
         self.rename_input.config(state=tk.NORMAL if active else tk.DISABLED)
 
         if active:

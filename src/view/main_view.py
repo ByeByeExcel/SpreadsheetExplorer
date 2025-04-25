@@ -3,10 +3,10 @@ import tkinter as tk
 from controller.feature_controller import FeatureController
 from controller.workbook_controller import WorkbookController
 from model.app_state import AppState
+from view.context_info_table import ContextInfoTable
 from view.function_buttons_section import FunctionButtonSection
 from view.output_section import OutputSection
 from view.workbook_selector import WorkbookSelector
-from view.context_info_table import ContextInfoTable
 
 
 class MainView:
@@ -15,10 +15,6 @@ class MainView:
         self.workbook_controller = workbook_controller
         self.feature_controller = feature_controller
         self.app_state = app_state
-
-        self.app_state.is_connected_to_workbook.set_value(False)
-        self.app_state.is_analyzing.set_value(False)
-        self.app_state.active_feature.set_value(None)
 
         self.root = tk.Tk()
         self.root.title("Spreadsheet Explorer")

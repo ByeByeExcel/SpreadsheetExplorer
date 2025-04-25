@@ -1,12 +1,13 @@
 import tkinter as tk
-from model.app_state import AppState
-from controller.feature_controller import FeatureController
 
+from controller.feature_controller import FeatureController
+from model.app_state import AppState
+from view.widgets.cascade_rename_widget import CascadeRenameWidget
 from view.widgets.dependency_highlighting_widget import DependencyHighlightingWidget
+from view.widgets.feature_button_manager import FeatureButtonManager
 from view.widgets.heatmap_widget import HeatmapWidget
 from view.widgets.root_nodes_widget import RootNodesWidget
-from view.widgets.cascade_rename_widget import CascadeRenameWidget
-from view.widgets.feature_button_manager import FeatureButtonManager
+
 
 class FunctionButtonSection:
     def __init__(self, master, output, feature_controller: FeatureController, app_state: AppState, pack=True):
