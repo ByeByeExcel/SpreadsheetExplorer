@@ -1,8 +1,5 @@
-from typing import Optional
-
 from model.app_state import AppState
 from model.feature import Feature
-from model.models.formula_context_information import FormulaContextInformation
 from model.services.functionality.interactive_painting.interactive_context_service import InteractiveContextService
 from model.services.functionality.interactive_painting.interactive_painting_service import \
     InteractivePaintingService

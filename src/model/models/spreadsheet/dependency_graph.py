@@ -13,6 +13,8 @@ class DependencyGraph:
         self.graph: nx.DiGraph = graph
 
     def get_cell(self, cell_address: CellAddress) -> Optional[Cell]:
+        if cell_address not in self.graph:
+            return None
         return self.graph.nodes.get(cell_address).get('cell')
 
     def get_cells(self) -> set[Cell]:

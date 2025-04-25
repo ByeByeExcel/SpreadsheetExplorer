@@ -1,3 +1,5 @@
+from typing import Optional
+
 from model.models.spreadsheet.cell import Cell
 from model.models.spreadsheet.cell_address import CellAddress
 from model.models.spreadsheet.dependency_graph import DependencyGraph
@@ -43,3 +45,6 @@ class Workbook:
 
     def get_dependents(self, cell_address: CellAddress) -> set[CellAddress]:
         return self._dependency_graph.get_dependents(cell_address) if self._dependency_graph else set()
+
+    def get_precedents(self, cell_address: CellAddress) -> set[CellAddress]:
+        return self._dependency_graph.get_precedents(cell_address) if self._dependency_graph else set()
