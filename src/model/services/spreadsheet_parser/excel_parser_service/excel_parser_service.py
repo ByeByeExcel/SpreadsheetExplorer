@@ -13,7 +13,7 @@ from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpre
 class ExcelParserService(ISpreadsheetParserService):
 
     def __init__(self, connected_workbook: IConnectedWorkbook):
-        self.wb = xw.Book(connected_workbook.name)
+        self.wb: xw.Book = connected_workbook.get_connected_workbook()
         self.graph: nx.DiGraph[CellAddress] = nx.DiGraph()
 
     def get_dependencies(self) -> DependencyGraph:
@@ -83,7 +83,7 @@ class ExcelParserService(ISpreadsheetParserService):
         for row in range(used_range.row - 1, rows + used_range.row - 1):
             for col in range(used_range.column - 1, cols + used_range.column - 1):
                 cell: xw.Range = sheet[row, col]
-                if cell and cell.formula and isinstance(cell.formula, str) and cell.formula.startswith('='):
+                if cell and cell.formula and isinstance(cell.formula, str):
 
                     cell_address = CellAddress(cell.sheet.book.name, cell.sheet.name, cell.address)
                     if cell_address not in self.graph:

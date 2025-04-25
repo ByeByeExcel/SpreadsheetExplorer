@@ -1,3 +1,4 @@
+import tkinter as tk
 from typing import Optional
 
 from model.app_state import AppState
@@ -14,6 +15,10 @@ class ConnectedWorkbookService:
     def __init__(self, connection_service: ISpreadsheetConnectionService, app_state: AppState):
         self.connection_service: ISpreadsheetConnectionService = connection_service
         self._app_state: AppState = app_state
+        self._tk_root: Optional[tk.Tk] = None
+
+    def set_root(self, tk_root):
+        self._tk_root = tk_root
 
     def connect_workbook(self, filename: str) -> None:
         if self._app_state.active_feature.value is not None:
@@ -47,8 +52,11 @@ class ConnectedWorkbookService:
 
     def start_watching_selected_cell(self):
         self.stop_watching_selected_cell()
-        if self._app_state.is_connected_to_workbook.value:
-            watcher = WorkbookClickWatcher(self._app_state.get_connected_workbook(), self._update_selected_cell)
+        if self._app_state.is_connected_to_workbook.value and self._tk_root:
+            watcher = WorkbookClickWatcher(
+                self._tk_root,
+                self._app_state.get_connected_workbook(),
+                self._update_selected_cell)
             watcher.start()
             self._workbook_selected_cell_watcher = watcher
 
