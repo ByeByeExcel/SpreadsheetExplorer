@@ -25,7 +25,7 @@ class ObservableValue(Generic[T]):
 
     def add_observer(self, callback: Callable[[T, T], None]):
         self._observers.append(callback)
-        if callback and self._value:
+        if callback and self._value is not None:
             callback(self._value, self._value)
 
     def remove_observer(self, callback: Callable[[T, T], None]):
