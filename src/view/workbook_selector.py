@@ -1,4 +1,3 @@
-import threading
 import tkinter as tk
 from tkinter import ttk
 
@@ -62,11 +61,8 @@ class WorkbookSelector:
     def analyze_workbook(self):
         selected = self.dropdown.get()
         if selected:
-            def run():
-                self.workbook_controller.connect_and_parse_workbook(selected)
-                self.output.write(f"[INFO] '{selected}' analyzed")
-
-            threading.Thread(target=run).start()
+            self.workbook_controller.connect_and_parse_workbook(selected)
+            self.output.write(f"[INFO] '{selected}' analyzed")
         else:
             self.output.write("[ERROR] No workbook selected.")
 
@@ -74,14 +70,14 @@ class WorkbookSelector:
         selected = self.app_state.get_connected_workbook()
         if selected:
             self.output.write(f"[INFO] Reanalysis of '{selected}' started.")
-            threading.Thread(target=self.workbook_controller.parse_connected_workbook).start()
+            self.workbook_controller.parse_connected_workbook()
         else:
             self.output.write("[ERROR] Unable to complete reanalysis: no workbook connected.")
 
     def disconnect_workbook(self):
         selected = self.app_state.get_connected_workbook()
         if selected:
-            threading.Thread(target=self.workbook_controller.disconnect_workbook).start()
+            self.workbook_controller.disconnect_workbook()
             self.output.write(f"[INFO] '{selected}' disconnected.")
         else:
             self.output.write("[ERROR] Could not disconnect.")

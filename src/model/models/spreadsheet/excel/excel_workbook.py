@@ -1,7 +1,7 @@
 from typing import Optional
 
 import openpyxl.utils
-import xlwings
+import xlwings as xw
 
 from model.models.i_connected_workbook import IConnectedWorkbook
 from model.models.spreadsheet.cell_address import CellAddress
@@ -12,10 +12,13 @@ from model.utils.utils import convert_to_absolute_range
 
 class ConnectedExcelWorkbook(IConnectedWorkbook):
 
-    def __init__(self, xlwings_workbook: xlwings.Book):
-        self.connected_workbook: xlwings.Book = xlwings_workbook
+    def __init__(self, xlwings_workbook: xw.Book):
+        self.connected_workbook: xw.Book = xlwings_workbook
 
         super().__init__(self.connected_workbook.name, self.connected_workbook.fullname)
+
+    def get_connected_workbook(self) -> xw.Book:
+        return self.connected_workbook
 
     def calculate_workbook(self):
         self.connected_workbook.app.calculate()
@@ -73,13 +76,13 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self.disable_screen_updating()
         try:
             for sheet in self.connected_workbook.sheets:
-                sheet: xlwings.Sheet
-                used_range: xlwings.Range = sheet.used_range
+                sheet: xw.Sheet
+                used_range: xw.Range = sheet.used_range
 
                 for row in openpyxl.utils.rows_from_range(used_range.address):
                     for cell_address_string in row:
                         cell_address: CellAddress = CellAddress(self.name, sheet.name, cell_address_string)
-                        xw_cell: xlwings.Range = sheet.range(cell_address_string)
+                        xw_cell: xw.Range = sheet.range(cell_address_string)
                         # get and save initial color
                         initial_color: tuple = xw_cell.color
                         initial_colors[cell_address] = get_hex_color_from_tuple(initial_color)
@@ -94,8 +97,8 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             self.enable_screen_updating()
             return initial_colors
 
-    def _get_range(self, sheet: str, cell_range: str) -> xlwings.Range:
+    def _get_range(self, sheet: str, cell_range: str) -> xw.Range:
         return self._get_sheet(sheet).range(cell_range)
 
-    def _get_sheet(self, sheet: str) -> xlwings.Sheet:
+    def _get_sheet(self, sheet: str) -> xw.Sheet:
         return self.connected_workbook.sheets[sheet]

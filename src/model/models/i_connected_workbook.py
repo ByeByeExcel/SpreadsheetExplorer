@@ -7,6 +7,10 @@ from model.models.spreadsheet.workbook import Workbook
 class IConnectedWorkbook(ABC, Workbook):
 
     @abstractmethod
+    def get_connected_workbook(self):
+        pass
+
+    @abstractmethod
     def calculate_workbook(self):
         pass
 
