@@ -11,12 +11,10 @@ class WorkbookSelector:
 
         self.frame = tk.Frame(master, padx=20)
 
-        # Label and Dropdown
         tk.Label(self.frame, text="Select an open Excel workbook:").pack(anchor="w")
         self.dropdown = ttk.Combobox(self.frame, state="readonly", width=50)
         self.dropdown.pack(fill="x", pady=(0, 10))
 
-        # Unified button row
         button_row = tk.Frame(self.frame)
         self.refresh_button = tk.Button(button_row, text="Refresh Workbook List", command=self.refresh_workbooks)
         self.analyze_button = tk.Button(button_row, text="Analyze Workbook", command=self.analyze_workbook)
@@ -30,12 +28,10 @@ class WorkbookSelector:
         separator = tk.Frame(self.frame, height=1, bd=0, relief="groove", bg="#ccc")
         separator.pack(fill="x", padx=0, pady=(5, 10))
 
-        # Observe state changes
         self.app_state.is_connected_to_workbook.add_observer(lambda *_: self.update_button_states())
         self.app_state.active_feature.add_observer(lambda *_: self.update_button_states())
         self.app_state.is_analyzing.add_observer(lambda *_: self.update_button_states())
 
-        # Refresh list on init
         self.refresh_workbooks()
         self.update_button_states()
 

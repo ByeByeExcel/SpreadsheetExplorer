@@ -4,7 +4,7 @@ from controller.feature_controller import FeatureController
 from model.app_state import AppState
 from view.widgets.cascade_rename_widget import CascadeRenameWidget
 from view.widgets.dependency_highlighting_widget import DependencyHighlightingWidget
-from view.widgets.feature_button_manager import FeatureButtonManager
+from view.utils.feature_button_manager import FeatureButtonManager
 from view.widgets.heatmap_widget import HeatmapWidget
 from view.widgets.root_nodes_widget import RootNodesWidget
 
@@ -21,14 +21,16 @@ class FunctionButtonSection:
         if pack:
             self.pack()
 
-        # Initialize the shared feature button manager
         self.manager = FeatureButtonManager(self.app_state)
 
-        # Add modular widgets with manager support
-        DependencyHighlightingWidget(self.frame, self.app_state, self.feature_controller, self.output, manager=self.manager).grid(row=0, column=0, columnspan=2, sticky="ew")
-        HeatmapWidget(self.frame, self.app_state, self.feature_controller, self.output, manager=self.manager).grid(row=1, column=0, columnspan=2, sticky="ew")
-        RootNodesWidget(self.frame, self.app_state, self.feature_controller, self.output, manager=self.manager).grid(row=2, column=0, columnspan=2, sticky="ew")
-        CascadeRenameWidget(self.frame, self.app_state, self.feature_controller, self.output, manager=self.manager).grid(row=3, column=0, columnspan=2, sticky="ew")
+        DependencyHighlightingWidget(self.frame, self.app_state, self.feature_controller, self.output,
+                                     manager=self.manager).grid(row=0, column=0, columnspan=2, sticky="ew")
+        HeatmapWidget(self.frame, self.app_state, self.feature_controller, self.output, manager=self.manager).grid(
+            row=1, column=0, columnspan=2, sticky="ew")
+        RootNodesWidget(self.frame, self.app_state, self.feature_controller, self.output, manager=self.manager).grid(
+            row=2, column=0, columnspan=2, sticky="ew")
+        CascadeRenameWidget(self.frame, self.app_state, self.feature_controller, self.output,
+                            manager=self.manager).grid(row=3, column=0, columnspan=2, sticky="ew")
 
     def pack(self):
         self.frame.pack(pady=10)
