@@ -4,7 +4,7 @@ import tkinter as tk
 class OutputSection:
     def __init__(self, master, pack=True, app_state=None):
         self.app_state = app_state
-        self.frame = tk.Frame(master, padx=20, pady=10)
+        self.frame = tk.Frame(master, padx=5, pady=10)
 
         if pack:
             self.pack()

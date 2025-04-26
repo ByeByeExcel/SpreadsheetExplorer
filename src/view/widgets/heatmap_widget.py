@@ -7,10 +7,7 @@ class HeatmapWidget(BaseFunctionWidget):
         super().__init__(master, app_state, feature_controller, output, **kwargs)
         self.feature = Feature.DEPENDENTS_HEATMAP
 
-        self.button = self.initialize_feature_button(
-            row=1,
-            help_text="Visualize the density of formula usage with a color gradient."
-        )
+        self.button = self.initialize_feature_button(row=1)
 
         self.set_toggle_function(
             self.feature_controller.show_heatmap,

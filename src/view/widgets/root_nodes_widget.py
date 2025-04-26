@@ -7,10 +7,7 @@ class RootNodesWidget(BaseFunctionWidget):
         super().__init__(master, app_state, feature_controller, output, **kwargs)
         self.feature = Feature.ROOT_NODES
 
-        self.button = self.initialize_feature_button(
-            row=5,
-            help_text="Highlight the cells that are not referenced by any other cells."
-        )
+        self.button = self.initialize_feature_button(row=5)
 
         self.set_toggle_function(
             self.feature_controller.show_root_nodes,

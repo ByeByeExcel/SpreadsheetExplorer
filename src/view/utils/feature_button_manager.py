@@ -9,7 +9,6 @@ class FeatureButtonManager:
         self.widgets: dict[Feature, object] = {}
         self._updating = False
 
-        # Observe changes
         self.app_state.active_feature.add_observer(lambda new, old: self.update_widgets())
         self.app_state.is_connected_to_workbook.add_observer(lambda new, old: self.update_widgets())
         self.app_state.is_analyzing.add_observer(lambda new, old: self.update_widgets())

@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from view.widgets.feature_button_texts import FeatureButtonTextManager
+from view.utils.feature_button_texts import FeatureButtonTextManager
+from view.utils.tooltip import ToolTip
 
 
 def _add_tooltip(widget, text):
@@ -35,21 +36,20 @@ class BaseFunctionWidget(tk.Frame):
         self.button: tk.Button = None
 
     def create_button(self, text, command, row, help_text=None, column=1):
-        if help_text:
-            help_button = tk.Button(self, text="?", width=2)
-            help_button.grid(row=row, column=0, sticky="w", padx=(0, 5))
-            _add_tooltip(help_button, help_text)
-
         button = tk.Button(self, text=text, command=command, width=25)
         button.grid(row=row, column=column, padx=10, pady=(0, 0), sticky="ew")
+
+        if help_text:
+            ToolTip(button, help_text)  # Attach the tooltip directly to the function button
+
         return button
 
-    def initialize_feature_button(self, row, help_text):
+    def initialize_feature_button(self, row):
         return self.create_button(
-            text=FeatureButtonTextManager.get_text(self.feature, False),
+            text=FeatureButtonTextManager.get_button_text(self.feature, active=False),
             command=self.toggle,
             row=row,
-            help_text=help_text
+            help_text=FeatureButtonTextManager.get_help_text(self.feature)
         )
 
     def set_toggle_function(self, start_func, stop_func):
@@ -88,4 +88,4 @@ class BaseFunctionWidget(tk.Frame):
             self.button.config(state=tk.DISABLED)
 
     def set_active_state(self, active: bool):
-        self.button.config(text=FeatureButtonTextManager.get_text(self.feature, active))
+        self.button.config(text=FeatureButtonTextManager.get_button_text(self.feature, active))

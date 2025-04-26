@@ -23,13 +23,9 @@ class FeatureController:
     # interactive features
     def start_dependency_highlighting(self) -> None:
         self._interactive_painting_service.highlight_dependents_precedents()
-        # currently to be implemented together with Dep. Highligting, behaviour will be changed
-        self.start_context_information()
 
     def stop_dependency_highlighting(self) -> None:
         self._interactive_painting_service.stop_dependency_highlighting()
-        # currently to be implemented together with Dep. Highligting, behaviour will be changed
-        self.stop_context_information()
 
     # one-time painting features
     def show_heatmap(self) -> None:
