@@ -10,7 +10,7 @@ class ContextInformationManager:
     def _safe_get(self, obj, attr, default="-"):
         return getattr(obj, attr, default) or default
 
-    def _update_selected_cell_info(self, new_value, old_value):
+    def _update_selected_cell_info(self, new_value, _):
         selected_range = self._safe_get(new_value, 'address')
         self.context_table.update_selected_info(selected_range, "-", "-")
 
@@ -19,7 +19,7 @@ class ContextInformationManager:
         else:
             self.context_table.clear_table()
 
-    def _update_context_table(self, new_value, old_value):
+    def _update_context_table(self, new_value, _):
         self.context_table.clear_table()
 
         if not new_value:
@@ -40,8 +40,8 @@ class ContextInformationManager:
         return self.context_table.tree.insert(
             parent,
             "end",
+            text=f" {self._safe_get(address, 'address')}",
             values=(
-                self._safe_get(address, 'address'),
                 self._safe_get(address, 'sheet'),
                 self._safe_get(address, 'workbook'),
                 self._safe_get(precedent, 'formula'),
