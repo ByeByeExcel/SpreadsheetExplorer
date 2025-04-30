@@ -18,5 +18,5 @@ class WorkbookController:
     def disconnect_workbook(self) -> None:
         self._connected_workbook_service.disconnect_workbook()
 
-    def set_root(self, tk_root):
+    def set_tk_root(self, tk_root):
         self._connected_workbook_service.set_root(tk_root)

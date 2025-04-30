@@ -43,8 +43,7 @@ class BasicContextGenerationObserver(ISelectionObserver):
 
         range_information.sort(
             key=lambda r: (
-                0 if not r.precedents_information else 1,
-                r.cell_address.address
+                r.cell_address
             )
         )
         cell = self.workbook.get_cell(cell_address)

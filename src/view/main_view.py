@@ -5,9 +5,9 @@ from controller.workbook_controller import WorkbookController
 from model.app_state import AppState
 from view.function_buttons_section import FunctionButtonSection
 from view.output_section import OutputSection
-from view.workbook_selector import WorkbookSelector
-from view.widgets.context_info_table_widget import ContextInfoTable
 from view.utils.context_information_table_manager import ContextInformationManager
+from view.widgets.context_info_table_widget import ContextInfoTable
+from view.workbook_selector import WorkbookSelector
 
 
 class MainView:
@@ -18,7 +18,7 @@ class MainView:
         self.app_state = app_state
 
         self.root = tk.Tk()
-        self.workbook_controller.set_root(self.root)
+        self.workbook_controller.set_tk_root(self.root)
         self.root.title("Spreadsheet Explorer")
         self.root.geometry("1050x600")
 

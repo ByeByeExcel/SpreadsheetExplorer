@@ -49,17 +49,16 @@ class ContextInfoTable(tk.Frame):
         )
         self.precedents_label.pack(fill="x", pady=(0, 5), padx=5)
 
-        self.tree = ttk.Treeview(self, columns=("cell", "sheet", "workbook", "formula", "value"), show="tree headings")
-        self.tree.heading("cell", text="Cell")
+        self.tree = ttk.Treeview(self, columns=("sheet", "workbook", "formula", "value"), show="tree headings")
+        self.tree.heading("#0", text="Cell")
         self.tree.heading("sheet", text="Sheet")
         self.tree.heading("workbook", text="Workbook")
         self.tree.heading("formula", text="Formula")
         self.tree.heading("value", text="Value")
 
-        self.tree.column("#0", width=20, anchor="w")
-        self.tree.column("cell", width=100, anchor="w")
-        self.tree.column("sheet", width=120, anchor="w")
-        self.tree.column("workbook", width=100, anchor="w")
+        self.tree.column("#0", width=120, anchor="w")
+        self.tree.column("sheet", width=80, anchor="w")
+        self.tree.column("workbook", width=80, anchor="w")
         self.tree.column("formula", width=125, anchor="w")
         self.tree.column("value", width=100, anchor="w")
 
@@ -73,10 +72,3 @@ class ContextInfoTable(tk.Frame):
     def clear_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
-
-    def insert_row(self, cell, sheet, workbook, formula, value, parent=""):
-        return self.tree.insert(
-            parent,
-            "end",
-            values=(cell, sheet, workbook, formula, value)
-        )
