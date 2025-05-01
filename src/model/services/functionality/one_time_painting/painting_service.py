@@ -1,5 +1,5 @@
+from model.domain_model.i_connected_workbook import IConnectedWorkbook
 from model.feature import Feature
-from model.models.i_connected_workbook import IConnectedWorkbook
 from model.services.functionality.one_time_painting.cell_to_color_converter.dependents_heatmap import \
     DependentsHeatmap
 from model.services.functionality.one_time_painting.cell_to_color_converter.root_node_highlighter import \
@@ -16,7 +16,8 @@ class PaintingService:
             raise ValueError("Heatmap can not be started.")
         self._app_state.set_feature_active(Feature.DEPENDENTS_HEATMAP)
 
-        painter = OneTimePaintingExecutor(connected_workbook.get_all_cells(), DependentsHeatmap(connected_workbook))
+        painter = OneTimePaintingExecutor(connected_workbook.get_all_cell_ranges(),
+                                          DependentsHeatmap(connected_workbook))
         new_colors = painter.get_color_dict()
         initial_colors = (self._app_state.get_connected_workbook()
                           .initial_to_grayscale_and_set_from_dict_and_return_initial_colors(new_colors))
@@ -27,7 +28,8 @@ class PaintingService:
             raise ValueError("Root nodes cannot be started.")
         self._app_state.set_feature_active(Feature.ROOT_NODES)
 
-        painter = OneTimePaintingExecutor(connected_workbook.get_all_cells(), RootNodeHighlighter(connected_workbook))
+        painter = OneTimePaintingExecutor(connected_workbook.get_all_cell_ranges(),
+                                          RootNodeHighlighter(connected_workbook))
         new_colors = painter.get_color_dict()
 
         initial_colors = (self._app_state.get_connected_workbook()

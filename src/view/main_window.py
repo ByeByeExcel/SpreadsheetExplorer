@@ -2,8 +2,8 @@ from controller.feature_controller import FeatureController
 from controller.workbook_controller import WorkbookController
 from model.app_state import AppState
 from model.services.connected_workbook_service import ConnectedWorkbookService
-from model.services.functionality.interactive_painting.interactive_context_service import InteractiveContextService
-from model.services.functionality.interactive_painting.interactive_painting_service import InteractivePaintingService
+from model.services.selection.context.selection_context_service import SelectionContextService
+from model.services.selection.highlighting.selection_painting_service import SelectionPaintingService
 from model.services.functionality.one_time_painting.painting_service import PaintingService
 from model.services.functionality.renaming_service import RenamingService
 from model.services.spreadsheet_connection.excel_connection.excel_connection_service import ExcelConnectionService
@@ -18,8 +18,8 @@ def run_view():
 
     connected_workbook_service: ConnectedWorkbookService = ConnectedWorkbookService(connection_service, app_state)
 
-    interactive_painting_service: InteractivePaintingService = InteractivePaintingService(app_state)
-    interactive_context_service: InteractiveContextService = InteractiveContextService(app_state)
+    interactive_painting_service: SelectionPaintingService = SelectionPaintingService(app_state)
+    interactive_context_service: SelectionContextService = SelectionContextService(app_state)
     painting_service: PaintingService = PaintingService(app_state)
     renaming_service: RenamingService = RenamingService(app_state)
 

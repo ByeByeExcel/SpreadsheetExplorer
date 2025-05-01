@@ -3,8 +3,8 @@ from typing import Optional
 import openpyxl.utils
 import xlwings as xw
 
-from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.cell_address import CellAddress
+from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address
 from model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
 from model.utils.utils import convert_to_absolute_range
@@ -23,27 +23,27 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
     def calculate_workbook(self):
         self.connected_workbook.app.calculate()
 
-    def get_range_color(self, cell_range: CellAddress) -> Optional[str]:
-        return get_hex_color_from_tuple(self._get_range(cell_range.sheet, cell_range.address).color)
+    def get_range_color(self, range_ref: RangeReference) -> Optional[str]:
+        return get_hex_color_from_tuple(self._get_range(range_ref.sheet, range_ref.reference).color)
 
-    def set_range_color(self, cell_range: CellAddress, color: str):
-        self._get_range(cell_range.sheet, cell_range.address).color = color
+    def set_range_color(self, range_ref: RangeReference, color: str):
+        self._get_range(range_ref.sheet, range_ref.reference).color = color
 
-    def set_ranges_color(self, cell_ranges: list[CellAddress], color: str):
+    def set_ranges_color(self, range_refs: list[RangeReference], color: str):
         self.disable_screen_updating()
         try:
-            for cell_range in cell_ranges:
-                self.set_range_color(cell_range, color)
+            for range_ref in range_refs:
+                self.set_range_color(range_ref, color)
         finally:
             self.enable_screen_updating()
 
-    def get_selected_cell(self) -> CellAddress:
+    def get_selected_range_ref(self) -> RangeReference:
         selection = self.connected_workbook.selection
         return convert_xlwings_address(selection)
 
-    def add_name(self, cell_range: CellAddress, new_name: str) -> None:
+    def add_name(self, range_ref: RangeReference, new_name: str) -> None:
         self.connected_workbook.names.add(new_name,
-                                          f"='{cell_range.sheet}'!{convert_to_absolute_range(cell_range.address)}")
+                                          f"='{range_ref.sheet}'!{convert_to_absolute_range(range_ref.reference)}")
 
     def get_names(self) -> dict[str, str]:
         names: dict[str, str] = {}
@@ -51,8 +51,10 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             names[name.name] = name.refers_to
         return names
 
-    def set_formula(self, cell: CellAddress, formula: str):
-        self._get_range(cell.sheet, cell.address).formula = formula
+    def set_formula(self, range_ref: RangeReference, formula: str):
+        if not formula or range_ref.reference_type != RangeReferenceType.CELL:
+            raise ValueError("Formula cannot be empty.")
+        self._get_range(range_ref.sheet, range_ref.reference).formula = formula
 
     def disable_screen_updating(self):
         self.connected_workbook.app.screen_updating = False
@@ -60,19 +62,19 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
     def enable_screen_updating(self):
         self.connected_workbook.app.screen_updating = True
 
-    def set_colors_from_dict(self, colors: dict[CellAddress, str]):
+    def set_colors_from_dict(self, colors: dict[RangeReference, str]):
         self.disable_screen_updating()
-        for cell_address, color in colors.items():
-            self.set_range_color(cell_address, color)
+        for range_reference, color in colors.items():
+            self.set_range_color(range_reference, color)
         self.enable_screen_updating()
 
-    def grayscale_colors_and_return_initial_colors(self) -> dict[CellAddress, str]:
-        new_colors: dict[CellAddress, str] = {}
+    def grayscale_colors_and_return_initial_colors(self) -> dict[RangeReference, str]:
+        new_colors: dict[RangeReference, str] = {}
         return self.initial_to_grayscale_and_set_from_dict_and_return_initial_colors(new_colors)
 
-    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(self, new_colors: dict[CellAddress, str]) -> \
-            dict[CellAddress, str]:
-        initial_colors: dict[CellAddress, str] = {}
+    def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(self, new_colors: dict[RangeReference, str]) -> \
+            dict[RangeReference, str]:
+        initial_colors: dict[RangeReference, str] = {}
         self.disable_screen_updating()
         try:
             for sheet in self.connected_workbook.sheets:
@@ -81,14 +83,15 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
                 for row in openpyxl.utils.rows_from_range(used_range.address):
                     for cell_address_string in row:
-                        cell_address: CellAddress = CellAddress(self.name, sheet.name, cell_address_string)
+                        range_reference: RangeReference = RangeReference.from_raw(self.name, sheet.name,
+                                                                                  cell_address_string)
                         xw_cell: xw.Range = sheet.range(cell_address_string)
                         # get and save initial color
                         initial_color: tuple = xw_cell.color
-                        initial_colors[cell_address] = get_hex_color_from_tuple(initial_color)
+                        initial_colors[range_reference] = get_hex_color_from_tuple(initial_color)
                         # set new color
-                        if new_colors and cell_address in new_colors:
-                            new_color = new_colors[cell_address]
+                        if new_colors and range_reference in new_colors:
+                            new_color = new_colors[range_reference]
                         else:
                             new_color = rgb_to_grayscale(initial_color)
                         if new_color:

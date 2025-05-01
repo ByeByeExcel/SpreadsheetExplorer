@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from model.models.spreadsheet.dependency_graph import DependencyGraph
+from model.domain_model.spreadsheet.dependency_graph import DependencyGraph
 
 
 class ISpreadsheetParserService(ABC):

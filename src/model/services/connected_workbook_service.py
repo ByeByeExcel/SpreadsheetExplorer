@@ -2,20 +2,22 @@ import tkinter as tk
 from typing import Optional
 
 from model.app_state import AppState
-from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.cell_address import CellAddress
-from model.models.workbook_click_watcher import WorkbookClickWatcher
+from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.range_reference import RangeReference
+from model.services.selection.selection_monitoring import SelectionMonitoring
 from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service import ExcelParserService
 
 
 class ConnectedWorkbookService:
-    _workbook_selected_cell_watcher: Optional[WorkbookClickWatcher] = None
+    selection_monitoring: Optional[SelectionMonitoring] = None
 
     def __init__(self, connection_service: ISpreadsheetConnectionService, app_state: AppState):
         self.connection_service: ISpreadsheetConnectionService = connection_service
         self._app_state: AppState = app_state
         self._tk_root: Optional[tk.Tk] = None
+
+        app_state.is_connected_to_workbook.add_observer(self._on_wb_connection_change)
 
     def set_root(self, tk_root):
         self._tk_root = tk_root
@@ -43,27 +45,25 @@ class ConnectedWorkbookService:
 
         self._app_state.is_analyzing.set_value(True)
         try:
-            self.stop_watching_selected_cell()
             workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
             workbook.set_dependency_graph(ExcelParserService(workbook).get_dependencies())
-            self.start_watching_selected_cell()
         finally:
             self._app_state.is_analyzing.set_value(False)
 
     def start_watching_selected_cell(self):
         self.stop_watching_selected_cell()
         if self._app_state.is_connected_to_workbook.value and self._tk_root:
-            watcher = WorkbookClickWatcher(
+            selection_monitoring = SelectionMonitoring(
                 self._tk_root,
                 self._app_state.get_connected_workbook(),
-                self._update_selected_cell)
-            watcher.start()
-            self._workbook_selected_cell_watcher = watcher
+                self._update_selected_range)
+            selection_monitoring.start()
+            self.selection_monitoring = selection_monitoring
 
     def stop_watching_selected_cell(self) -> None:
-        if self._workbook_selected_cell_watcher:
-            self._workbook_selected_cell_watcher.stop()
-            self._workbook_selected_cell_watcher = None
+        if self.selection_monitoring:
+            self.selection_monitoring.stop()
+            self.selection_monitoring = None
 
     def disconnect_workbook(self) -> None:
         if self._app_state.active_feature.value is not None:
@@ -71,5 +71,11 @@ class ConnectedWorkbookService:
         self.stop_watching_selected_cell()
         self._app_state.clear_connected_workbook()
 
-    def _update_selected_cell(self, new_cell: CellAddress) -> None:
-        self._app_state.selected_cell.set_value(new_cell)
+    def _update_selected_range(self, new_range_ref: RangeReference) -> None:
+        self._app_state.selected_range.set_value(new_range_ref)
+
+    def _on_wb_connection_change(self, is_connected: bool, _):
+        if is_connected:
+            self.start_watching_selected_cell()
+        else:
+            self.stop_watching_selected_cell()

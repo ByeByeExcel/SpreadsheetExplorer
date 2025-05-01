@@ -1,9 +1,9 @@
 from typing import Optional
 
+from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.range_reference import RangeReference
+from model.domain_model.spreadsheet.range_with_context import RangeWithContext
 from model.feature import Feature
-from model.models.formula_context_information import RangeInformation
-from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.cell_address import CellAddress
 from model.utils.observable_value import ObservableValue
 
 
@@ -11,11 +11,12 @@ class AppState:
     def __init__(self):
         self.active_feature: ObservableValue[Optional[Feature]] = ObservableValue(None)
         self.is_connected_to_workbook: ObservableValue[bool] = ObservableValue(False)
-        self.selected_cell: ObservableValue[Optional[CellAddress]] = ObservableValue(None)
-        self.context_information: ObservableValue[Optional[RangeInformation]] = ObservableValue(None)
         self.is_analyzing: ObservableValue[bool] = ObservableValue(False)
+        self.selected_range: ObservableValue[Optional[RangeReference]] = ObservableValue(None)
+        self.selected_range_with_context: ObservableValue[Optional[RangeWithContext]] = ObservableValue(None)
+
         self._connected_workbook: Optional[IConnectedWorkbook] = None
-        self._initial_colors: dict[CellAddress, str] = {}
+        self._initial_colors: dict[RangeReference, str] = {}
 
     def get_connected_workbook(self) -> Optional[IConnectedWorkbook]:
         return self._connected_workbook
@@ -47,12 +48,12 @@ class AppState:
     def is_feature_active(self, feature: Feature) -> bool:
         return feature == self.active_feature.value
 
-    def store_initial_colors(self, colors: dict[CellAddress, str]) -> None:
+    def store_initial_colors(self, colors: dict[RangeReference, str]) -> None:
         if self._initial_colors:
             raise ValueError("Initial colors have already been set.")
         self._initial_colors = colors
 
-    def get_initial_colors(self) -> dict[CellAddress, str]:
+    def get_initial_colors(self) -> dict[RangeReference, str]:
         return self._initial_colors
 
     def clear_initial_colors(self) -> None:
