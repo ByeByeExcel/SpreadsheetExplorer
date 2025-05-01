@@ -1,16 +1,16 @@
 from model.app_state import AppState
 from model.feature import Feature
-from model.services.functionality.interactive_painting.interactive_context_service import InteractiveContextService
-from model.services.functionality.interactive_painting.interactive_painting_service import \
-    InteractivePaintingService
 from model.services.functionality.one_time_painting.painting_service import PaintingService
 from model.services.functionality.renaming_service import RenamingService
+from model.services.selection.context.selection_context_service import SelectionContextService
+from model.services.selection.highlighting.selection_painting_service import \
+    SelectionPaintingService
 
 
 class FeatureController:
     def __init__(self,
-                 interactive_painting_service: InteractivePaintingService,
-                 interactive_context_service: InteractiveContextService,
+                 interactive_painting_service: SelectionPaintingService,
+                 interactive_context_service: SelectionContextService,
                  painting_service: PaintingService,
                  renaming_service: RenamingService,
                  app_state: AppState):
@@ -22,7 +22,7 @@ class FeatureController:
 
     # interactive features
     def start_dependency_highlighting(self) -> None:
-        self._interactive_painting_service.highlight_dependents_precedents()
+        self._interactive_painting_service.start_dependency_highlighting()
 
     def stop_dependency_highlighting(self) -> None:
         self._interactive_painting_service.stop_dependency_highlighting()

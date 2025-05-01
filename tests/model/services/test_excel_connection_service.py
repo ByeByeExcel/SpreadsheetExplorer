@@ -29,7 +29,7 @@ def test_excel_loading(simple_excel_sheet):
     # assert workbook.worksheets["Sheet"].cells["$A$3"] is not None
     # assert workbook.worksheets["Sheet"].cells["$A$3"].value == 30
 
-    workbook.connected_workbook.close()
+    workbook._connected_workbook.close()
 
 # def test_set_cell_color(simple_excel_sheet):
 #     workbook = ExcelConnectionService().connect_to_workbook(simple_excel_sheet)

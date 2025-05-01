@@ -1,7 +1,7 @@
 import xlwings as xw
 
-from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.excel.excel_workbook import ConnectedExcelWorkbook
+from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 
 

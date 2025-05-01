@@ -1,8 +1,8 @@
 from model.app_state import AppState
+from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.cell_range import CellRange
+from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.feature import Feature
-from model.models.i_connected_workbook import IConnectedWorkbook
-from model.models.spreadsheet.cell import Cell
-from model.models.spreadsheet.cell_address import CellAddress, CellAddressType
 from model.utils.utils import replace_cell_reference_in_formula
 
 
@@ -14,27 +14,28 @@ class RenamingService:
 
         try:
             workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
-            cell: CellAddress = self._app_state.selected_cell.value
-            if not cell:
+            range_ref: RangeReference = self._app_state.selected_range.value
+            if not range_ref:
                 raise ValueError("No cell selected.")
 
             if workbook.get_names().get(new_name):
-                raise ValueError(f"Name {new_name} already exists in workbook {cell.workbook}.")
+                raise ValueError(f"Name {new_name} already exists in workbook {range_ref.workbook}.")
 
-            workbook.add_name(cell, new_name)
-            dependents: set[CellAddress] = workbook.get_dependents(cell)
+            workbook.add_name(range_ref, new_name)
+            dependents: set[RangeReference] = workbook.get_dependents(range_ref)
             if dependents:
                 for dependent in dependents:
-                    if dependent.address_type != CellAddressType.CELL:
+                    if dependent.reference_type != RangeReferenceType.CELL:
                         continue
 
-                    dependent_cell: Cell = workbook.get_cell(dependent)
+                    dependent_cell_range: CellRange = workbook.get_range(dependent)
 
-                    if not dependent_cell:
-                        print(f"[WARNING] Could not find dependent cell {dependent.address} — skipping.")
+                    if not dependent_cell_range:
+                        print(f"[WARNING] Could not find dependent cell {dependent.reference} — skipping.")
                         continue
 
-                    new_formula = replace_cell_reference_in_formula(dependent_cell.formula, cell.address, new_name)
+                    new_formula = replace_cell_reference_in_formula(dependent_cell_range.formula, range_ref.reference,
+                                                                    new_name)
                     workbook.set_formula(dependent, new_formula)
         finally:
             self._app_state.set_feature_inactive(Feature.CASCADE_RENAME)
