@@ -1,13 +1,13 @@
-from model.app_state import AppState
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.feature import Feature
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
-from model.feature import Feature
-from model.utils.utils import replace_cell_reference_in_formula
+from model.services.app_state_service import AppStateService
+from model.utils.excel_utils import replace_cell_reference_in_formula
 
 
 class RenamingService:
-    def __init__(self, app_state: AppState) -> None:
+    def __init__(self, app_state: AppStateService) -> None:
         self._app_state = app_state
 
     def cascade_name_cell(self, new_name: str):

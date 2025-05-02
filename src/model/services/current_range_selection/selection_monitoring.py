@@ -1,6 +1,6 @@
 from typing import Callable, Optional
 
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
 
 
@@ -15,6 +15,19 @@ class SelectionMonitoring:
         self._last_selection = None
         self._active = False
         self._after_id = None
+
+    def start(self):
+        if not self._active:
+            self._active = True
+            self._poll_selection()
+
+    def stop(self):
+        self._active = False
+        if self._after_id:
+            self._root.after_cancel(self._after_id)
+            self._after_id = None
+        if self._on_selection_change:
+            self._on_selection_change(None)
 
     def _poll_selection(self):
         try:
@@ -31,20 +44,7 @@ class SelectionMonitoring:
             else:
                 print(f"[WorkbookClickWatcher] Error getting selection: {e}")
                 self.stop()
-                return
+                raise e
 
         if self._active:
             self._after_id = self._root.after(self._POLL_INTERVAL_MS, self._poll_selection)
-
-    def start(self):
-        if not self._active:
-            self._active = True
-            self._poll_selection()
-
-    def stop(self):
-        self._active = False
-        if self._after_id:
-            self._root.after_cancel(self._after_id)
-            self._after_id = None
-        if self._on_selection_change:
-            self._on_selection_change(None)

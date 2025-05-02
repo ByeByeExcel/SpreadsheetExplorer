@@ -3,11 +3,10 @@ from typing import Optional
 import openpyxl.utils
 import xlwings as xw
 
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
-from model.services.spreadsheet_connection.excel_connection.xlwings_utils import convert_xlwings_address
-from model.utils.colour_utils import get_hex_color_from_tuple, rgb_to_grayscale
-from model.utils.utils import convert_to_absolute_range
+from model.utils.color_utils import get_hex_color_from_tuple, rgb_to_grayscale
+from model.utils.excel_utils import convert_to_absolute_range, convert_xlwings_address
 
 
 class ConnectedExcelWorkbook(IConnectedWorkbook):
@@ -98,7 +97,8 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
                             xw_cell.color = new_color
         finally:
             self.enable_screen_updating()
-            return initial_colors
+
+        return initial_colors
 
     def _get_range(self, sheet: str, cell_range: str) -> xw.Range:
         return self._get_sheet(sheet).range(cell_range)

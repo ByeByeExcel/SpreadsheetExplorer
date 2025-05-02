@@ -1,10 +1,10 @@
-from model.feature import Feature
-from model.app_state import AppState
+from model.domain_model.feature import Feature
+from model.services.app_state_service import AppStateService
 from view.widgets.base_function_widget import BaseFunctionWidget
 
 
 class FeatureButtonManager:
-    def __init__(self, app_state: AppState):
+    def __init__(self, app_state: AppStateService):
         self.app_state = app_state
         self.widgets: dict[Feature, object] = {}
         self._updating = False

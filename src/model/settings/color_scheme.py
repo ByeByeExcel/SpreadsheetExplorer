@@ -9,7 +9,7 @@ class ColorRole(Enum):
     ROOT_NODE = "root_node"
 
 
-ColourScheme: dict[ColorRole, str] = {
+ColorScheme: dict[ColorRole, str] = {
     ColorRole.DEPENDENT: "#99ff99",  # light green
     ColorRole.HEATMAP_0: "#ffffcc",  # soft yellow
     ColorRole.HEATMAP_1: "#ff4444",  # bold red

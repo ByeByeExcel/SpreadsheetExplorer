@@ -1,10 +1,10 @@
 from typing import Optional
 
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
-from model.services.selection.i_selection_observer import \
+from model.services.current_range_selection.i_selection_observer import \
     ISelectionObserver
-from model.settings.colour_scheme import ColourScheme, ColorRole
+from model.settings.color_scheme import ColorScheme, ColorRole
 
 
 class SelectionDependencyHighlighterObserver(ISelectionObserver):
@@ -33,8 +33,8 @@ class SelectionDependencyHighlighterObserver(ISelectionObserver):
         for dependent in dependents:
             self.original_colors[dependent] = self.workbook.get_range_color(dependent)
 
-        self.workbook.set_ranges_color(precedents, ColourScheme[ColorRole.PRECEDENT])
-        self.workbook.set_ranges_color(dependents, ColourScheme[ColorRole.DEPENDENT])
+        self.workbook.set_ranges_color(precedents, ColorScheme[ColorRole.PRECEDENT])
+        self.workbook.set_ranges_color(dependents, ColorScheme[ColorRole.DEPENDENT])
 
     def stop(self):
         self.workbook.disable_screen_updating()

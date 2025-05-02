@@ -1,10 +1,10 @@
 import tkinter as tk
 from typing import Optional
 
-from model.app_state import AppState
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
-from model.services.selection.selection_monitoring import SelectionMonitoring
+from model.services.app_state_service import AppStateService
+from model.services.current_range_selection.selection_monitoring import SelectionMonitoring
 from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service import ExcelParserService
 
@@ -12,14 +12,14 @@ from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service
 class ConnectedWorkbookService:
     selection_monitoring: Optional[SelectionMonitoring] = None
 
-    def __init__(self, connection_service: ISpreadsheetConnectionService, app_state: AppState):
-        self.connection_service: ISpreadsheetConnectionService = connection_service
-        self._app_state: AppState = app_state
+    def __init__(self, connection_service: ISpreadsheetConnectionService, app_state: AppStateService):
+        self._connection_service: ISpreadsheetConnectionService = connection_service
+        self._app_state: AppStateService = app_state
         self._tk_root: Optional[tk.Tk] = None
 
         app_state.is_connected_to_workbook.add_observer(self._on_wb_connection_change)
 
-    def set_root(self, tk_root):
+    def set_root(self, tk_root: tk.Tk) -> None:
         self._tk_root = tk_root
 
     def connect_workbook(self, filename: str) -> None:
@@ -28,11 +28,17 @@ class ConnectedWorkbookService:
         if self._app_state.is_connected_to_workbook.value:
             raise RuntimeError("Already connected to a workbook.")
 
-        workbook: IConnectedWorkbook = self.connection_service.connect_to_workbook(filename)
+        workbook: IConnectedWorkbook = self._connection_service.connect_to_workbook(filename)
         if not workbook:
             raise FileNotFoundError(f"Error connecting workbook '{filename}'")
 
         self._app_state.set_connected_workbook(workbook)
+
+    def disconnect_workbook(self) -> None:
+        if self._app_state.active_feature.value is not None:
+            raise RuntimeError("Cannot disconnect workbook while a feature is active.")
+        self.stop_watching_selected_cell()
+        self._app_state.clear_connected_workbook()
 
     def parse_connected_workbook(self) -> None:
         if self._app_state.active_feature.value is not None:
@@ -64,12 +70,6 @@ class ConnectedWorkbookService:
         if self.selection_monitoring:
             self.selection_monitoring.stop()
             self.selection_monitoring = None
-
-    def disconnect_workbook(self) -> None:
-        if self._app_state.active_feature.value is not None:
-            raise RuntimeError("Cannot disconnect workbook while a feature is active.")
-        self.stop_watching_selected_cell()
-        self._app_state.clear_connected_workbook()
 
     def _update_selected_range(self, new_range_ref: RangeReference) -> None:
         self._app_state.selected_range.set_value(new_range_ref)

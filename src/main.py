@@ -1,4 +1,4 @@
-from view.main_window import run_view
+from bootstrap import run_app
 
 if __name__ == "__main__":
-    run_view()
+    run_app()
