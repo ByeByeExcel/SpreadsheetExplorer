@@ -1,4 +1,4 @@
-from model.feature import Feature
+from model.domain_model.feature import Feature
 
 
 class FeatureButtonTextManager:

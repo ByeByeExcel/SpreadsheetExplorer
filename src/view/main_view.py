@@ -2,7 +2,7 @@ import tkinter as tk
 
 from controller.feature_controller import FeatureController
 from controller.workbook_controller import WorkbookController
-from model.app_state import AppState
+from model.services.app_state_service import AppStateService
 from view.function_buttons_section import FunctionButtonSection
 from view.output_section import OutputSection
 from view.utils.context_information_table_manager import ContextInformationManager
@@ -12,7 +12,7 @@ from view.workbook_selector import WorkbookSelector
 
 class MainView:
     def __init__(self, workbook_controller: WorkbookController, feature_controller: FeatureController,
-                 app_state: AppState):
+                 app_state: AppStateService):
         self.workbook_controller = workbook_controller
         self.feature_controller = feature_controller
         self.app_state = app_state

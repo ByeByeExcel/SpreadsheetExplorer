@@ -1,8 +1,8 @@
+import re
 import tkinter as tk
 from tkinter import messagebox
-import re
 
-from model.feature import Feature
+from model.domain_model.feature import Feature
 from view.widgets.base_function_widget import BaseFunctionWidget
 
 VALID_NAME_REGEX = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -28,18 +28,15 @@ class CascadeRenameWidget(BaseFunctionWidget):
 
         self.manager.register(self.feature, self)
 
-    def log(self, message: str):
-        (self.output.write(message + "\n") if self.output and hasattr(self.output, "write") else print(message))
-
     def toggle(self):
         try:
             if self.app_state.is_feature_active(self.feature):
-                self.feature_controller.stop_cascade_rename()
+                self.feature_controller.deactivate_cascade_rename()
                 self.log(f"[INFO] Stopped feature: {self.feature.name}")
             else:
                 if not self.app_state.can_start_feature():
                     raise ValueError("Cannot start feature — another is active or workbook not connected.")
-                self.feature_controller.start_cascade_rename()
+                self.feature_controller.activate_cascade_rename()
                 self.log(f"[INFO] Started feature: {self.feature.name}")
         except Exception as e:
             self._handle_error("Cascade Rename toggle failed", e)
@@ -60,7 +57,7 @@ class CascadeRenameWidget(BaseFunctionWidget):
             self._handle_error("Rename submission failed", e)
 
     def _cleanup_after_rename(self):
-        self.feature_controller.stop_cascade_rename()
+        self.feature_controller.deactivate_cascade_rename()
         self.app_state.set_feature_inactive(self.feature)
         self.rename_input.delete(0, tk.END)
         self.rename_input.config(state=tk.DISABLED, bg="SystemButtonFace")

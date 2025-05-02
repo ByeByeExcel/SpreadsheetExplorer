@@ -1,13 +1,13 @@
 from typing import Optional
 
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.feature import Feature
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.domain_model.spreadsheet.range_with_context import RangeWithContext
-from model.feature import Feature
 from model.utils.observable_value import ObservableValue
 
 
-class AppState:
+class AppStateService:
     def __init__(self):
         self.active_feature: ObservableValue[Optional[Feature]] = ObservableValue(None)
         self.is_connected_to_workbook: ObservableValue[bool] = ObservableValue(False)

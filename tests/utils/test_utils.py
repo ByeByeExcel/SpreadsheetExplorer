@@ -1,6 +1,6 @@
 import pytest
 
-from model.utils.utils import convert_to_absolute_range, get_row_col_from_address
+from model.utils.excel_utils import convert_to_absolute_range, get_row_col_from_address
 
 
 # --- Tests for get_row_col_from_address ---

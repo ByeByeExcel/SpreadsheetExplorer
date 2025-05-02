@@ -1,13 +1,15 @@
-from model.app_state import AppState
-from model.feature import Feature
-from model.services.selection.highlighting.selection_dependency_highligher_observer \
+from typing import Optional
+
+from model.domain_model.feature import Feature
+from model.services.app_state_service import AppStateService
+from model.services.current_range_selection.i_selection_observer import ISelectionObserver
+from model.services.features.coloring.interactive.dependency_coloring.selection_dependency_highligher_observer \
     import SelectionDependencyHighlighterObserver
-from model.services.selection.i_selection_observer import ISelectionObserver
 
 
-class SelectionPaintingService:
+class SelectionColoringService:
 
-    def __init__(self, app_state: AppState) -> None:
+    def __init__(self, app_state: AppStateService) -> None:
         self._app_state = app_state
         self._selection_dependency_highlighter_observer: Optional[ISelectionObserver] = None
 

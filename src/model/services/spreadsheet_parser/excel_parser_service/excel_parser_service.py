@@ -3,7 +3,7 @@ import re
 import networkx as nx
 import xlwings as xw
 
-from model.domain_model.i_connected_workbook import IConnectedWorkbook
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.dependency_graph import DependencyGraph
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
