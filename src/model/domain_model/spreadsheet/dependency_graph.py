@@ -18,8 +18,8 @@ class DependencyGraph:
 
     def get_cell_ranges(self) -> set[CellRange]:
         cell_ranges: set[CellRange] = set()
-        for cell_address in self.graph.nodes:
-            cell = self.get_cell_range(cell_address)
+        for cell_reference in self.graph.nodes:
+            cell = self.get_cell_range(cell_reference)
             if cell:
                 cell_ranges.add(cell)
         return cell_ranges
