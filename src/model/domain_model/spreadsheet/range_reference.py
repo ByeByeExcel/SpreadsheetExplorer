@@ -21,6 +21,12 @@ class RangeReference:
     reference: str
     reference_type: RangeReferenceType
 
+    @property
+    def formatted_reference(self) -> str:
+        if self.reference_type not in {RangeReferenceType.DEFINED_NAME_LOCAL, RangeReferenceType.DEFINED_NAME_GLOBAL}:
+            return self.reference.upper()
+        return self.reference
+
     def __lt__(self, other):
         if not isinstance(other, RangeReference):
             return NotImplemented

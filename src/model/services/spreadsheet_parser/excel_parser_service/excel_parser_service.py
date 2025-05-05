@@ -3,9 +3,9 @@ import re
 import networkx as nx
 import xlwings as xw
 
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.dependency_graph import DependencyGraph
+from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 
@@ -102,9 +102,11 @@ class ExcelParserService(ISpreadsheetParserService):
                                 self.graph.add_node(precedent_addr, cell_range=CellRange(precedent_addr, "", ""))
                             else:
                                 dep_range: xw.Range = sheet[precedent_addr.reference]
+                                is_range = dep_range.shape[0] > 1 or dep_range.shape[1] > 1
                                 self.graph.add_node(precedent_addr,
-                                                    cell_range=CellRange(precedent_addr, dep_range.value,
-                                                                         dep_range.formula))
+                                                    cell_range=CellRange(precedent_addr,
+                                                                         dep_range.value if not is_range else "",
+                                                                         dep_range.formula if not is_range else ""))
 
                         self.graph.add_edge(precedent_addr, range_ref)
 
