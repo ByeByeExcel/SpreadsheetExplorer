@@ -43,3 +43,8 @@ def convert_xlwings_address(cell_range: xw.Range) -> RangeReference:
     range_type: RangeReferenceType = RangeReferenceType.CELL if cell_range.shape == (1, 1) else RangeReferenceType.RANGE
 
     return RangeReference.from_raw(cell_range.sheet.book.name, cell_range.sheet.name, cell_range.address, range_type)
+
+
+def ref_string_is_range(range_reference: str) -> bool:
+    (min_col, min_row, max_col, max_row) = openpyxl.utils.range_boundaries(range_reference)
+    return min_col != max_col or min_row != max_row

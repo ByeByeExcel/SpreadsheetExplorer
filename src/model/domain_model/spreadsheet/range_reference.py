@@ -9,8 +9,7 @@ class RangeReferenceType(Enum):
     EXTERNAL = auto()
     CELL = auto()
     RANGE = auto()
-    DEFINED_NAME_GLOBAL = auto()
-    DEFINED_NAME_LOCAL = auto()
+    DEFINED_NAME = auto()
 
 
 @functools.total_ordering
@@ -23,7 +22,7 @@ class RangeReference:
 
     @property
     def formatted_reference(self) -> str:
-        if self.reference_type not in {RangeReferenceType.DEFINED_NAME_LOCAL, RangeReferenceType.DEFINED_NAME_GLOBAL}:
+        if self.reference_type != RangeReferenceType.DEFINED_NAME:
             return self.reference.upper()
         return self.reference
 

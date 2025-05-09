@@ -1,165 +1,117 @@
 import re
 
 import networkx as nx
-import xlwings as xw
 
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.dependency_graph import DependencyGraph
 from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
+from model.utils.excel_utils import ref_string_is_range
 
 
 class ExcelParserService(ISpreadsheetParserService):
-
-    def __init__(self, connected_workbook: IConnectedWorkbook):
-        self.wb: xw.Book = connected_workbook.get_connected_workbook()
+    def __init__(self, workbook: IConnectedWorkbook):
+        self.wb = workbook
         self.graph: nx.DiGraph[RangeReference] = nx.DiGraph()
+        self.names_dict:dict[str, str] = {}
 
     def get_dependencies(self) -> DependencyGraph:
         self.graph.clear()
         self.build_dependency_graph()
-
         return DependencyGraph(self.graph)
 
-    def add_range_dependencies(self, range_ref: RangeReference) -> None:
-        if range_ref is None or range_ref.reference_type != RangeReferenceType.RANGE:
-            return
-        sheet: xw.Sheet = self.wb.sheets[range_ref.sheet]
-        if sheet is None:
-            return
-        cell_range = sheet.range(range_ref.reference)
-        if cell_range is None:
-            return
-
-        rows, cols = cell_range.shape
-        for row in range(cell_range.row - 1, rows + cell_range.row - 1):
-            for col in range(cell_range.column - 1, cols + cell_range.column - 1):
-                xw_cell: xw.Range = sheet[row, col]
-                precedent_ref = RangeReference.from_raw(self.wb.name, sheet.name, xw_cell.address)
-                if precedent_ref not in self.graph:
-                    precedent_cell_range = CellRange(precedent_ref, xw_cell.value, xw_cell.formula)
-                    self.graph.add_node(precedent_ref, cell_range=precedent_cell_range)
-
-                self.graph.add_edge(precedent_ref, range_ref)
-
     def build_dependency_graph(self) -> None:
-        for sheet in self.wb.sheets:
-            self.parse_worksheet(sheet)
+        self.names_dict = self.wb.get_names()
+        self.wb.disable_screen_updating()
+        for ref, val, formula in self.wb.get_used_range():
+            self.graph.add_node(ref, cell_range=CellRange(ref, val, formula))
 
-        for named_node in list(node for node in self.graph.nodes if
-                               node.reference_type in {RangeReferenceType.DEFINED_NAME_GLOBAL,
-                                                       RangeReferenceType.DEFINED_NAME_LOCAL}):
+        for node in list(self.graph.nodes):
+            precedents = self._extract_precedents(self.graph.nodes[node]['cell_range'].formula, node.sheet)
+            for precedent in precedents:
+                if precedent not in self.graph:
+                    if precedent.reference_type == RangeReferenceType.RANGE:
+                        self.graph.add_node(precedent, cell_range=CellRange(precedent, "", ""))
+                    else:
+                        value, formula = self.wb.resolve_range_reference(precedent)
+                        self.graph.add_node(precedent, cell_range=CellRange(precedent, value, formula))
+                self.graph.add_edge(precedent, node)
 
-            name: xw.Name
-            if named_node.reference_type == RangeReferenceType.DEFINED_NAME_GLOBAL:
-                name = self.wb.names[named_node.reference]
-            else:
-                name = self.wb.sheets[named_node.sheet].names[named_node.reference]
-            if not name:
-                continue
+        for name, _ in self.names_dict.items():
+            defined_ref = self.wb.resolve_defined_name(name)
+            if defined_ref:
+                if defined_ref not in self.graph:
+                    if defined_ref.reference_type == RangeReferenceType.RANGE:
+                        self.graph.add_node(defined_ref, cell_range=CellRange(defined_ref, "", ""))
+                    else:
+                        value, formula = self.wb.resolve_range_reference(defined_ref)
+                        self.graph.add_node(defined_ref, cell_range=CellRange(defined_ref, value, formula))
 
-            named_range: xw.Range = name.refers_to_range
-            is_range = named_range.shape[0] > 1 or named_range.shape[1] > 1
-            named_range_ref = RangeReference.from_raw(named_range.sheet.book.name, named_range.sheet.name,
-                                                      named_range.address,
-                                                      RangeReferenceType.RANGE if is_range else RangeReferenceType.CELL)
-            if named_range_ref not in self.graph:
-                if named_range_ref.reference_type == RangeReferenceType.RANGE:
-                    self.graph.add_node(named_range_ref, cell_range=CellRange(named_range_ref, "", ""))
-                else:
-                    self.graph.add_node(named_range_ref,
-                                        cell_range=CellRange(named_range_ref, named_range.value, named_range.formula))
-            self.graph.add_edge(named_range_ref, named_node)
+                named_node = RangeReference.from_raw(self.wb.get_workbook_name(), None, name,
+                                                     RangeReferenceType.DEFINED_NAME)
+                self.graph.add_edge(defined_ref, named_node)
 
-        for range_range_ref in list(
-                range_ref for range_ref in self.graph.nodes if range_ref.reference_type == RangeReferenceType.RANGE):
-            self.add_range_dependencies(range_range_ref)
+        for range_ref in [r for r in self.graph.nodes if r.reference_type == RangeReferenceType.RANGE]:
+            self._add_range_dependencies(range_ref)
 
-    def parse_worksheet(self, sheet: xw.Sheet) -> None:
-        used_range: xw.Range = sheet.used_range
-        if not used_range:
+        self.wb.enable_screen_updating()
+
+    def _add_range_dependencies(self, range_ref: RangeReference) -> None:
+        if range_ref.reference_type != RangeReferenceType.RANGE:
             return
-
-        rows, cols = used_range.shape
-        for row in range(used_range.row - 1, rows + used_range.row - 1):
-            for col in range(used_range.column - 1, cols + used_range.column - 1):
-                cell_range: xw.Range = sheet[row, col]
-                if cell_range and cell_range.formula and isinstance(cell_range.formula, str):
-
-                    range_ref = RangeReference.from_raw(cell_range.sheet.book.name, cell_range.sheet.name,
-                                                        cell_range.address)
-                    if range_ref not in self.graph:
-                        self.graph.add_node(range_ref,
-                                            cell_range=CellRange(range_ref, cell_range.value, cell_range.formula))
-
-                    precedents_addr = self._extract_precedents(cell_range.formula, sheet.name)
-                    for precedent_addr in precedents_addr:
-                        if precedent_addr.reference_type == RangeReferenceType.EXTERNAL:
-                            self.graph.add_node(precedent_addr)
-                        elif not precedent_addr in self.graph:
-                            if precedent_addr.reference_type == RangeReferenceType.RANGE:
-                                self.graph.add_node(precedent_addr, cell_range=CellRange(precedent_addr, "", ""))
-                            else:
-                                dep_range: xw.Range = sheet[precedent_addr.reference]
-                                is_range = dep_range.shape[0] > 1 or dep_range.shape[1] > 1
-                                self.graph.add_node(precedent_addr,
-                                                    cell_range=CellRange(precedent_addr,
-                                                                         dep_range.value if not is_range else "",
-                                                                         dep_range.formula if not is_range else ""))
-
-                        self.graph.add_edge(precedent_addr, range_ref)
+        cells = self.wb.get_cells_in_range(range_ref)
+        for cell in cells:
+            if cell.reference not in self.graph:
+                self.graph.add_node(cell.reference, cell_range=cell)
+            self.graph.add_edge(cell.reference, range_ref)
 
     def _extract_precedents(self, formula: str, current_sheet: str) -> set[RangeReference]:
+        if not formula or not formula.strip() or not formula.strip().startswith('='):
+            return set()
         dependencies: set[RangeReference] = set()
+        wb_name = self.wb.get_workbook_name()
 
         for match in self.REFERENCE_RE.finditer(formula):
-            workbook = match.group("workbook") or self.wb.name
+            workbook = match.group("workbook") or wb_name
             sheet = match.group("sheet")
             if sheet:
-                sheet = sheet.strip("'").replace("''", "'")  # Unescape Excel sheet names
+                sheet = sheet.strip("'").replace("''", "'")
             else:
                 sheet = current_sheet
             address = match.group("address")
 
-            if workbook.lower() != self.wb.name.lower():
+            if workbook.lower() != wb_name.lower():
                 dependencies.add(RangeReference.from_raw(workbook, sheet, address, RangeReferenceType.EXTERNAL))
                 continue
 
             try:
-                rn: xw.Range = self.wb.sheets[sheet][address]
-                is_range = rn.shape[0] > 1 or rn.shape[1] > 1
-                dependencies.add(RangeReference.from_raw(workbook, sheet, rn.address,
-                                                         RangeReferenceType.RANGE if is_range else RangeReferenceType.CELL))
+                ref_type = RangeReferenceType.RANGE if ref_string_is_range(address) else RangeReferenceType.CELL
+                dependencies.add(RangeReference.from_raw(workbook, sheet, address, ref_type))
             except Exception:
                 continue
 
-        # Fallback: find named ranges or Excel functions
         existing_spans = [m.span() for m in self.REFERENCE_RE.finditer(formula)]
 
-        def is_within_existing(match_start: int):
-            return any(start <= match_start < end for start, end in existing_spans)
+        def is_within_existing(pos: int):
+            return any(start <= pos < end for start, end in existing_spans)
 
         for m in re.finditer(r'\b[A-Za-z_][A-Za-z0-9_]*\b', formula):
             if is_within_existing(m.start()):
                 continue
             name = m.group(0)
-            if name in self.wb.names:
-                dependencies.add(
-                    RangeReference.from_raw(self.wb.name, None, name, RangeReferenceType.DEFINED_NAME_GLOBAL))
-            elif name in self.wb.sheets[current_sheet].names:
-                dependencies.add(
-                    RangeReference.from_raw(self.wb.name, current_sheet, name, RangeReferenceType.DEFINED_NAME_LOCAL))
+            if name in self.names_dict:
+                dependencies.add(RangeReference.from_raw(wb_name, None, name, RangeReferenceType.DEFINED_NAME))
 
         return dependencies
 
     @property
     def REFERENCE_RE(self):
         return re.compile(r"""
-        (?:\[(?P<workbook>[^\]]+)\])?           # Optional [Workbook.xlsx]
-        (?:(?P<sheet>'[^']+'|[A-Za-z0-9_]+)!)?  # Optional 'Sheet One'! or Sheet1!
-        (?P<address>                            # Cell or range
-            \$?[A-Z]{1,3}\$?\d+                 # Start cell
-            (?::\$?[A-Z]{1,3}\$?\d+)?           # Optional :End cell
-        )
-    """, re.VERBOSE)
+            (?:\[(?P<workbook>[^\]]+)\])?           # Optional [Workbook.xlsx]
+            (?:(?P<sheet>'[^']+'|[A-Za-z0-9_]+)!)?  # Optional 'Sheet One'! or Sheet1!
+            (?P<address>                            # Cell or range
+                \$?[A-Z]{1,3}\$?\d+                 # Start cell
+                (?::\$?[A-Z]{1,3}\$?\d+)?           # Optional :End cell
+            )
+        """, re.VERBOSE)
