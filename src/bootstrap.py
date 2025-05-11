@@ -5,7 +5,6 @@ from view.main_view import MainView
 
 
 def run_app():
-    """Entry point to initialize services, controllers, and launch the main UI."""
     services = ServiceRegistry()
     app = build_main_view(services)
     app.run()

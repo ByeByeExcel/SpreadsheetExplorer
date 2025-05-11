@@ -1,13 +1,11 @@
 from typing import Optional, Iterable
 
-import openpyxl.utils
 import xlwings as xw
 
-from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.utils.color_utils import get_hex_color_from_tuple, rgb_to_grayscale
-from model.utils.excel_utils import convert_to_absolute_range, convert_xlwings_address
+from model.utils.excel_utils import convert_to_absolute_range, convert_xlwings_address, get_address_from_offset
 
 
 class ConnectedExcelWorkbook(IConnectedWorkbook):
@@ -55,9 +53,15 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def disable_screen_updating(self):
         self.connected_workbook.app.screen_updating = False
+        self.connected_workbook.app.calculation = 'manual'
+        self.connected_workbook.app.display_alerts = False
+        self.connected_workbook.app.enable_events = False
 
     def enable_screen_updating(self):
         self.connected_workbook.app.screen_updating = True
+        self.connected_workbook.app.calculation = 'automatic'
+        self.connected_workbook.app.display_alerts = True
+        self.connected_workbook.app.enable_events = True
 
     def add_name(self, range_ref: RangeReference, new_name: str) -> None:
         self.connected_workbook.names.add(
@@ -83,26 +87,23 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def get_used_range(self) -> Iterable[tuple[RangeReference, str, str]]:
         for sheet in self.connected_workbook.sheets:
-            sheet: xw.Sheet
             used_range: xw.Range = sheet.used_range
+
+            start_row, start_col = used_range.row, used_range.column
             rows, cols = used_range.shape
-            for row in range(0, rows):
-                for col in range(0, cols):
-                    ref = RangeReference.from_raw(sheet.book.name, sheet.name, used_range.rows[row][col].address)
-                    yield ref, used_range.rows[row][col].value, used_range.rows[row][col].formula
+
+            values = self._ensure_2d(used_range.value, rows, cols)
+            formulas = used_range.formula
+
+            for row in range(rows):
+                for col in range(cols):
+                    address = get_address_from_offset(start_row, start_col, row, col)
+                    ref = RangeReference.from_raw(sheet.book.name, sheet.name, address)
+                    yield ref, values[row][col], formulas[row][col]
 
     def resolve_range_reference(self, ref: RangeReference) -> tuple[str, str]:
         cell = self._get_range(ref.sheet, ref.reference)
         return cell.value, cell.formula
-
-    def get_cells_in_range(self, range_ref: RangeReference) -> Iterable[CellRange]:
-        sheet = self._get_sheet(range_ref.sheet)
-        xl_range = sheet.range(range_ref.reference)
-        rows, cols = xl_range.shape
-        for row in range(0, rows):
-            for col in range(0, cols):
-                ref = RangeReference.from_raw(sheet.book.name, sheet.name, xl_range.rows[row][col].address)
-                yield CellRange(ref, xl_range.rows[row][col].value, xl_range.rows[row][col].formula)
 
     def get_workbook_name(self) -> str:
         return self.connected_workbook.name
@@ -120,25 +121,30 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
     def initial_to_grayscale_and_set_from_dict_and_return_initial_colors(
             self, new_colors: dict[RangeReference, str]
     ) -> dict[RangeReference, str]:
+
         initial_colors: dict[RangeReference, str] = {}
         self.disable_screen_updating()
         try:
             for sheet in self.connected_workbook.sheets:
                 used_range = sheet.used_range
-                for row in openpyxl.utils.rows_from_range(used_range.address):
-                    for cell_address in row:
-                        ref = RangeReference.from_raw(self.name, sheet.name, cell_address)
-                        xw_cell = sheet.range(cell_address)
+                start_row, start_col = used_range.row, used_range.column
+                rows, cols = used_range.shape
+
+                for row in range(rows):
+                    for col in range(cols):
+                        xw_cell = used_range[row, col]
+                        address = get_address_from_offset(start_row, start_col, row, col)
+                        ref = RangeReference.from_raw(self.get_workbook_name(), sheet.name, address)
+
                         initial_color = xw_cell.color
-                        initial_colors[ref] = get_hex_color_from_tuple(initial_color)
-                        new_color = (
-                            new_colors[ref] if new_colors and ref in new_colors
-                            else rgb_to_grayscale(initial_color)
-                        )
-                        if new_color:
+                        new_color = new_colors[ref] if ref in new_colors else rgb_to_grayscale(initial_color)
+
+                        if new_color and new_color != initial_color:
+                            initial_colors[ref] = get_hex_color_from_tuple(initial_color)
                             xw_cell.color = new_color
         finally:
             self.enable_screen_updating()
+
         return initial_colors
 
     def _get_range(self, sheet: str, cell_range: str) -> xw.Range:
@@ -146,3 +152,16 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def _get_sheet(self, sheet: str) -> xw.Sheet:
         return self.connected_workbook.sheets[sheet]
+
+    @staticmethod
+    def _ensure_2d(data, rows, cols):
+        if data is None:
+            return [[None for _ in range(cols)] for _ in range(rows)]
+        if isinstance(data, list):
+            if rows == 1:
+                return [data]
+            if cols == 1:
+                return [[v] for v in data]
+            return data
+        else:
+            return [[data]]
