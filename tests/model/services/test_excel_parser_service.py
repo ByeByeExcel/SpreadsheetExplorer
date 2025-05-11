@@ -4,7 +4,7 @@ import tempfile
 import openpyxl as pxl
 import pytest
 
-from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service import ExcelParserService
+from model.adapters.excel.excel_parser_service import ExcelParserService
 
 
 @pytest.fixture

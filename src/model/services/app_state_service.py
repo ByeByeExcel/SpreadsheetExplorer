@@ -1,7 +1,7 @@
 from typing import Optional
 
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.feature import Feature
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.domain_model.spreadsheet.range_with_context import RangeWithContext
 from model.utils.observable_value import ObservableValue

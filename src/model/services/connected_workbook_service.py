@@ -1,13 +1,12 @@
 import tkinter as tk
 from typing import Optional
 
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
+from model.adapters.excel.excel_parser_service_openpyxl import ExcelParserServiceOpenpyxl
+from model.adapters.i_connected_workbook import IConnectedWorkbook
+from model.adapters.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.services.app_state_service import AppStateService
 from model.services.current_range_selection.selection_monitoring import SelectionMonitoring
-from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
-from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service_openpyxl import \
-    ExcelParserServiceOpenpyxl
 
 
 class ConnectedWorkbookService:
@@ -57,7 +56,7 @@ class ConnectedWorkbookService:
         finally:
             self._app_state.is_analyzing.set_value(False)
 
-    def start_watching_selected_cell(self):
+    def start_watching_selected_cell(self) -> None:
         self.stop_watching_selected_cell()
         if self._app_state.is_connected_to_workbook.value and self._tk_root:
             selection_monitoring = SelectionMonitoring(
@@ -75,7 +74,7 @@ class ConnectedWorkbookService:
     def _update_selected_range(self, new_range_ref: RangeReference) -> None:
         self._app_state.selected_range.set_value(new_range_ref)
 
-    def _on_wb_connection_change(self, is_connected: bool, _):
+    def _on_wb_connection_change(self, is_connected: bool, _) -> None:
         if is_connected:
             self.start_watching_selected_cell()
         else:

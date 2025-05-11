@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 
 
 class ISpreadsheetConnectionService(ABC):
     @abstractmethod
-    def get_open_workbooks(self):
+    def get_open_workbooks(self) -> list[str]:
         pass
 
     @abstractmethod

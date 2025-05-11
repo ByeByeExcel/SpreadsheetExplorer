@@ -1,0 +1,29 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' === FEATURE SERVICES PACKAGE ===
+
+package "Adapters" {
+    interface IConnectedWorkbook {
+    }
+}
+
+package "Feature Services" {
+    package "Renaming" {
+        class RenamingService {
+            + cascade_name_cell(new_name: str): void
+        }
+    }
+}
+
+' === CORE SERVICES ===
+package "Core Services" {
+    class AppStateService
+}
+
+
+' === DEPENDENCIES ===
+RenamingService --> AppStateService
+RenamingService --> IConnectedWorkbook
+
+@enduml

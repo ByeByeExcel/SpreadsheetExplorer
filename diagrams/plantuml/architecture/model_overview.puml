@@ -1,0 +1,29 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "Model Layer" {
+
+  [Domain Models] as DomainModel
+  [Services] as Services
+  [Adapters] as Adapters
+  [Utilities] as Utils
+  [Settings] as Settings
+}
+
+' External component
+[Controller] as Controller
+
+' Dependencies inside model layer
+Services --> DomainModel : uses
+Services --> Utils : uses
+Services --> Adapters : uses\nvia interfaces
+Services --> Settings: uses
+Adapters --> Utils : uses
+Adapters --> DomainModel : uses
+Utils --> DomainModel : uses
+
+' External interaction
+Controller --> Services : calls
+
+@enduml

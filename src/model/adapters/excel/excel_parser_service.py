@@ -2,11 +2,11 @@ import re
 
 import networkx as nx
 
+from model.adapters.i_connected_workbook import IConnectedWorkbook
+from model.adapters.i_spreadsheet_parser_service import ISpreadsheetParserService
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.dependency_graph import DependencyGraph
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
-from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
 from model.utils.excel_utils import ref_string_is_range, get_cell_references_of_range
 
 
@@ -18,10 +18,10 @@ class ExcelParserService(ISpreadsheetParserService):
 
     def get_dependencies(self) -> DependencyGraph:
         self.graph.clear()
-        self.build_dependency_graph()
+        self._build_dependency_graph()
         return DependencyGraph(self.graph)
 
-    def build_dependency_graph(self) -> None:
+    def _build_dependency_graph(self) -> None:
         self.names_dict = self.wb.get_names()
         self.wb.disable_screen_updating()
         for ref, val, formula in self.wb.get_used_range():

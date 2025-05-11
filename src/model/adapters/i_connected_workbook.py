@@ -12,19 +12,11 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def calculate_workbook(self):
-        pass
-
-    @abstractmethod
     def get_selected_range_ref(self) -> RangeReference:
         pass
 
     @abstractmethod
     def get_range_color(self, range_ref: RangeReference) -> str:
-        pass
-
-    @abstractmethod
-    def set_range_color(self, range_ref: RangeReference, color: str):
         pass
 
     @abstractmethod
@@ -69,10 +61,6 @@ class IConnectedWorkbook(ABC, Workbook):
 
     @abstractmethod
     def get_workbook_name(self) -> str:
-        pass
-
-    @abstractmethod
-    def is_range(self, sheet: str, address: str) -> bool:
         pass
 
     @abstractmethod

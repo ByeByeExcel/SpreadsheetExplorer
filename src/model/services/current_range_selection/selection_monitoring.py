@@ -1,6 +1,6 @@
 from typing import Callable, Optional
 
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
 
 
@@ -16,12 +16,12 @@ class SelectionMonitoring:
         self._active = False
         self._after_id = None
 
-    def start(self):
+    def start(self) -> None:
         if not self._active:
             self._active = True
             self._poll_selection()
 
-    def stop(self):
+    def stop(self) -> None:
         self._active = False
         if self._after_id:
             self._root.after_cancel(self._after_id)

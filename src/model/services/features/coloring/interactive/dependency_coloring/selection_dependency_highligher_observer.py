@@ -1,6 +1,6 @@
 from typing import Optional
 
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.services.current_range_selection.i_selection_observer import \
     ISelectionObserver
