@@ -1,16 +1,16 @@
-import re
-
 import networkx as nx
+from openpyxl.formula import Tokenizer
+from openpyxl.formula.tokenizer import Token
 
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.dependency_graph import DependencyGraph
 from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.services.spreadsheet_parser.i_spreadsheet_parser_service import ISpreadsheetParserService
-from model.utils.excel_utils import ref_string_is_range, get_cell_references_of_range
+from model.utils.excel_utils import parse_range_reference, get_cell_references_of_range
 
 
-class ExcelParserService(ISpreadsheetParserService):
+class ExcelParserServiceOpenpyxl(ISpreadsheetParserService):
     def __init__(self, workbook: IConnectedWorkbook):
         self.wb = workbook
         self.graph: nx.DiGraph[RangeReference] = nx.DiGraph()
@@ -24,6 +24,7 @@ class ExcelParserService(ISpreadsheetParserService):
     def build_dependency_graph(self) -> None:
         self.names_dict = self.wb.get_names()
         self.wb.disable_screen_updating()
+
         for ref, val, formula in self.wb.get_used_range():
             self.graph.add_node(ref, cell_range=CellRange(ref, val, formula))
 
@@ -38,7 +39,7 @@ class ExcelParserService(ISpreadsheetParserService):
                         self.graph.add_node(precedent, cell_range=CellRange(precedent, value, formula))
                 self.graph.add_edge(precedent, node)
 
-        for name, _ in self.names_dict.items():
+        for name in self.names_dict:
             defined_ref = self.wb.resolve_defined_name(name)
             if defined_ref:
                 if defined_ref not in self.graph:
@@ -62,9 +63,8 @@ class ExcelParserService(ISpreadsheetParserService):
             return
         cell_references = get_cell_references_of_range(range_ref)
         for cell_reference in cell_references:
-            if cell_reference not in self.graph:
-                raise ValueError(f"Cell {cell_reference.reference} not found in the graph.")
-            self.graph.add_edge(cell_reference, range_ref)
+            if cell_reference in self.graph:
+                self.graph.add_edge(cell_reference, range_ref)
 
     def _extract_precedents(self, formula: str, current_sheet: str) -> set[RangeReference]:
         if not formula or not formula.strip() or not formula.strip().startswith('='):
@@ -72,46 +72,10 @@ class ExcelParserService(ISpreadsheetParserService):
         dependencies: set[RangeReference] = set()
         wb_name = self.wb.get_workbook_name()
 
-        for match in self.REFERENCE_RE.finditer(formula):
-            workbook = match.group("workbook") or wb_name
-            sheet = match.group("sheet")
-            if sheet:
-                sheet = sheet.strip("'").replace("''", "'")
-            else:
-                sheet = current_sheet
-            address = match.group("address")
+        tokens = Tokenizer(formula)
 
-            if workbook.lower() != wb_name.lower():
-                dependencies.add(RangeReference.from_raw(workbook, sheet, address, RangeReferenceType.EXTERNAL))
-                continue
-
-            try:
-                ref_type = RangeReferenceType.RANGE if ref_string_is_range(address) else RangeReferenceType.CELL
-                dependencies.add(RangeReference.from_raw(workbook, sheet, address, ref_type))
-            except Exception:
-                continue
-
-        existing_spans = [m.span() for m in self.REFERENCE_RE.finditer(formula)]
-
-        def is_within_existing(pos: int):
-            return any(start <= pos < end for start, end in existing_spans)
-
-        for m in re.finditer(r'\b[A-Za-z_][A-Za-z0-9_]*\b', formula):
-            if is_within_existing(m.start()):
-                continue
-            name = m.group(0)
-            if name in self.names_dict:
-                dependencies.add(RangeReference.from_raw(wb_name, None, name, RangeReferenceType.DEFINED_NAME))
+        for token in tokens.items:
+            if token.type == Token.OPERAND and token.subtype == Token.RANGE:
+                dependencies.add(parse_range_reference(token.value, wb_name, current_sheet))
 
         return dependencies
-
-    @property
-    def REFERENCE_RE(self):
-        return re.compile(r"""
-            (?:\[(?P<workbook>[^\]]+)\])?           # Optional [Workbook.xlsx]
-            (?:(?P<sheet>'[^']+'|[A-Za-z0-9_]+)!)?  # Optional 'Sheet One'! or Sheet1!
-            (?P<address>                            # Cell or range
-                \$?[A-Z]{1,3}\$?\d+                 # Start cell
-                (?::\$?[A-Z]{1,3}\$?\d+)?           # Optional :End cell
-            )
-        """, re.VERBOSE)

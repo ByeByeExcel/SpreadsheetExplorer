@@ -13,8 +13,7 @@ class SelectionDependencyHighlighterObserver(ISelectionObserver):
         self.original_colors: dict[RangeReference, Optional[str]] = {}
 
     def __call__(self, new_range_ref: RangeReference, _: Optional[RangeReference]):
-        for addr, color in self.original_colors.items():
-            self.workbook.set_range_color(addr, color)
+        self.workbook.set_colors_from_dict(self.original_colors)
         self.original_colors.clear()
 
         if not new_range_ref or new_range_ref.workbook != self.workbook.name.lower():
@@ -37,11 +36,8 @@ class SelectionDependencyHighlighterObserver(ISelectionObserver):
         self.workbook.set_ranges_color(dependents, ColorScheme[ColorRole.DEPENDENT])
 
     def stop(self):
-        self.workbook.disable_screen_updating()
-        for addr, color in self.original_colors.items():
-            self.workbook.set_range_color(addr, color)
+        self.workbook.set_colors_from_dict(self.original_colors)
         self.original_colors.clear()
-        self.workbook.enable_screen_updating()
 
     def initialize(self, initial_range_ref: RangeReference):
         self(initial_range_ref, None)

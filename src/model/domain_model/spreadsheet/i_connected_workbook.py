@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Iterable, Optional
 
-from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.domain_model.spreadsheet.workbook import Workbook
 
@@ -66,10 +65,6 @@ class IConnectedWorkbook(ABC, Workbook):
 
     @abstractmethod
     def resolve_range_reference(self, ref: RangeReference) -> tuple[str, str]:
-        pass
-
-    @abstractmethod
-    def get_cells_in_range(self, range_ref: RangeReference) -> Iterable[CellRange]:
         pass
 
     @abstractmethod
