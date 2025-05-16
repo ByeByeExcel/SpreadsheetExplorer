@@ -6,7 +6,8 @@ from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.services.app_state_service import AppStateService
 from model.services.current_range_selection.selection_monitoring import SelectionMonitoring
 from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
-from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service import ExcelParserService
+from model.services.spreadsheet_parser.excel_parser_service.excel_parser_service_openpyxl import \
+    ExcelParserServiceOpenpyxl
 
 
 class ConnectedWorkbookService:
@@ -52,7 +53,7 @@ class ConnectedWorkbookService:
         self._app_state.is_analyzing.set_value(True)
         try:
             workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
-            workbook.set_dependency_graph(ExcelParserService(workbook).get_dependencies())
+            workbook.set_dependency_graph(ExcelParserServiceOpenpyxl(workbook).get_dependencies())
         finally:
             self._app_state.is_analyzing.set_value(False)
 
