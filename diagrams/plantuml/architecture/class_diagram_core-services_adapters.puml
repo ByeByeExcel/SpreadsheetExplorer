@@ -20,7 +20,7 @@ interface IConnectedWorkbook {
     + resolve_range_reference(ref: RangeReference): tuple[str, str]
     + get_workbook_name(): str
     + grayscale_colors_and_return_initial_colors(): dict[RangeReference, str]
-    + initial_to_grayscale_and_set_from_dict_and_return_initial_colors(new_colors: dict[RangeReference, str]): dict[RangeReference, str]
+    + initial_to_grayscale_and_set_from_dict_and_return_initial_colors...\n...(new_colors: dict[RangeReference, str]): dict[RangeReference, str]
     }
 
     interface ISpreadsheetParserService {

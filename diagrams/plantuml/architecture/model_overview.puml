@@ -3,7 +3,6 @@ skinparam componentStyle rectangle
 skinparam defaultTextAlignment center
 
 package "Model Layer" {
-
   [Domain Models] as DomainModel
   [Services] as Services
   [Adapters] as Adapters
@@ -11,19 +10,22 @@ package "Model Layer" {
   [Settings] as Settings
 }
 
+[Spreadsheet Application] as SpreadsheetApplication
+
 ' External component
 [Controller] as Controller
 
 ' Dependencies inside model layer
-Services --> DomainModel : uses
-Services --> Utils : uses
-Services --> Adapters : uses\nvia interfaces
-Services --> Settings: uses
-Adapters --> Utils : uses
-Adapters --> DomainModel : uses
-Utils --> DomainModel : uses
+Services --> DomainModel
+Services --> Utils
+Services --> Adapters: via interfaces
+Services --> Settings
+Adapters --> Utils
+Adapters --> DomainModel
+Utils --> DomainModel
 
 ' External interaction
-Controller --> Services : calls
+Controller --> Services
+Adapters --> SpreadsheetApplication
 
 @enduml

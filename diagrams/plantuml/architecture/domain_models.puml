@@ -1,0 +1,73 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+class Feature << (E,orchid) Enum >> {
+    +CASCADE_RENAME
+    +DEPENDENCY_HIGHLIGHTING
+    +DEPENDENTS_HEATMAP
+    +ROOT_NODES
+}
+
+class Workbook {
+    +name: str
+    +fullpath: str
+    -_dependency_graph: DependencyGraph
+
+    +get_all_cell_ranges(): Set<CellRange>
+    +get_range(range_ref: RangeReference): Optional[CellRange]
+    +set_dependency_graph(dependency_graph: DependencyGraph): void
+    +has_precedent(range_ref: RangeReference): bool
+    +has_dependent(range_ref: RangeReference): bool
+    +resolve_dependents_to_cell_level(range_ref: RangeReference): Set<RangeReference>
+    +resolve_precedents_to_cell_level(range_ref: RangeReference): Set<RangeReference>
+    +get_dependents(range_ref: RangeReference): Set<RangeReference>
+    +get_precedents(range_ref: RangeReference): Set<RangeReference>
+}
+
+class DependencyGraph {
+    - _graph: networkx.DiGraph
+    +get_cell_range(range_ref: RangeReference): Optional[CellRange]
+    +get_cell_ranges(): set[CellRange]
+    +has_precedent(range_ref: RangeReference): bool
+    +has_dependent(range_ref: RangeReference): bool
+    +resolve_dependents_to_cell_level(range_ref: RangeReference): set[RangeReference]
+    +resolve_precedents_to_cell_level(range_ref: RangeReference): set[RangeReference]
+    +get_precedents(cell: RangeReference): set[RangeReference]
+    +get_dependents(cell: RangeReference): set[RangeReference]
+}
+
+class CellRange {
+   +reference: RangeReference
+   +value: str
+   +formula: str
+}
+
+class RangeReferenceType << (E,orchid) Enum >> {
+    +EXTERNAL
+    +CELL
+    +RANGE
+    +DEFINED_NAME
+}
+
+class RangeReference {
+    +workbook: str
+    +sheet: Optional[str]
+    +reference: str
+    +reference_type: RangeReferenceType
+    +from_raw(workbook: str, sheet: Optional[str], address: str, address_type: RangeReferenceType): RangeReference
+}
+
+class RangeWithContext {
+    +precedents: Optional[list[RangeWithContext]]
+    +context_information: Optional[str]
+}
+
+CellRange <|-- RangeWithContext
+CellRange -up-> RangeReference
+DependencyGraph -up-> RangeReference
+DependencyGraph -up-> CellRange
+
+RangeReference -up-> RangeReferenceType
+Workbook -up-> DependencyGraph
+
+@enduml
