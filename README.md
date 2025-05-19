@@ -1,41 +1,97 @@
-# Setup
+# SpreadsheetXplorer
 
-## Install dependencies
+A desktop tool for exploring and understanding complex spreadsheets. SpreadsheetXplorer helps users visualize formulas,
+dependencies, and named ranges in a more interactive and accessible way.
 
-### Install uv
+---
 
-https://docs.astral.sh/uv/getting-started/installation/#standalone-installer
+## 🛠️ Getting Started
 
-### Install python 3.13 to default location
+### 📦 Dependencies
 
-### Create virtual environment
+* [`uv`](https://docs.astral.sh/uv/getting-started/installation/) – ultra-fast Python environment manager
+* Python 3.13 (ensure it's installed and accessible)
 
-```uv venv```
+### 💻 Platform Requirements
 
-### select system python interpreter
+- Requires a **running desktop installation of Microsoft Excel** (Excel must be open during use).
+- Works with:
+    - ✅ **Windows** (tested with Excel 365)
+    - ✅ **macOS** (requires Excel for Mac)
+- ❌ Not compatible with Excel Online or other spreadsheet applications (yet).
 
-```uv venv --python=/usr/local/bin/python3.13```
+### 📥 Install `uv`
 
-### run tool
+Follow the official guide:
 
-```uv run main.py```
+👉 [uv Installation Guide](https://docs.astral.sh/uv/getting-started/installation/)
 
-## Limitations
+### 🐍 Install Python 3.13
 
-### names in excel?
-### sharepoint -> can we detect if the file is in sharepoint? -> propose saving it locally?
-[//]: # (- The tool currently does not support names in excel files. It will only work with the first sheet of the excel file.)
+Make sure Python 3.13 is installed in your system. You can verify with:
 
+```bash
+python3.13 --version
+```
 
-## Open Questions
-### Alias in our tool or insert / replace name in Excel
+Or download it from the official site: [https://www.python.org/downloads/](https://www.python.org/downloads/)
 
-### More features of the requirement list
-### edge cases? -> check on import
+### 🧪 Create a Virtual Environment
 
+```bash
+uv venv
+```
 
-### test with excel sheet of Ricardo
+Or specify a custom Python interpreter:
 
-# limitations
-# names into excel or use aliases in our own tool
-# add a name to a cell
+```bash
+uv venv --python=/usr/local/bin/python3.13
+```
+
+### 📦 Installing Dependencies
+
+Once the virtual environment is created:
+
+```bash
+uv sync
+```
+
+This will install all the required dependencies listed in `pyproject.toml`.
+
+---
+
+## ▶️ Running the Program
+
+```bash
+uv run ./src/main.py
+```
+
+This will launch the SpreadsheetXplorer interface.
+
+---
+
+## 😋 Help
+
+For help, contact the authors or open an issue.
+
+---
+
+## 👥 Authors
+
+* Ricardo Duarte — [@rduarteb1992](https://github.com/rduarteb1992)
+* Patrick Schwizer — [@patrickwinti](https://github.com/patrickwinti)
+
+---
+
+## ⚠️ Known Limitations
+
+* 📂 **SharePoint-hosted files are not yet supported.**
+
+    * 💡 Workaround: Download the file locally before importing it into SpreadsheetXplorer.
+
+---
+
+## 🙏 Acknowledgments
+
+* Huge thanks to our user testers for their invaluable feedback.
+* Special thanks to **Michael Wahler** for his guidance throughout the project.

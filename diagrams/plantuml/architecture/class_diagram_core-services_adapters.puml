@@ -1,0 +1,84 @@
+@startuml
+skinparam classAttributeIconSize 0
+top to bottom direction
+
+' === ADAPTERS PACKAGE ===
+package "Adapters" {
+interface IConnectedWorkbook {
+    + get_connected_workbook(): Any
+    + get_selected_range_ref(): RangeReference
+    + get_range_color(range_ref: RangeReference): str
+    + set_ranges_color(range_refs: Iterable[RangeReference], color: str): None
+    + set_colors_from_dict(colors: dict[RangeReference, str]): None
+    + set_formula(range_ref: RangeReference, formula: str): None
+    + disable_screen_updating(): None
+    + enable_screen_updating(): None
+    + add_name(range_ref: RangeReference, new_name: str): None
+    + get_names(): dict[str, str]
+    + resolve_defined_name(name: str): Optional[RangeReference]
+    + get_used_range(): Iterable[tuple[RangeReference, str, str]]
+    + resolve_range_reference(ref: RangeReference): tuple[str, str]
+    + get_workbook_name(): str
+    + grayscale_colors_and_return_initial_colors(): dict[RangeReference, str]
+    + initial_to_grayscale_and_set_from_dict_and_return_initial_colors...\n...(new_colors: dict[RangeReference, str]): dict[RangeReference, str]
+    }
+
+    interface ISpreadsheetParserService {
+        + get_dependencies(): DependencyGraph
+    }
+
+    interface ISpreadsheetConnectionService {
+        + get_open_workbooks(): list[str]
+        + connect_to_workbook(filename: str): IConnectedWorkbook
+    }
+
+    class ConnectedExcelWorkbook
+    class ExcelParserServiceOpenpyxl
+    class ExcelConnectionService
+
+    ConnectedExcelWorkbook .up.|> IConnectedWorkbook
+    ExcelParserServiceOpenpyxl .up.|> ISpreadsheetParserService
+    ExcelConnectionService .up.|> ISpreadsheetConnectionService
+}
+
+' === SERVICES PACKAGE ===
+package "Core Services" {
+    class ConnectedWorkbookService {
+        + connect_workbook(filename: str): void
+        + disconnect_workbook(): void
+        + parse_connected_workbook(): void
+        + set_root(tkinter_root: tk.TK): void
+        + start_watching_selected_cell(): void
+        + stop_watching_selected_cell(): void
+    }
+
+    class AppStateService {
+        + clear_connected_workbook(): void
+        + set_feature_active(feature: Feature): void
+        + set_feature_inactive(feature: Feature): void
+        + is_feature_active(feature: Feature): bool
+        + store_initial_colors(colors: dict[RangeReference, str]): void
+        + get_initial_colors(): dict[RangeReference, str]
+        + clear_initial_colors(): void
+        + can_start_feature(feature: Feature): bool
+    }
+
+    ConnectedWorkbookService --> AppStateService
+
+}
+
+package "Current Range Selection"{
+    class SelectionMonitoring {
+        + start(): void
+        + stop(): void
+    }
+}
+
+SelectionMonitoring --> IConnectedWorkbook
+AppStateService --> IConnectedWorkbook
+ConnectedWorkbookService --> IConnectedWorkbook
+ConnectedWorkbookService --> ISpreadsheetParserService
+ConnectedWorkbookService --> ISpreadsheetConnectionService
+ConnectedWorkbookService --> SelectionMonitoring
+
+@enduml

@@ -1,8 +1,8 @@
 from typing import Type
 
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.feature import Feature
 from model.domain_model.spreadsheet.cell_range import CellRange
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.services.app_state_service import AppStateService
 from model.services.features.coloring.static.color_strategies.dependents_heatmap import \

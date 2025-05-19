@@ -1,0 +1,40 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' === FEATURE SERVICES PACKAGE ===
+package "Feature Services / Coloring / Static" {
+    class FeatureColoringService {
+        + show_feature_coloring(feature: Feature): void
+        + stop_feature_coloring(feature: Feature): void
+    }
+
+    package "Color Strategies" {
+        interface IRangeColorStrategy {
+            + __init__(workbook: Workbook): void
+            + convert(cell_range: CellRange): str
+        }
+        class DependentsHeatmap
+        class RootNodeColoring
+
+        DependentsHeatmap .up.|> IRangeColorStrategy
+        RootNodeColoring .up.|> IRangeColorStrategy
+        FeatureColoringService --> IRangeColorStrategy
+    }
+}
+
+' === ADAPTERS ===
+package "Adapters" {
+    interface IConnectedWorkbook {
+    }
+}
+
+' === CORE SERVICES ===
+package "Core Services" {
+    class AppStateService
+}
+
+' === DEPENDENCIES ===
+FeatureColoringService --> AppStateService
+FeatureColoringService --> IConnectedWorkbook
+
+@enduml

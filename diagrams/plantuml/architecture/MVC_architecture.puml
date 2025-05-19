@@ -1,0 +1,13 @@
+@startuml
+skinparam defaultTextAlignment center
+
+top to bottom direction
+rectangle View
+rectangle Controller
+rectangle Model
+
+Controller --> View : Render
+View --> Controller : Send Request
+View --> Model : Displays
+Controller --> Model : Manipulate
+@enduml

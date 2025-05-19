@@ -1,0 +1,38 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+' === FEATURE SERVICES PACKAGE ===
+package "Adapters" {
+    interface IConnectedWorkbook {}
+}
+package "Current Range Selection"{
+    interface ISelectionObserver {
+        +__call__(new_range_ref: Optional[RangeReference], old_range_ref: Optional[RangeReference]): void
+        + initialize(initial_range_ref: RangeReference): void
+        + stop(): void
+    }
+}
+
+package "Feature Services" {
+    package "Context Generation" {
+        class SelectionContextService {}
+        class SelectionContextObserver {}
+
+        SelectionContextObserver --> IConnectedWorkbook
+        SelectionContextObserver ..|> ISelectionObserver
+        SelectionContextService --> SelectionContextObserver
+        SelectionContextService --> ISelectionObserver
+    }
+}
+
+' === CORE SERVICES ===
+package "Core Services" {
+    class AppStateService
+    class ConnectedWorkbookService
+}
+
+' === DEPENDENCIES ===
+SelectionContextService --> AppStateService
+SelectionContextService --> ConnectedWorkbookService
+
+@enduml

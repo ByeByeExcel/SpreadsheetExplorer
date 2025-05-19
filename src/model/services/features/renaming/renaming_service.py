@@ -1,5 +1,5 @@
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.feature import Feature
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.cell_range import CellRange
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.services.app_state_service import AppStateService
@@ -11,7 +11,6 @@ class RenamingService:
         self._app_state = app_state
 
     def cascade_name_cell(self, new_name: str):
-
         try:
             workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
             range_ref: RangeReference = self._app_state.selected_range.value

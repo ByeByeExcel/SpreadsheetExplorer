@@ -2,7 +2,7 @@ from typing import Optional, Iterable
 
 import xlwings as xw
 
-from model.domain_model.spreadsheet.i_connected_workbook import IConnectedWorkbook
+from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.utils.color_utils import get_hex_color_from_tuple, rgb_to_grayscale
 from model.utils.excel_utils import convert_to_absolute_range, convert_xlwings_address, get_address_from_offset
@@ -17,9 +17,6 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
     def get_connected_workbook(self) -> xw.Book:
         return self.connected_workbook
 
-    def calculate_workbook(self):
-        self.connected_workbook.app.calculate()
-
     def get_selected_range_ref(self) -> RangeReference:
         selection = self.connected_workbook.selection
         return convert_xlwings_address(selection)
@@ -27,14 +24,11 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
     def get_range_color(self, range_ref: RangeReference) -> str:
         return get_hex_color_from_tuple(self._get_range(range_ref.sheet, range_ref.reference).color)
 
-    def set_range_color(self, range_ref: RangeReference, color: str):
-        self._get_range(range_ref.sheet, range_ref.reference).color = color
-
     def set_ranges_color(self, range_refs: Iterable[RangeReference], color: str):
         self.disable_screen_updating()
         try:
             for ref in range_refs:
-                self.set_range_color(ref, color)
+                self._set_range_color(ref, color)
         finally:
             self.enable_screen_updating()
 
@@ -42,7 +36,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self.disable_screen_updating()
         try:
             for ref, color in colors.items():
-                self.set_range_color(ref, color)
+                self._set_range_color(ref, color)
         finally:
             self.enable_screen_updating()
 
@@ -152,6 +146,9 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def _get_sheet(self, sheet: str) -> xw.Sheet:
         return self.connected_workbook.sheets[sheet]
+
+    def _set_range_color(self, range_ref: RangeReference, color: str):
+        self._get_range(range_ref.sheet, range_ref.reference).color = color
 
     @staticmethod
     def _ensure_2d(data, rows, cols):

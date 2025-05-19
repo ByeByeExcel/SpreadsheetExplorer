@@ -1,0 +1,42 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "Current Range Selection"{
+    interface ISelectionObserver {
+        +__call__(new_range_ref: Optional[RangeReference], old_range_ref: Optional[RangeReference]): void
+        + initialize(initial_range_ref: RangeReference): void
+        + stop(): void
+    }
+}
+
+' === FEATURE SERVICES PACKAGE ===
+package "Feature Services / Coloring / Interactive" {
+    class SelectionColoringService {
+        + start_dependency_highlighting(): void
+        + stop_dependency_highlighting(): void
+    }
+
+    package "Dependency Coloring" {
+        class SelectionDependencyHighlighterObserver
+    }
+}
+
+' === ADAPTERS ===
+package "Adapters" {
+    interface IConnectedWorkbook
+}
+
+' === CORE SERVICES ===
+package "Core Services" {
+    class AppStateService
+}
+
+' === DEPENDENCIES ===
+SelectionColoringService --> SelectionDependencyHighlighterObserver
+SelectionColoringService --> AppStateService
+SelectionColoringService --> IConnectedWorkbook
+SelectionColoringService --> ISelectionObserver
+SelectionDependencyHighlighterObserver --> IConnectedWorkbook
+SelectionDependencyHighlighterObserver ..|> ISelectionObserver
+
+@enduml

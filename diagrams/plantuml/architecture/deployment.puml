@@ -1,0 +1,25 @@
+@startuml
+skinparam defaultTextAlignment center
+
+node "User System" {
+    node "SpreadsheetXplorer" {
+        node "GUI"
+        node "Backend"
+    }
+
+    node "Excel" {
+        artifact "Excel Workbook"
+    }
+
+    cloud {
+        node "Other Spreadsheet Application" {
+            artifact "Workbook"
+        }
+    }
+}
+
+GUI --> Backend : user input
+Backend --> Excel : Runtime API
+Backend ..> "Other Spreadsheet Application" : via adapter (planned)
+
+@enduml

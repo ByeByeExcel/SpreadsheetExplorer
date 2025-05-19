@@ -1,11 +1,11 @@
+from model.adapters.excel.excel_connection_service import ExcelConnectionService
+from model.adapters.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.services.app_state_service import AppStateService
 from model.services.connected_workbook_service import ConnectedWorkbookService
 from model.services.features.coloring.interactive.selection_coloring_service import SelectionColoringService
 from model.services.features.coloring.static.feature_coloring_service import FeatureColoringService
 from model.services.features.context_generation.selection_context_service import SelectionContextService
 from model.services.features.renaming.renaming_service import RenamingService
-from model.services.spreadsheet_connection.excel.excel_connection_service import ExcelConnectionService
-from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 
 
 class ServiceRegistry:

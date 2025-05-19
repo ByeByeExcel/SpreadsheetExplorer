@@ -1,0 +1,33 @@
+@startuml
+skinparam defaultTextAlignment center
+
+start
+:start monitoring;
+
+repeat
+:try to get current selection
+  from Excel;
+
+  if (selection retrieval successful?) then (yes)
+    if (selection != last selection) then (yes)
+      :update last selection;
+      :call on_selection_change(new_selection);
+    else (no)
+      :no change;
+    endif
+  else (no)
+    if (error type) then (Excel busy)
+      :ignore and continue;
+    else (other error)
+      :log error;
+      :stop polling;
+      stop
+    endif
+  endif
+
+    backward :schedule next selection retrieval in 100ms;
+repeat while (monitoring is active?) is (yes) not (no)
+
+:stop polling;
+stop
+@enduml

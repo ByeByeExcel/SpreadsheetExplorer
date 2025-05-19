@@ -1,7 +1,7 @@
 import tkinter as tk
 
+from model.adapters.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.services.connected_workbook_service import ConnectedWorkbookService
-from model.services.spreadsheet_connection.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 
 
 class WorkbookController:
