@@ -21,7 +21,7 @@ fi
 rm -rf "$DIST_DIR" "$BUILD_DIR"
 
 # Run PyInstaller
-pyinstaller "$ENTRY_POINT" \
+uv run pyinstaller "$ENTRY_POINT" \
   --windowed \
   --distpath "$DIST_DIR" \
   --workpath "$BUILD_DIR" \
