@@ -73,7 +73,7 @@ This will launch the SpreadsheetXplorer interface.
 ## 🔍 Running all Tests
 
 ```bash
-pytest
+uv run pytest
 ```
 
 This will launch pytest and run all tests in ./tests.
