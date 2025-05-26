@@ -4,6 +4,7 @@ import xlwings as xw
 from model.adapters.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.adapters.excel.excel_parser_service import ExcelParserService
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
+from model.utils.excel_utils import get_cell_references_of_range
 
 
 @pytest.fixture
@@ -82,3 +83,35 @@ def test_range_dependencies(parser_service, connected_workbook):
 
     assert dep_graph.get_dependents(c1_ref) is not None
     assert b1c1_ref in dep_graph.get_dependents(c1_ref)
+
+
+def test_named_range_resolves_to_cell_level(parser_service, connected_workbook):
+    sheet = connected_workbook.get_connected_workbook().sheets[0]
+
+    # Setup: put values in B1:C3
+    for row in range(1, 4):
+        for col in ['B', 'C']:
+            cell = f"{col}{row}"
+            sheet.range(cell).value = row
+
+    # Define named range "TestRange" = B1:C3
+    test_range_ref = RangeReference.from_raw(sheet.book.name, sheet.name, 'B1:C3', RangeReferenceType.RANGE)
+    connected_workbook.add_name(test_range_ref, 'TestRange')
+
+    # Formula in A1 using named range
+    sheet.range('A1').formula = '=SUM(TestRange)'
+
+    dep_graph = parser_service.get_dependencies()
+
+    a1_ref = RangeReference.from_raw(sheet.book.name, sheet.name, 'A1')
+
+    # Get all cell-level references inside B1:C3
+    cell_refs = get_cell_references_of_range(test_range_ref)
+
+    precedents = dep_graph.resolve_precedents_to_cell_level(a1_ref)
+
+    # Check that each cell inside TestRange is among A1's precedents
+    for cell_ref in cell_refs:
+        assert cell_ref in precedents, f"Expected {cell_ref} to be precedent of {a1_ref}"
+        dependents = dep_graph.resolve_dependents_to_cell_level(cell_ref)
+        assert a1_ref in dependents, f"Expected {a1_ref} to be dependent of {cell_ref}"
