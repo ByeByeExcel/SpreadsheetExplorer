@@ -32,18 +32,20 @@ class ExcelParserService(ISpreadsheetParserService):
             precedents = self._extract_precedents(self.graph.nodes[node]['cell_range'].formula, node.sheet)
             for precedent in precedents:
                 if precedent not in self.graph:
-                    if precedent.reference_type == RangeReferenceType.RANGE:
-                        self.graph.add_node(precedent, cell_range=CellRange(precedent, "", ""))
+                    if precedent.reference_type == RangeReferenceType.CELL:
+                        raise ValueError(f"Precedent '{precedent}' is a cell reference, which should already be in the dependency graph.")
                     else:
-                        value, formula = self.wb.resolve_range_reference(precedent)
-                        self.graph.add_node(precedent, cell_range=CellRange(precedent, value, formula))
+                        self.graph.add_node(precedent, cell_range=CellRange(precedent, "", ""))
                 self.graph.add_edge(precedent, node)
 
         for name in self.names_dict:
             defined_ref = self.wb.resolve_defined_name(name)
             if defined_ref:
                 if defined_ref not in self.graph:
-                    raise ValueError(f"Defined name '{name}' does not resolve to a known range.")
+                    if defined_ref.reference_type == RangeReferenceType.CELL:
+                        raise ValueError(f"Defined name '{name}' refers to a cell, which should already be in the dependency graph.")
+                    else:
+                        self.graph.add_node(defined_ref, cell_range=CellRange(defined_ref, "", ""))
 
                 named_node = RangeReference.from_raw(self.wb.get_workbook_name(), None, name,
                                                      RangeReferenceType.DEFINED_NAME)
