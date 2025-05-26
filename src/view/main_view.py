@@ -1,3 +1,5 @@
+import os
+import sys
 import tkinter as tk
 
 from controller.feature_controller import FeatureController
@@ -22,7 +24,8 @@ class MainView:
         self.root.title("Spreadsheet Explorer")
         self.root.geometry("1050x600")
 
-        self.icon = tk.PhotoImage(file="assets/spreadsheet_explorer_icon.png")
+        icon_path = resource_path("assets/spreadsheet_explorer_icon.png")
+        self.icon = tk.PhotoImage(file=icon_path)
         self.root.iconphoto(True, self.icon)
 
         self.selector_frame = tk.Frame(self.root)
@@ -61,3 +64,13 @@ class MainView:
 
     def run(self):
         self.root.mainloop()
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for development and PyInstaller """
+    try:
+        base_path = sys._MEIPASS  # Set by PyInstaller
+    except AttributeError:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)

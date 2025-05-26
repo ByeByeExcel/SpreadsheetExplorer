@@ -33,7 +33,7 @@ class RangeReference:
             (other.workbook, other.sheet or "", other._address_key(), other.reference_type.value)
 
     def _address_key(self):
-        match = re.match(r"([a-z]+)(\d+)$", self.reference)
+        match = re.match(r"([A-Z]+)(\d+)$", self.reference)
         if match:
             col, row = match.groups()
             return col, int(row)
@@ -48,7 +48,7 @@ class RangeReference:
                  ) -> "RangeReference":
         normalized_workbook = workbook.lower()
         normalized_sheet = sheet.lower() if sheet else None
-        normalized_address = address.replace("$", "").lower()
+        normalized_address = address.replace("$", "")
         return RangeReference(
             normalized_workbook,
             normalized_sheet,

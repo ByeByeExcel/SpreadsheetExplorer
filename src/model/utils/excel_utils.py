@@ -47,11 +47,11 @@ def ref_string_is_range(range_reference: str) -> bool:
     return min_col != max_col or min_row != max_row
 
 
-def get_address_from_offset(top_left_row, top_left_col, row, col):
+def get_address_from_offset(top_left_row, top_left_col, row, col) -> str:
     return get_address(top_left_row + row, top_left_col + col)
 
 
-def get_address(row, col):
+def get_address(row, col) -> str:
     return f"{openpyxl.utils.get_column_letter(col)}{row}"
 
 
@@ -89,15 +89,22 @@ def parse_range_reference(raw_ref: str, current_workbook: str, current_sheet: st
 
     if sheet:
         sheet = sheet.strip("'")
+    else:
+        sheet = current_sheet
 
     # Detect reference type
     if workbook.lower() != current_workbook.lower():
         ref_type = RangeReferenceType.EXTERNAL
     elif ":" in address:
-        ref_type = RangeReferenceType.RANGE
+        min_col, min_row, max_col, max_row = openpyxl.utils.range_boundaries(address)
+        if min_col == max_col and min_row == max_row:
+            address = get_address(min_row, min_col)
+            ref_type = RangeReferenceType.CELL
+        else:
+            ref_type = RangeReferenceType.RANGE
     elif re.match(r"^\$?[A-Z]{1,3}\$?\d+$", address):
         ref_type = RangeReferenceType.CELL
     else:
         ref_type = RangeReferenceType.DEFINED_NAME
 
-    return RangeReference.from_raw(workbook, sheet or current_sheet, address, ref_type)
+    return RangeReference.from_raw(workbook, sheet, address, ref_type)

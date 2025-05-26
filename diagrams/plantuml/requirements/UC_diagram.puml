@@ -1,12 +1,12 @@
 @startuml
 left to right direction
 actor User
-rectangle "Spreadsheet Explorer Tool" {
-  usecase "Select Open Excel Sheet" as UC1
-  usecase "Display Precedents / Dependents" as UC2
-  usecase "Formula Usage Heatmap" as UC3
-  usecase "Highlight Root Formulas" as UC4
-  usecase "Cascading Cell Rename" as UC5
+rectangle "SpreadsheetXplorer" {
+  usecase "Select Open Workbook" as UC1
+  usecase "Show Inputs & Outputs of Selected Range" as UC2
+  usecase "Show Cell Usage Heatmap" as UC3
+  usecase "Show Final Output Cells" as UC4
+  usecase "Rename Range & Update Formulas" as UC5
 }
 
 User --> UC1

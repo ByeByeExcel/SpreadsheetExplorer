@@ -6,7 +6,7 @@ start
 
 repeat
 :try to get current selection
-  from Excel;
+  from spreadsheet application;
 
   if (selection retrieval successful?) then (yes)
     if (selection != last selection) then (yes)
@@ -16,7 +16,7 @@ repeat
       :no change;
     endif
   else (no)
-    if (error type) then (Excel busy)
+    if (error type) then (busy)
       :ignore and continue;
     else (other error)
       :log error;

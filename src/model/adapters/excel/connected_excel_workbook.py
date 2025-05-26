@@ -86,8 +86,8 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             start_row, start_col = used_range.row, used_range.column
             rows, cols = used_range.shape
 
-            values = self._ensure_2d(used_range.value, rows, cols)
-            formulas = used_range.formula
+            values = used_range.options(ndim=2).value
+            formulas = used_range.options(ndim=2).formula
 
             for row in range(rows):
                 for col in range(cols):
@@ -101,13 +101,6 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def get_workbook_name(self) -> str:
         return self.connected_workbook.name
-
-    def is_range(self, sheet: str, address: str) -> bool:
-        try:
-            rng = self.connected_workbook.sheets[sheet][address]
-            return rng.shape[0] > 1 or rng.shape[1] > 1
-        except Exception:
-            return False
 
     def grayscale_colors_and_return_initial_colors(self) -> dict[RangeReference, str]:
         return self.initial_to_grayscale_and_set_from_dict_and_return_initial_colors({})
@@ -149,16 +142,3 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def _set_range_color(self, range_ref: RangeReference, color: str):
         self._get_range(range_ref.sheet, range_ref.reference).color = color
-
-    @staticmethod
-    def _ensure_2d(data, rows, cols):
-        if data is None:
-            return [[None for _ in range(cols)] for _ in range(rows)]
-        if isinstance(data, list):
-            if rows == 1:
-                return [data]
-            if cols == 1:
-                return [[v] for v in data]
-            return data
-        else:
-            return [[data]]

@@ -9,9 +9,10 @@ dependencies = [
     "graphviz==0.20.3",
     "networkx==3.4.2",
     "openpyxl==3.1.5",
+    "pyinstaller==6.13.0",
     "pylint==3.3.7",
     "pytest==8.3.5",
     "ruff==0.11.10",
     "webcolors==24.11.1",
-    "xlwings==0.33.14",
+    "xlwings==0.33.15",
 ]
