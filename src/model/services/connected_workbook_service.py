@@ -1,7 +1,7 @@
 import tkinter as tk
 from typing import Optional
 
-from model.adapters.excel.excel_parser_service_openpyxl import ExcelParserServiceOpenpyxl
+from model.adapters.excel.excel_parser_service import ExcelParserService
 from model.adapters.i_connected_workbook import IConnectedWorkbook
 from model.adapters.i_spreadsheet_connection_service import ISpreadsheetConnectionService
 from model.domain_model.spreadsheet.range_reference import RangeReference
@@ -52,7 +52,7 @@ class ConnectedWorkbookService:
         self._app_state.is_analyzing.set_value(True)
         try:
             workbook: IConnectedWorkbook = self._app_state.get_connected_workbook()
-            workbook.set_dependency_graph(ExcelParserServiceOpenpyxl(workbook).get_dependencies())
+            workbook.set_dependency_graph(ExcelParserService(workbook).get_dependencies())
         finally:
             self._app_state.is_analyzing.set_value(False)
 

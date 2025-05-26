@@ -19,9 +19,9 @@ class FeatureButtonTextManager:
             "help": "Highlight all cells that are the end points of calculation chains."
         },
         Feature.CASCADE_RENAME: {
-            "inactive": "Rename Cell & Update Formulas",
+            "inactive": "Rename Range & Update Formulas",
             "active": "Cancel Renaming",
-            "help": "Experimental feature: rename the selected cell and automatically update all formulas depending on it."
+            "help": "Experimental feature: rename the selected range and automatically update all formulas depending on it."
         },
     }
 

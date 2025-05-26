@@ -38,3 +38,6 @@ dist/
 
 # exported diagrams
 /diagrams/exported/
+
+# generated files
+out/

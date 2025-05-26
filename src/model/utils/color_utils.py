@@ -1,3 +1,4 @@
+import math
 from typing import cast, Optional
 
 import webcolors
@@ -11,7 +12,7 @@ def interpolate_color(color1: str, color2: str, t: float) -> str:
     rgb2 = webcolors.hex_to_rgb(color2)
 
     interpolated = tuple(
-        int((1 - t) * c1 + t * c2)
+        math.floor((1 - t) * c1 + t * c2)
         for c1, c2 in zip(rgb1, rgb2)
     )
     return webcolors.rgb_to_hex(cast(tuple[int, int, int], interpolated))
