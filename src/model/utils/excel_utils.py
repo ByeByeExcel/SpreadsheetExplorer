@@ -106,5 +106,6 @@ def parse_range_reference(raw_ref: str, current_workbook: str, current_sheet: st
         ref_type = RangeReferenceType.CELL
     else:
         ref_type = RangeReferenceType.DEFINED_NAME
+        sheet = None
 
     return RangeReference.from_raw(workbook, sheet, address, ref_type)

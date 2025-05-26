@@ -71,7 +71,7 @@ def test_parse_range_reference():
     ref_name = parse_range_reference('MyNamedRange', 'book', 'Sheet1')
     assert ref_name.reference_type == RangeReferenceType.DEFINED_NAME
     assert ref_name.reference == 'MyNamedRange'
-    assert ref_name.sheet == 'sheet1'
+    assert ref_name.sheet is None
     assert ref_name.workbook == 'book'
 
     ref_external = parse_range_reference('OtherSheet!A1:A1', 'book', 'Sheet1')
