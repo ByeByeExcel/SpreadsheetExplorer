@@ -86,8 +86,8 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             start_row, start_col = used_range.row, used_range.column
             rows, cols = used_range.shape
 
-            values = self._ensure_2d(used_range.value, rows, cols)
-            formulas = self._ensure_2d(used_range.formula, rows, cols)
+            values = used_range.options(ndim=2).value
+            formulas = used_range.options(ndim=2).formula
 
             for row in range(rows):
                 for col in range(cols):
@@ -142,18 +142,3 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def _set_range_color(self, range_ref: RangeReference, color: str):
         self._get_range(range_ref.sheet, range_ref.reference).color = color
-
-    @staticmethod
-    def _ensure_2d(data, rows, cols):
-        if data is None:
-            return [[None for _ in range(cols)] for _ in range(rows)]
-        if isinstance(data, list):
-            if isinstance(data[0], list):
-                return data
-            if rows == 1:
-                return [data]
-            if cols == 1:
-                return [[v] for v in data]
-            return None
-        else:
-            return [[data]]
