@@ -1,17 +1,9 @@
 import pytest
-import xlwings as xw
 
 from model.adapters.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.adapters.excel.excel_parser_service import ExcelParserService
 from model.domain_model.spreadsheet.range_reference import RangeReference, RangeReferenceType
 from model.utils.excel_utils import get_cell_references_of_range
-
-
-@pytest.fixture(scope='session')
-def excel_app():
-    app = xw.App(visible=False)
-    yield app
-    app.quit()
 
 
 @pytest.fixture

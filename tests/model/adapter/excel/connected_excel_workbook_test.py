@@ -1,16 +1,8 @@
 import pytest
-import xlwings as xw
 
 from model.adapters.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
 from model.utils.color_utils import get_hex_color_from_tuple
-
-
-@pytest.fixture(scope='session')
-def excel_app():
-    app = xw.App(visible=False)
-    yield app
-    app.quit()
 
 
 @pytest.fixture
