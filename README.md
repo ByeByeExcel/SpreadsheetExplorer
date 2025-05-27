@@ -98,6 +98,11 @@ To build the application:
 ./build.sh
 ```
 
+💡 Note: If you get a permission denied error when running build.sh, make sure it’s executable by running:
+```bash
+chmod +x build.sh
+```
+
 This will:
 
 - Create a `.app` bundle on macOS or a `.exe` file on Windows
