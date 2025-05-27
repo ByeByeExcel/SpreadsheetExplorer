@@ -5,7 +5,6 @@ top to bottom direction
 ' === ADAPTERS PACKAGE ===
 package "Adapters" {
 interface IConnectedWorkbook {
-    + get_connected_workbook(): Any
     + get_selected_range_ref(): RangeReference
     + get_range_color(range_ref: RangeReference): str
     + set_ranges_color(range_refs: Iterable[RangeReference], color: str): None
@@ -33,11 +32,11 @@ interface IConnectedWorkbook {
     }
 
     class ConnectedExcelWorkbook
-    class ExcelParserServiceOpenpyxl
+    class ExcelParserService
     class ExcelConnectionService
 
     ConnectedExcelWorkbook .up.|> IConnectedWorkbook
-    ExcelParserServiceOpenpyxl .up.|> ISpreadsheetParserService
+    ExcelParserService .up.|> ISpreadsheetParserService
     ExcelConnectionService .up.|> ISpreadsheetConnectionService
 }
 
