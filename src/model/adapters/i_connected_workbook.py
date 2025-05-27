@@ -56,10 +56,6 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def get_workbook_name(self) -> str:
-        pass
-
-    @abstractmethod
     def grayscale_colors_and_return_initial_colors(self) -> dict[RangeReference, str]:
         pass
 

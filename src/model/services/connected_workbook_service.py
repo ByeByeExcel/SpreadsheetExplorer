@@ -10,7 +10,7 @@ from model.services.current_range_selection.selection_monitoring import Selectio
 
 
 class ConnectedWorkbookService:
-    selection_monitoring: Optional[SelectionMonitoring] = None
+    _selection_monitoring: Optional[SelectionMonitoring] = None
 
     def __init__(self, connection_service: ISpreadsheetConnectionService, app_state: AppStateService):
         self._connection_service: ISpreadsheetConnectionService = connection_service
@@ -64,12 +64,12 @@ class ConnectedWorkbookService:
                 self._app_state.get_connected_workbook(),
                 self._update_selected_range)
             selection_monitoring.start()
-            self.selection_monitoring = selection_monitoring
+            self._selection_monitoring = selection_monitoring
 
     def stop_watching_selected_cell(self) -> None:
-        if self.selection_monitoring:
-            self.selection_monitoring.stop()
-            self.selection_monitoring = None
+        if self._selection_monitoring:
+            self._selection_monitoring.stop()
+            self._selection_monitoring = None
 
     def _update_selected_range(self, new_range_ref: RangeReference) -> None:
         self._app_state.selected_range.set_value(new_range_ref)

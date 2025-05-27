@@ -8,6 +8,6 @@ rectangle Model
 
 Controller --> View : Render
 View --> Controller : Send Request
-View --> Model : Displays
+View --> Model : Display
 Controller --> Model : Manipulate
 @enduml

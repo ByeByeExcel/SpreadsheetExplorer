@@ -18,7 +18,7 @@ def connected_workbook(workbook):
 
 
 def test_get_workbook_name(connected_workbook):
-    assert connected_workbook.get_workbook_name() == connected_workbook._xlwings_book.name
+    assert connected_workbook.name == connected_workbook._xlwings_book.name
 
 
 def test_add_and_resolve_name(connected_workbook):

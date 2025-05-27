@@ -4,8 +4,6 @@ skinparam classAttributeIconSize 0
 ' === FEATURE SERVICES PACKAGE ===
 
 package "Adapters" {
-    interface IConnectedWorkbook {
-    }
 }
 
 package "Feature Services" {
@@ -18,12 +16,11 @@ package "Feature Services" {
 
 ' === CORE SERVICES ===
 package "Core Services" {
-    class AppStateService
 }
 
 
 ' === DEPENDENCIES ===
-RenamingService --> AppStateService
-RenamingService --> IConnectedWorkbook
+RenamingService --> "Core Services"
+RenamingService --> "Adapters"
 
 @enduml

@@ -9,7 +9,6 @@ from model.domain_model.spreadsheet.range_reference import RangeReference
 @dataclass
 class Workbook:
     name: str
-    fullpath: str
     _dependency_graph: Optional[DependencyGraph] = None
 
     def get_all_cell_ranges(self) -> set[CellRange]:

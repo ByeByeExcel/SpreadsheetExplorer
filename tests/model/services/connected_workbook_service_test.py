@@ -80,7 +80,7 @@ def test_connect_workbook_file_not_found(controller, app_state, connection_servi
 
 def test_disconnect_workbook_success(controller, app_state, mock_workbook):
     mock_monitoring = MagicMock()
-    controller.selection_monitoring = mock_monitoring
+    controller._selection_monitoring = mock_monitoring
 
     controller.disconnect_workbook()
 
@@ -128,16 +128,16 @@ def test_start_stop_watching_selected_cell(controller, app_state):
     controller.start_watching_selected_cell()
 
     # Ensure a SelectionMonitoring instance is created
-    assert isinstance(controller.selection_monitoring, SelectionMonitoring)
+    assert isinstance(controller._selection_monitoring, SelectionMonitoring)
 
     # Replace .stop with a mock and preserve a reference before stopping
     mock_stop = MagicMock()
-    controller.selection_monitoring.stop = mock_stop
+    controller._selection_monitoring.stop = mock_stop
 
     controller.stop_watching_selected_cell()
 
     mock_stop.assert_called_once()
-    assert controller.selection_monitoring is None
+    assert controller._selection_monitoring is None
 
 
 def test_update_selected_range_sets_value(controller, app_state):

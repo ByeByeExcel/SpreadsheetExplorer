@@ -12,7 +12,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def __init__(self, xlwings_workbook: xw.Book):
         self._xlwings_book: xw.Book = xlwings_workbook
-        super().__init__(self._xlwings_book.name, self._xlwings_book.fullname)
+        super().__init__(self._xlwings_book.name)
 
     def get_selected_range_ref(self) -> RangeReference:
         selection = self._xlwings_book.selection
@@ -96,9 +96,6 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         cell = self._get_range(ref.sheet, ref.reference)
         return cell.value, cell.formula
 
-    def get_workbook_name(self) -> str:
-        return self._xlwings_book.name
-
     def grayscale_colors_and_return_initial_colors(self) -> dict[RangeReference, str]:
         return self.initial_to_grayscale_and_set_from_dict_and_return_initial_colors({})
 
@@ -118,7 +115,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
                     for col in range(cols):
                         xw_cell = used_range[row, col]
                         address = get_address_from_offset(start_row, start_col, row, col)
-                        ref = RangeReference.from_raw(self.get_workbook_name(), sheet.name, address)
+                        ref = RangeReference.from_raw(self.name, sheet.name, address)
 
                         initial_color = xw_cell.color
                         new_color = new_colors[ref] if ref in new_colors else rgb_to_grayscale(initial_color)

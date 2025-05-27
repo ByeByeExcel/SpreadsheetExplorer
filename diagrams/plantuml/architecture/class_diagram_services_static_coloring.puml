@@ -23,18 +23,12 @@ package "Feature Services / Coloring / Static" {
 }
 
 ' === ADAPTERS ===
-package "Adapters" {
-    interface IConnectedWorkbook {
-    }
-}
-
+package "Adapters" {}
 ' === CORE SERVICES ===
-package "Core Services" {
-    class AppStateService
-}
+package "Core Services"{}
 
 ' === DEPENDENCIES ===
-FeatureColoringService --> AppStateService
-FeatureColoringService --> IConnectedWorkbook
+FeatureColoringService --> "Core Services"
+FeatureColoringService --> "Adapters"
 
 @enduml
