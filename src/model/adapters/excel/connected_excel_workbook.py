@@ -11,14 +11,11 @@ from model.utils.excel_utils import convert_to_absolute_range, convert_xlwings_a
 class ConnectedExcelWorkbook(IConnectedWorkbook):
 
     def __init__(self, xlwings_workbook: xw.Book):
-        self.connected_workbook: xw.Book = xlwings_workbook
-        super().__init__(self.connected_workbook.name, self.connected_workbook.fullname)
-
-    def get_connected_workbook(self) -> xw.Book:
-        return self.connected_workbook
+        self._xlwings_book: xw.Book = xlwings_workbook
+        super().__init__(self._xlwings_book.name, self._xlwings_book.fullname)
 
     def get_selected_range_ref(self) -> RangeReference:
-        selection = self.connected_workbook.selection
+        selection = self._xlwings_book.selection
         return convert_xlwings_address(selection)
 
     def get_range_color(self, range_ref: RangeReference) -> str:
@@ -46,29 +43,29 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self._get_range(range_ref.sheet, range_ref.reference).formula = formula
 
     def disable_screen_updating(self):
-        self.connected_workbook.app.screen_updating = False
-        self.connected_workbook.app.calculation = 'manual'
-        self.connected_workbook.app.display_alerts = False
-        self.connected_workbook.app.enable_events = False
+        self._xlwings_book.app.screen_updating = False
+        self._xlwings_book.app.calculation = 'manual'
+        self._xlwings_book.app.display_alerts = False
+        self._xlwings_book.app.enable_events = False
 
     def enable_screen_updating(self):
-        self.connected_workbook.app.screen_updating = True
-        self.connected_workbook.app.calculation = 'automatic'
-        self.connected_workbook.app.display_alerts = True
-        self.connected_workbook.app.enable_events = True
+        self._xlwings_book.app.screen_updating = True
+        self._xlwings_book.app.calculation = 'automatic'
+        self._xlwings_book.app.display_alerts = True
+        self._xlwings_book.app.enable_events = True
 
     def add_name(self, range_ref: RangeReference, new_name: str) -> None:
-        self.connected_workbook.names.add(
+        self._xlwings_book.names.add(
             new_name,
             f"='{range_ref.sheet}'!{convert_to_absolute_range(range_ref.reference)}"
         )
 
     def get_names(self) -> dict[str, str]:
-        return {n.name: n.refers_to for n in self.connected_workbook.names}
+        return {n.name: n.refers_to for n in self._xlwings_book.names}
 
     def resolve_defined_name(self, name: str) -> Optional[RangeReference]:
         try:
-            xl_range = self.connected_workbook.names[name].refers_to_range
+            xl_range = self._xlwings_book.names[name].refers_to_range
             is_range = xl_range.shape[0] > 1 or xl_range.shape[1] > 1
             return RangeReference.from_raw(
                 xl_range.sheet.book.name,
@@ -80,7 +77,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             return None
 
     def get_used_range(self) -> Iterable[tuple[RangeReference, str, str]]:
-        for sheet in self.connected_workbook.sheets:
+        for sheet in self._xlwings_book.sheets:
             used_range: xw.Range = sheet.used_range
 
             start_row, start_col = used_range.row, used_range.column
@@ -100,7 +97,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         return cell.value, cell.formula
 
     def get_workbook_name(self) -> str:
-        return self.connected_workbook.name
+        return self._xlwings_book.name
 
     def grayscale_colors_and_return_initial_colors(self) -> dict[RangeReference, str]:
         return self.initial_to_grayscale_and_set_from_dict_and_return_initial_colors({})
@@ -112,7 +109,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         initial_colors: dict[RangeReference, str] = {}
         self.disable_screen_updating()
         try:
-            for sheet in self.connected_workbook.sheets:
+            for sheet in self._xlwings_book.sheets:
                 used_range = sheet.used_range
                 start_row, start_col = used_range.row, used_range.column
                 rows, cols = used_range.shape
@@ -138,7 +135,7 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         return self._get_sheet(sheet).range(cell_range)
 
     def _get_sheet(self, sheet: str) -> xw.Sheet:
-        return self.connected_workbook.sheets[sheet]
+        return self._xlwings_book.sheets[sheet]
 
     def _set_range_color(self, range_ref: RangeReference, color: str):
         self._get_range(range_ref.sheet, range_ref.reference).color = color

@@ -1,5 +1,4 @@
 import pytest
-import xlwings as xw
 
 from model.adapters.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.domain_model.spreadsheet.range_reference import RangeReference
@@ -7,12 +6,10 @@ from model.utils.color_utils import get_hex_color_from_tuple
 
 
 @pytest.fixture
-def workbook():
-    app = xw.App(visible=False)
-    wb = app.books.add()
+def workbook(excel_app):
+    wb = excel_app.books.add()
     yield wb
     wb.close()
-    app.quit()
 
 
 @pytest.fixture
@@ -21,11 +18,11 @@ def connected_workbook(workbook):
 
 
 def test_get_workbook_name(connected_workbook):
-    assert connected_workbook.get_workbook_name() == connected_workbook.get_connected_workbook().name
+    assert connected_workbook.get_workbook_name() == connected_workbook._xlwings_book.name
 
 
 def test_add_and_resolve_name(connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     ref = RangeReference.from_raw(sheet.book.name, sheet.name, 'A1')
     connected_workbook.add_name(ref, 'TestName')
     resolved = connected_workbook.resolve_defined_name('TestName')
@@ -33,7 +30,7 @@ def test_add_and_resolve_name(connected_workbook):
 
 
 def test_set_and_get_formula(connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     ref = RangeReference.from_raw(sheet.book.name, sheet.name, 'A1')
     connected_workbook.set_formula(ref, '=1+1')
     value, formula = connected_workbook.resolve_range_reference(ref)
@@ -42,7 +39,7 @@ def test_set_and_get_formula(connected_workbook):
 
 
 def test_set_and_get_range_color(connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     ref = RangeReference.from_raw(sheet.book.name, sheet.name, 'A1')
     connected_workbook.set_ranges_color([ref], (255, 0, 0))  # Red
     color = connected_workbook.get_range_color(ref)
@@ -51,7 +48,7 @@ def test_set_and_get_range_color(connected_workbook):
 
 
 def test_get_names(connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     ref1 = RangeReference.from_raw(sheet.book.name, sheet.name, 'A1')
     ref2 = RangeReference.from_raw(sheet.book.name, sheet.name, 'B2:C5')
     connected_workbook.add_name(ref1, 'MyTestName1')
@@ -62,7 +59,7 @@ def test_get_names(connected_workbook):
 
 
 def test_get_used_range(connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     sheet.range('A1').value = 'test1'
     sheet.range('A2').value = 'test2'
     sheet.range('B1').formula = '=A1'
@@ -89,7 +86,7 @@ def test_get_used_range(connected_workbook):
 
 
 def test_initial_to_grayscale_and_set_from_dict_and_return_initial_colors(connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
 
     # Set some initial colors
     sheet.range('A1').color = (255, 0, 0)  # Red
