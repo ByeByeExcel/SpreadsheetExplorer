@@ -1,15 +1,12 @@
-import xlwings as xw
-
 from model.adapters.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.adapters.excel.excel_connection_service import ExcelConnectionService
 
 
-def test_get_open_workbooks(tmp_path):
+def test_get_open_workbooks(excel_app):
     service = ExcelConnectionService()
 
     # Open a new workbook
-    app = xw.App(visible=False)
-    wb = app.books.add()
+    wb = excel_app.books.add()
     wb_name = wb.name
 
     try:
@@ -17,15 +14,12 @@ def test_get_open_workbooks(tmp_path):
         assert wb_name in open_books
     finally:
         wb.close()
-        app.quit()
 
 
-def test_connect_to_workbook(tmp_path):
+def test_connect_to_workbook(excel_app):
     service = ExcelConnectionService()
 
-    # Create a temporary Excel file
-    app = xw.App(visible=False)
-    wb = app.books.add()
+    wb = excel_app.books.add()
 
     try:
         # Connect to the saved workbook
@@ -35,4 +29,3 @@ def test_connect_to_workbook(tmp_path):
 
     finally:
         wb.close()
-        app.quit()

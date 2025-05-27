@@ -1,5 +1,4 @@
 import pytest
-import xlwings as xw
 
 from model.adapters.excel.connected_excel_workbook import ConnectedExcelWorkbook
 from model.adapters.excel.excel_parser_service import ExcelParserService
@@ -8,12 +7,10 @@ from model.utils.excel_utils import get_cell_references_of_range
 
 
 @pytest.fixture
-def workbook():
-    app = xw.App(visible=False)
-    wb = app.books.add()
+def workbook(excel_app):
+    wb = excel_app.books.add()
     yield wb
     wb.close()
-    app.quit()
 
 
 @pytest.fixture
@@ -27,7 +24,7 @@ def parser_service(connected_workbook):
 
 
 def test_get_dependencies_simple(parser_service, connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     sheet.range('A1').formula = '=1+1'
     dep_graph = parser_service.get_dependencies()
 
@@ -49,7 +46,7 @@ def test_extract_precedents(parser_service):
 
 
 def test_named_range_dependency(parser_service, connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     sheet.range('A1').value = 10
     ref = RangeReference.from_raw(sheet.book.name, sheet.name, 'A1')
     connected_workbook.add_name(ref, 'MyNamedCell')
@@ -62,7 +59,7 @@ def test_named_range_dependency(parser_service, connected_workbook):
 
 
 def test_range_dependencies(parser_service, connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
     sheet.range('A1').formula = '=SUM(B1:C1)'
     sheet.range('B1').value = 2
     sheet.range('C1').value = 3
@@ -86,7 +83,7 @@ def test_range_dependencies(parser_service, connected_workbook):
 
 
 def test_named_range_resolves_to_cell_level(parser_service, connected_workbook):
-    sheet = connected_workbook.get_connected_workbook().sheets[0]
+    sheet = connected_workbook._xlwings_book.sheets[0]
 
     # Setup: put values in B1:C3
     for row in range(1, 4):

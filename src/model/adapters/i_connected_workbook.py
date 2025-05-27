@@ -8,10 +8,6 @@ from model.domain_model.spreadsheet.workbook import Workbook
 class IConnectedWorkbook(ABC, Workbook):
 
     @abstractmethod
-    def get_connected_workbook(self):
-        pass
-
-    @abstractmethod
     def get_selected_range_ref(self) -> RangeReference:
         pass
 
