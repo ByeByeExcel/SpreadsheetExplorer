@@ -25,7 +25,7 @@ def test_connect_to_workbook(excel_app):
         # Connect to the saved workbook
         connected_wb = service.connect_to_workbook(wb.name)
         assert isinstance(connected_wb, ConnectedExcelWorkbook)
-        assert connected_wb.get_workbook_name() == wb.name
+        assert connected_wb.name == wb.name
 
     finally:
         wb.close()

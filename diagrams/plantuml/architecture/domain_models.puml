@@ -10,11 +10,9 @@ class Feature << (E,orchid) Enum >> {
 
 class Workbook {
     +name: str
-    +fullpath: str
-    -_dependency_graph: DependencyGraph
 
     +get_all_cell_ranges(): Set<CellRange>
-    +get_range(range_ref: RangeReference): Optional[CellRange]
+    +get_range(range_ref: RangeReference): Optional<CellRange>
     +set_dependency_graph(dependency_graph: DependencyGraph): void
     +has_precedent(range_ref: RangeReference): bool
     +has_dependent(range_ref: RangeReference): bool
@@ -25,15 +23,14 @@ class Workbook {
 }
 
 class DependencyGraph {
-    - _graph: networkx.DiGraph
-    +get_cell_range(range_ref: RangeReference): Optional[CellRange]
-    +get_cell_ranges(): set[CellRange]
+    +get_cell_range(range_ref: RangeReference): Optional<CellRange>
+    +get_cell_ranges(): set<CellRange>
     +has_precedent(range_ref: RangeReference): bool
     +has_dependent(range_ref: RangeReference): bool
-    +resolve_dependents_to_cell_level(range_ref: RangeReference): set[RangeReference]
-    +resolve_precedents_to_cell_level(range_ref: RangeReference): set[RangeReference]
-    +get_precedents(cell: RangeReference): set[RangeReference]
-    +get_dependents(cell: RangeReference): set[RangeReference]
+    +resolve_dependents_to_cell_level(range_ref: RangeReference): set<RangeReference>
+    +resolve_precedents_to_cell_level(range_ref: RangeReference): set<RangeReference>
+    +get_precedents(cell: RangeReference): set<RangeReference>
+    +get_dependents(cell: RangeReference): set<RangeReference>
 }
 
 class CellRange {
@@ -51,15 +48,16 @@ class RangeReferenceType << (E,orchid) Enum >> {
 
 class RangeReference {
     +workbook: str
-    +sheet: Optional[str]
+    +sheet: Optional<str>
     +reference: str
     +reference_type: RangeReferenceType
-    +from_raw(workbook: str, sheet: Optional[str], address: str, address_type: RangeReferenceType): RangeReference
+    +from_raw(workbook: str, sheet: Optional<str>, address: str, address_type: RangeReferenceType): RangeReference
+    +formatted_reference(): str
 }
 
 class RangeWithContext {
-    +precedents: Optional[list[RangeWithContext]]
-    +context_information: Optional[str]
+    +precedents: Optional<list<RangeWithContext>>
+    +context_information: Optional<str>
 }
 
 CellRange <|-- RangeWithContext

@@ -9,9 +9,9 @@ repeat
   from spreadsheet application;
 
   if (selection retrieval successful?) then (yes)
-    if (selection != last selection) then (yes)
+    if (new selection != last selection) then (yes)
       :update last selection;
-      :call on_selection_change(new_selection);
+      :call on_selection_change(new selection);
     else (no)
       :no change;
     endif

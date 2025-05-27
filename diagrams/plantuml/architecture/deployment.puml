@@ -1,10 +1,14 @@
 @startuml
 skinparam defaultTextAlignment center
-
+actor User
 node "User System" {
     node "SpreadsheetXplorer" {
         node "GUI"
-        node "Backend"
+        node "Adapters" {
+            node "Excel Adapters\nwith xlwings" as xlwings
+            node "Adapters for other\nspreadsheet applications" as lib
+        }
+        node "Other Internal Components\n(Controller, Services, ...)" as _internal
     }
 
     node "Excel" {
@@ -12,14 +16,21 @@ node "User System" {
     }
 
     cloud {
-        node "Other Spreadsheet Application" {
+        node "Other Spreadsheet\nApplication" {
             artifact "Workbook"
         }
     }
 }
 
-GUI --> Backend : user input
-Backend --> Excel : Runtime API
-Backend ..> "Other Spreadsheet Application" : via adapter (planned)
 
+
+
+
+User --> GUI
+xlwings <--> Excel : Runtime API
+lib <..> "Other Spreadsheet\nApplication" : Runtime API
+GUI -[hidden]-> "Adapters"
+
+GUI <-left-> _internal
+_internal <-down-> "Adapters"
 @enduml

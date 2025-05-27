@@ -3,7 +3,7 @@ skinparam classAttributeIconSize 0
 
 package "Current Range Selection"{
     interface ISelectionObserver {
-        +__call__(new_range_ref: Optional[RangeReference], old_range_ref: Optional[RangeReference]): void
+        +__call__(new_range_ref: Optional<RangeReference>, old_range_ref: Optional<RangeReference>): void
         + initialize(initial_range_ref: RangeReference): void
         + stop(): void
     }
@@ -23,20 +23,18 @@ package "Feature Services / Coloring / Interactive" {
 
 ' === ADAPTERS ===
 package "Adapters" {
-    interface IConnectedWorkbook
 }
 
 ' === CORE SERVICES ===
 package "Core Services" {
-    class AppStateService
 }
 
 ' === DEPENDENCIES ===
 SelectionColoringService --> SelectionDependencyHighlighterObserver
-SelectionColoringService --> AppStateService
-SelectionColoringService --> IConnectedWorkbook
+SelectionColoringService --> "Core Services"
+SelectionColoringService --> "Adapters"
 SelectionColoringService --> ISelectionObserver
-SelectionDependencyHighlighterObserver --> IConnectedWorkbook
+SelectionDependencyHighlighterObserver --> "Adapters"
 SelectionDependencyHighlighterObserver ..|> ISelectionObserver
 
 @enduml
