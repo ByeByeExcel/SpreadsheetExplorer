@@ -2,6 +2,12 @@
 skinparam classAttributeIconSize 0
 top to bottom direction
 
+package "Current Range Selection"{
+    class SelectionMonitoring {
+        + start(): void
+        + stop(): void
+    }
+}
 ' === ADAPTERS PACKAGE ===
 package "Adapters" {
 interface IConnectedWorkbook {
@@ -69,22 +75,16 @@ package "Core Services" {
         + can_start_feature(feature: Feature): bool
     }
 
-    ConnectedWorkbookService --> AppStateService
+    ConnectedWorkbookService -right-> AppStateService
 
 }
 
-package "Current Range Selection"{
-    class SelectionMonitoring {
-        + start(): void
-        + stop(): void
-    }
-}
 
-SelectionMonitoring --> IConnectedWorkbook
+SelectionMonitoring -right-> IConnectedWorkbook
 AppStateService --> IConnectedWorkbook
 ConnectedWorkbookService --> IConnectedWorkbook
 ConnectedWorkbookService --> ISpreadsheetParserService
 ConnectedWorkbookService --> ISpreadsheetConnectionService
-ConnectedWorkbookService --> SelectionMonitoring
+ConnectedWorkbookService -left-> SelectionMonitoring
 
 @enduml

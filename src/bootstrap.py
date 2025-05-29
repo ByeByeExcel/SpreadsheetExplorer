@@ -20,6 +20,7 @@ def build_main_view(services: ServiceRegistry) -> MainView:
         services.selection_coloring_service,
         services.feature_coloring_service,
         services.renaming_service,
-        services.app_state
+        services.app_state,
+        services.connected_workbook_service
     )
     return MainView(workbook_controller, feature_controller, services.app_state)
