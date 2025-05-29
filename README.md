@@ -78,6 +78,9 @@ uv run pytest
 
 This will launch pytest and run all tests in ./tests.
 
+⚠️ Make sure you do not have any Excel workbook open, as this can interfere with the tests.
+
+
 ---
 
 ## 📦 Packaging the App
