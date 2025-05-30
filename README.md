@@ -69,6 +69,15 @@ uv run ./src/main.py
 This will launch the SpreadsheetXplorer interface.
 
 ---
+## 📊 Using SpreadsheetXplorer
+
+We’ve created a short YouTube video to help you understand how to use SpreadsheetXplorer.
+
+👉 [Watch on YouTube](https://www.youtube.com/watch?v=78Zu8OcDKXY)
+
+💡 Note: This video focuses on tool features, not installation or setup.
+
+---
 
 ## 🔍 Running all Tests
 
@@ -152,5 +161,5 @@ For help, contact the authors or open an issue.
 
 ## 🙏 Acknowledgments
 
-* Huge thanks to our user testers for their invaluable feedback.
-* Special thanks to **Michael Wahler** for his guidance throughout the project.
+* Thanks to our user testers for their invaluable feedback.
+* Special thanks to **Michael Wahler** for his inputs and guidance throughout the project.
