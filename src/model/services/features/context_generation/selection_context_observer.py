@@ -31,7 +31,7 @@ class SelectionContextObserver(ISelectionObserver):
 
     def _get_range_information(self, range_ref: RangeReference) -> Optional[RangeWithContext]:
         if range_ref.reference_type == RangeReferenceType.EXTERNAL:
-            return None
+            return RangeWithContext(range_ref, "", "", [])
 
         precedents_addr = self.workbook.get_precedents(range_ref)
         precedents: list[RangeWithContext] = []

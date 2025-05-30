@@ -36,7 +36,7 @@ class IConnectedWorkbook(ABC, Workbook):
         pass
 
     @abstractmethod
-    def add_name(self, range_ref: RangeReference, new_name: str) -> None:
+    def add_name(self, range_ref: RangeReference, new_name: str) -> str:
         pass
 
     @abstractmethod
