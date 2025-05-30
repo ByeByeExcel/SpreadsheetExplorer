@@ -86,6 +86,9 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
             values = used_range.options(ndim=2).value
             formulas = used_range.options(ndim=2).formula
 
+            if rows == 1 and cols == 1:
+                formulas = [[formulas]]  # bug of xlwings, it returns a single string instead of a 2D array
+
             for row in range(rows):
                 for col in range(cols):
                     address = get_address_from_offset(start_row, start_col, row, col)
