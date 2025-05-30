@@ -43,7 +43,7 @@ class ExcelParserService(ISpreadsheetParserService):
             if defined_ref:
                 if defined_ref not in self._graph:
                     if defined_ref.reference_type == RangeReferenceType.CELL:
-                        raise ValueError(f"Defined name '{name}' refers to a cell, which should already be in the dependency graph.")
+                        self._graph.add_node(defined_ref, cell_range=self._wb.get_range(defined_ref))
                     else:
                         self._graph.add_node(defined_ref, cell_range=CellRange(defined_ref, "", ""))
 

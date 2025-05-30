@@ -54,11 +54,11 @@ class ConnectedExcelWorkbook(IConnectedWorkbook):
         self._xlwings_book.app.display_alerts = True
         self._xlwings_book.app.enable_events = True
 
-    def add_name(self, range_ref: RangeReference, new_name: str) -> None:
-        self._xlwings_book.names.add(
+    def add_name(self, range_ref: RangeReference, new_name: str) -> str:
+        return self._xlwings_book.names.add(
             new_name,
             f"='{range_ref.sheet}'!{convert_to_absolute_range(range_ref.reference)}"
-        )
+        ).name
 
     def get_names(self) -> dict[str, str]:
         return {n.name: n.refers_to for n in self._xlwings_book.names}
