@@ -12,7 +12,8 @@ def mock_services():
         "interactive_painting_service": MagicMock(),
         "painting_service": MagicMock(),
         "renaming_service": MagicMock(),
-        "app_state": MagicMock()
+        "app_state": MagicMock(),
+        "connected_workbook_service": MagicMock()
     }
 
 
@@ -22,7 +23,8 @@ def controller(mock_services):
         interactive_painting_service=mock_services["interactive_painting_service"],
         painting_service=mock_services["painting_service"],
         renaming_service=mock_services["renaming_service"],
-        app_state=mock_services["app_state"]
+        app_state=mock_services["app_state"],
+        connected_workbook_service=mock_services["connected_workbook_service"]
     )
 
 
@@ -61,6 +63,7 @@ def test_activate_deactivate_cascade_rename(controller, mock_services):
 def test_cascade_rename_valid_name(controller, mock_services):
     controller.cascade_rename("NewName")
     mock_services["renaming_service"].cascade_name_cell.assert_called_with("NewName")
+    mock_services["connected_workbook_service"].parse_connected_workbook.assert_called_once()
 
 
 def test_cascade_rename_invalid_name(controller):

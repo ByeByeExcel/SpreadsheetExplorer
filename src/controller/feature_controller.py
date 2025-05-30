@@ -1,5 +1,6 @@
 from model.domain_model.feature import Feature
 from model.services.app_state_service import AppStateService
+from model.services.connected_workbook_service import ConnectedWorkbookService
 from model.services.features.coloring.interactive.selection_coloring_service import \
     SelectionColoringService
 from model.services.features.coloring.static.feature_coloring_service import FeatureColoringService
@@ -11,11 +12,13 @@ class FeatureController:
                  interactive_painting_service: SelectionColoringService,
                  painting_service: FeatureColoringService,
                  renaming_service: RenamingService,
-                 app_state: AppStateService):
+                 app_state: AppStateService,
+                 connected_workbook_service: ConnectedWorkbookService) -> None:
         self._interactive_painting_service = interactive_painting_service
         self._painting_service = painting_service
         self._renaming_service = renaming_service
         self._app_state = app_state
+        self._connected_workbook_service = connected_workbook_service
 
     # interactive features
     def start_dependency_highlighting(self) -> None:
@@ -48,3 +51,4 @@ class FeatureController:
         if not name.strip():
             raise ValueError("Name cannot be empty.")
         self._renaming_service.cascade_name_cell(name)
+        self._connected_workbook_service.parse_connected_workbook()

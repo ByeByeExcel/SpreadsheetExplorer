@@ -2,11 +2,11 @@
 left to right direction
 actor User
 rectangle "SpreadsheetXplorer" {
-  usecase "Select Open Workbook" as UC1
-  usecase "Show Inputs & Outputs of Selected Range" as UC2
-  usecase "Show Cell Usage Heatmap" as UC3
-  usecase "Show Final Output Cells" as UC4
-  usecase "Rename Range & Update Formulas" as UC5
+  usecase "UC1: Select Open Workbook" as UC1
+  usecase "UC2: Show Inputs & Outputs of Selected Range" as UC2
+  usecase "UC3: Show Cell Usage Heatmap" as UC3
+  usecase "UC4: Show Final Output Cells" as UC4
+  usecase "UC5: Rename Range & Update Formulas" as UC5
 }
 
 User --> UC1

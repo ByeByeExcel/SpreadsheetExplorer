@@ -1,0 +1,34 @@
+@startuml
+skinparam defaultTextAlignment center
+
+rectangle "<b>cell: C1\nformula: "= 2 * B1"\nvalue: 48" as C1 #White
+rectangle "<b>cell: C2\nformula: "= SUM(B1:B2)"\nvalue: 42" as C2 #White
+
+rectangle "<b>cell: B1\nformula: "= A1 * A2 * A3"\nvalue: 24" as B1  #FF8A65
+
+
+rectangle "<b>cell: B2\nformula: "= B1 - A3 - 2"\nvalue: 18" as B2 #FFF9C4
+
+
+rectangle "<b>cell: A1\nvalue: 2" as A1 #FFF9C4
+rectangle "<b>cell: A2\nvalue: 3" as A2 #FFF9C4
+rectangle "<b>cell: A3\nvalue: 4" as A3 #FFE082
+
+
+label "➔ : depends on" as l
+
+C1 -->B1
+
+C2 -->B1
+C2 -->B2
+
+B1 --> A1
+B1 --> A2
+B1 --> A3
+
+B2 --> A3
+B2 --> B1
+
+l -[hidden]up-> A2
+C1 -[hidden]right-> C2
+@enduml
